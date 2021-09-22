@@ -93,10 +93,10 @@ simulated event ModifyPlayer(Pawn Other)
     local Weapon w;
 
     w = Other.Weapon;
-    Other.Spawn(class'MushMatch.MushBeacon').GiveTo(Other);
+    Other.Spawn(class'MushBeacon').GiveTo(Other);
 
     if (Other.PlayerReplicationInfo.Team == 1 && MushMatch(Level.Game).bMushSelected) {
-        Other.Spawn(class'MushMatch.Sporifier').GiveTo(Other);    
+        Other.Spawn(class'Sporifier').GiveTo(Other);    
     }
 
     if ( w != None ) Other.Weapon = w;
