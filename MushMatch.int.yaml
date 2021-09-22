@@ -1,0 +1,8 @@
+build: '20213800'
+package: MushMatch
+
+mutators:
+- class: ArenaMush
+  name: MushMatch Arena Compatibility
+  description: Makes every arena mutator placed BELOW this one in the right-hand list
+    compatible with MushMatch.
