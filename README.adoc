@@ -1,0 +1,114 @@
+MushMatch
+=========
+MushMatch development team
+:homepage: https://ut99.org/viewtopic.php?f=4&t=14820
+:toc:
+:numbered:
+
+MushMatch is a social deduction game type started back in 2018 by Gustavo
+Rehermann.
+
+About
+-----
+
+It was inspired by an online early 2010s turn-based, online multiplayer,
+Flash-based, social deduction game, called https://mush.twinoid.com[Mush].
+However, it takes many creative liberties; is not afraid to break from
+canon to provide the best and most Unreal experience.
+
+Like many other social deduction games, it plays asymmetrically;
+the humans and the Mush have different goals and different tools to achieve
+them. In the end, the last team standing wins.
+
+Download
+--------
+
+See the https://github.com/Gustavo6046/MushMatch/releases[Releases] page!
+
+Rules
+-----
+
+Every person has only one life, and their team is identified on death.
+
+In the beginning of the match, "warm-up" begins, where everyone is in the human 
+team and cannot be damaged (only killed, by single-time damages capable of 
+killing one it at once, but then they respawn); once this ends, a fraction of 
+people are selected _at random_ to be Mush, which is unbeknownst to 
+everyone except other fellow Mush; and that's when the match *truly begins.* :)
+
+There is one common aspect to each team's goal – it is to ensure that the 
+other team does not have any living member left. The meanings and implications 
+of this are still asymmetric, though, both in lore and in the methods available 
+to each team.
+
+It is playable in any Deathmatch level. Eventually, I plan on having it enhance 
+existing levels with MushMatch-specific props (more than just decorations!), 
+such as security cameras and water balloon dispensers, and alternatively 
+support DM-MM-... levels built specifically for MushMatch with open areas and 
+tight corridors and stuff.
+
+Mush Match was also written with bot support in mind. Bots are even able to 
+gauge suspicious behaviour and engage people with the Suspicion Beacon. I also 
+made sure that they didn't act "cheatily" by being able to tell who was mush or 
+not mush ahead of time. Mush bots are less likely to band up with humans than 
+other human bots –  are more likely to act in an anti-social manner – and 
+also know how to be sneaky when either killing or infecting. Which is to say, 
+good luck spotting them, before they spot _you_!
+
+FAQ
+----
+
+_Mush Match appears twice on my gameplay selection screen! What do I do?_::
+    If you have any instance of GusPackII.u or GusPackII.int in your System 
+    folder, try removing any lines referencing MushMatch or ArenaMush from 
+    GusPackII.int. That is an outdated version, and GusPackII has never seen a 
+full 
+    release (and may never see).
+
+_I found this bug offline, or that glitch online, or this crazy crash, or some 
+lag-spike weedy-de-doo! What do?_::
+    Report it! Preferably, in the issues tracker - see the links at the top of 
+    the post.
+
+_Why the name? Why 'Mush'? Why is 'Mush' an uncountable noun if it is a team 
+that can have multiple people?_::
+    Because of Mush Match's inspiration; see About near the top. Also, the noun 
+    is uncountable because lore lore lore. See the Lore section below!
+
+_This does not work with FerBotz! They just kill each other and can tell each 
+other's teams! Cheaty cheaty! What do I do?_::
+    Ask Higor, I suppose! I do not know what I can do, as the bot behaviour 
+    respecting the rules and their supposed circumstances hangs almost entirely 
+    from the bots respecting the AssessBotAttitude method in the GameType 
+class. 
+    Keep in mind this isn't really Higor's fault, the FerBotz just weren't ever 
+    made with social deduction in mind, lol.
+
+Lore
+----
+
+A Mush is actually a fungus, borne from a distant planet from another star, 
+which can be pathogenic and takes full control of its host's body, and 
+particularly mind. It can
+
+(a) communicate in a way only other Mush can detect (which explains how Mush 
+know whether anyone else is a Mush or Human, unlike Humans who have to, well, 
+deduce!);
+(b) are able to produce spores, which can infect someone else and turn them 
+into a Mush too (though in the original Mush game they require introspection 
+into the bloodstream, or "spiking");
+(c) may look and behave just like humans when not doing anything that is 
+specifically only possible to Mush (such as taking damage from water or, in the 
+case of Mush Match, holding the Sporifier, the mush weapon that can infect 
+others).
+
+They behave like a _hivemind_; this is why they are regarded as uncountable.
+
+Of course it is all much more complicated than this, but this is a succinct 
+summary. If you want more info, see the 
+http://www.mushpedia.com/wiki/Main_Page[Mushpedia]!
+
+Licensing
+---------
+
+The license only applies to the code here. See the [LICENSE.md] file
