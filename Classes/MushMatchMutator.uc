@@ -506,7 +506,7 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
                 // Display immune level (maybe temporary debug?)
                 BaseHUD.DrawTwoColorID(Drawer,
                                        "Immune",
-                                       (100 * OtherPRL.ImmuneLevel) $"%",
+                                       Int(100 * OtherPRL.ImmuneLevel) $"%",
                                        Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale
                 );
                 Linefeed += 24;
