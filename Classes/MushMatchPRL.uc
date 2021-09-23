@@ -12,7 +12,9 @@ var(MushMatch)  config float            ImmuneMomentumDrag,
                                             ImmuneNaturalRegen,
                                             ImmuneNaturalFallback,
                                             ImmuneNaturalSnapThreshold,
-                                            ImmuneHitAmount;
+                                            ImmuneHitAmount,
+                                            InstantImmuneHitFactor,
+                                            ImmuneDangerLevel;
 
 var(MushMatch)  config bool             bImmuneNaturallyTendsToFull,
                                             bImmuneSnap,
@@ -29,6 +31,7 @@ replication
         // immune level and its parameters
         ImmuneLevel, ImmuneResistance, ImmuneMomentum, ImmuneMomentumThreshold, ImmuneMomentumDrag,
         ImmuneNaturalRegen, ImmuneNaturalFallback, ImmuneNaturalSnapThreshold, ImmuneHitAmount,
+        InstantImmuneHitFactor, ImmuneDangerLevel,
 
         // immune level configurations
         bImmuneNaturallyTendsToFull, bImmuneSnap,
@@ -64,11 +67,11 @@ simulated event Tick(float TimeDelta) {
         }
 
         else if (ImmuneLevel < 1.0) {
-            ImmuneLevel += ImmuneNaturalRegen / Sqrt(ImmuneLevel) * TimeDelta;
+            ImmuneLevel += ImmuneNaturalRegen * TimeDelta;
         }
 
         else if (!bNoSuperImmune) {
-            ImmuneLevel -= ImmuneNaturalFallback / Sqrt(ImmuneLevel) * TimeDelta;
+            ImmuneLevel -= ImmuneNaturalFallback * TimeDelta;
         }
     }
 }
@@ -101,10 +104,10 @@ function TryToMush(Pawn Instigator) {
     // Check if immune level low enough for mushing
 
     if (bImmuneInstantHit) {
-        ImmuneLevel -= ImmuneHit * InstantImmuneHitFactor;
+        ImmuneLevel -= ImmuneHitAmount * InstantImmuneHitFactor;
     }
 
-    if (ImmuneLevel <= 0.0) {
+    if (ImmuneLevel <= ImmuneDangerLevel) {
         MushMatch(Level.Game).MakeMush(mushed, Instigator);
         return;
     }
@@ -162,16 +165,17 @@ defaultproperties
     ImmuneLevel=1.0
     ImmuneMomentum=0.0
     ImmuneMomentumThreshold=0.05
-    ImmuneMomentumDrag=0.6
-    ImmuneResistance=1.2
-    ImmuneNaturalRegen=0.5
-    ImmuneNaturalFallback=0.2
+    ImmuneMomentumDrag=0.05
+    ImmuneResistance=1.1
+    ImmuneNaturalRegen=0.1
+    ImmuneNaturalFallback=0.04
     ImmuneNaturalSnapThreshold=0.025
     bImmuneNaturallyTendsToFull=True
     bImmuneSnap=True
     bNoNegativeImmune=True
     bNoSuperImmune=False
     bImmuneInstantHit=False
-    InstantImmuneHitFactor=0.6
-    ImmuneHitAmount=1.5
+    InstantImmuneHitFactor=1.5
+    ImmuneHitAmount=0.75
+    ImmuneDangerLevel=0.2
 }
