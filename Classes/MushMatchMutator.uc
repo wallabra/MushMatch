@@ -497,6 +497,16 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
             Linefeed += 24;
             BaseHUD.DrawTwoColorID(Drawer, "Alignment", TeamTextAlignment(IdentifyTarget), Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale);
             Linefeed += 24;
+
+            if (PlayerOwner.PlayerReplicationInfo.Team == 1 && IdentifyTarget.Team == 0) {
+                // Display immune level (maybe temporary debug?)
+                BaseHUD.DrawTwoColorID(Drawer,
+                                       "Immune",
+                                       (100 * OtherPRL.ImmuneLevel) $"%  (mom "$OtherPRL.ImmuneMomentum$"| res "$OtherPRL.ImmuneResistance$")",
+                                       Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale
+                );
+                Linefeed += 24;
+            }
         }
     }
 
