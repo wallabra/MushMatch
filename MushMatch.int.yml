@@ -1,5 +1,6 @@
-build: '20213800'
 package: MushMatch
+build: '20213801'
+version: '1.0.1'
 
 mutators:
 - class: ArenaMush
