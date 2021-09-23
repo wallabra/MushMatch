@@ -39,7 +39,7 @@ simulated function Tick(float TimeDelta)
 
     if ( Role != ROLE_Authority )
         SetRotation(Rotator(Velocity));
-        
+
     r.Roll += TimeDelta * 65536;
     SetRotation(r);
 }
@@ -47,49 +47,47 @@ simulated function Tick(float TimeDelta)
 function ProcessTouch(Actor Other, Vector HitLocation)
 {
     local Pawn mushed;
-    local Weapon w;
-    
-    Super.ProcessTouch(Other, HitLocation);
+    local MushMatchPRL OtherPRL;
 
-    if ( Instigator == None ) {
+    // Pass through instigator
+
+    if (Other == Instigator) {
+        return;
+    }
+
+    // Ensure we're the authority copy
+
+    if (Role != ROLE_Authority) {
+        return;
+    }
+
+    if (Instigator == None) {
         Warn("Null instigator found!");
         Destroy();
 
         return;
     }
-    
-    if ( Other == Instigator ) {
-        return;
-    }
-    
-    if ( Pawn(Other) != none && Instigator != none && Pawn(Other).bIsPlayer && Pawn(Other).PlayerReplicationInfo != none && Pawn(Other).PlayerReplicationInfo.Team == 0 && Instigator.PlayerReplicationInfo != None && Instigator.PlayerReplicationInfo.Team == 1 ) {
-        if (Role == ROLE_Authority) {
-            mushed = Pawn(Other);
-            
-            Spawn(class'Sporifier').GiveTo(mushed); // HA! You are now a mush!
-            
-            mushed.Weapon = w;
-            mushed.PlayerReplicationInfo.Team = 1; // 0 = human, 1 = mush
-            
-            Instigator.PlayerReplicationInfo.Score += 1;
-                
-            mushmatch(Level.Game).CheckEnd();
-            
-            if ( mushed.Enemy == Instigator ) mushed.Enemy = none;
-            if ( mushed == Instigator.Enemy ) instigator.Enemy = none;
-            
-            // -- Infections are low-key, don't alert everyone in a newly infected mush's vicinity, that's dumb. -- {
-            //     for ( p = Level.PawnList; p != none; p = p.nextPawn )
-            //         if ( p.bIsPlayer && p != mushed && p.PlayerReplicationInfo != none && p.PlayerReplicationInfo.Deaths <= 0 && p.CanSee(mushed) && mushed.PlayerReplicationInfo.Team == 1  && p.PlayerReplicationInfo.Team == 0 )
-            //             mushmatch(Level.Game).SpotMush(mushed, p);
-            // }
-                    
-            if ( PlayerPawn(mushed) != None && !MushMatch(Level.Game).bMatchEnd )
-                mushed.PlayOwnedSound(sound'Infected');
+
+    if (Pawn(Other) != None && Pawn(Other).bIsPlayer && Pawn(Other).PlayerReplicationInfo != None && Instigator.PlayerReplicationInfo != None && Instigator.PlayerReplicationInfo.Team == 1) {
+        mushed = Pawn(Other);
+
+        if (mushed.PlayerReplicationInfo.Team == 0) {
+            OtherPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(mushed.PlayerReplicationInfo);
+
+            if (OtherPRL == None) {
+                Warn("Couldn't find MushMatchPRL for"@ mushed.PlayerReplicationInfo.PlayerName @"("$ mushed $"); couldn't try mushing them!");
+                return;
+            }
+
+            OtherPRL.TryToMush(Instigator);
         }
+
+        Destroy();
     }
 
-    Destroy();
+    else {
+        Super.ProcessTouch(Other, HitLocation);
+    }
 }
 
 defaultproperties

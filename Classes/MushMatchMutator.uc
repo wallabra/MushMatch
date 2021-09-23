@@ -17,13 +17,13 @@ var bool bBeginplayed;
 function PostBeginPlay() {
     if ( bBeginplayed )
         return;
-    
+
     Super.PostBeginPlay();
 
     if (Role == ROLE_Authority) {
         Level.Game.RegisterDamageMutator(self);
     }
-    
+
     bBeginplayed = true;
 }
 
@@ -74,16 +74,16 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
 {
     if ( InstigatedBy == None || Victim == None || InstigatedBy == Victim )
         return;
-        
+
     if ( MushMatch(Level.Game).bMushSelected  )
     {
         if ( !MushMatchInfo(Level.Game.GameReplicationInfo).CheckBeacon(Victim.PlayerReplicationInfo) )
             CheckSuspects(InstigatedBy, Victim);
     }
-    
+
     else
         Victim.Health = 100;
-        
+
     if ( NextDamageMutator != None )
         NextDamageMutator.MutatorTakeDamage(ActualDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
 }
@@ -96,11 +96,11 @@ simulated event ModifyPlayer(Pawn Other)
     Other.Spawn(class'MushBeacon').GiveTo(Other);
 
     if (Other.PlayerReplicationInfo.Team == 1 && MushMatch(Level.Game).bMushSelected) {
-        Other.Spawn(class'Sporifier').GiveTo(Other);    
+        Other.Spawn(class'Sporifier').GiveTo(Other);
     }
 
     if ( w != None ) Other.Weapon = w;
-    
+
     if ( NextMutator != None )
         NextMutator.ModifyPlayer(Other);
 }
@@ -183,13 +183,13 @@ function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
 
     if (MMI == None)
         return;
-    
+
     if ( MushMatchPRL(MMI.PRL.FindPlayer(InstigatedBy.PlayerReplicationInfo)) == None ) {
         return;
     }
 
     bEligible = (Victim.PlayerReplicationInfo.Team == 0 && !MMI.CheckConfirmedHuman(InstigatedBy.PlayerReplicationInfo));
-    
+
     if ( /* suspicion */ bEligible || /* subversion */ Victim.PlayerReplicationInfo.Team == 1 )
     {
         for ( P = Level.PawnList; P != None; P = P.NextPawn )
@@ -197,7 +197,7 @@ function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
                 // Log(p.PlayerReplicationInfo.PlayerName@"suspects"@InstigatedBy.PlayerReplicationInfo.PlayerName);
 
                 // complete bEligible for P
-                if (!(/* suspicion */  (P.PlayerReplicationInfo.Team == 0 && !MMI.CheckConfirmedHuman(InstigatedBy.PlayerReplicationInfo)) || 
+                if (!(/* suspicion */  (P.PlayerReplicationInfo.Team == 0 && !MMI.CheckConfirmedHuman(InstigatedBy.PlayerReplicationInfo)) ||
                       /* subversion */ (P.PlayerReplicationInfo.Team == 1 && InstigatedBy.PlayerReplicationInfo.Team == 0))) {
                     return;
                 }
@@ -226,16 +226,16 @@ function DeprecatedTellTeam(byte PTeam, string PName, optional bool bAutopsy)
     {
         if ( PTeam == 0 )
             Broadcastmessage(PName@"was found dead! Autopsy revealed he/she was a human!", true, 'CriticalEvent');
-            
+
         else
             Broadcastmessage(PName@"was found dead! Autopsy revealed it was a mush!", true, 'CriticalEvent');
     }
-    
+
     else
     {
         if ( PTeam == 0 )
             Broadcastmessage(PName@"was found dead! Gib scan revealed the identity and that... he/she was a human!", true, 'CriticalEvent');
-            
+
         else
             Broadcastmessage(PName@"was found dead! Gib scan revealed the identity and that... it was a mush!", true, 'CriticalEvent');
     }
@@ -245,7 +245,7 @@ function TellTeam(byte PTeam, string PName, string Pronoun, string PronounCaps)
 {
     if ( PTeam == 0 )
         Broadcastmessage(PName @"died and is now out of the game!"@ PronounCaps @"was a human!", true, 'CriticalEvent');
-        
+
     else
         Broadcastmessage(PName @"died and is now out of the game! It was a mush!", true, 'CriticalEvent');
 }
@@ -288,7 +288,7 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
 
     if (KPRL == None || KPRL.bDead)
         return;
-    
+
     if ( Other.PlayerReplicationInfo.Team == 1 && !MMI.CheckConfirmedMush(Killer.PlayerReplicationInfo) )
         for ( P = Level.PawnList; P != None; P = P.NextPawn )
             if ( P.bIsPlayer && P.CanSee(Killer) && P.PlayerReplicationInfo.Team == 0 && P != Killer && !MMI.CheckBeacon(P.PlayerReplicationInfo) ) {
@@ -297,12 +297,12 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
                 b = true;
                 break;
             }
-    
+
     if (b) {
         //MushMatch(Level.Game).BroadcastMessage(Killer.PlayerReplicationInfo.PlayerName$" had their suspicions lifted after being witnessed killing a mush,"@Other.PlayerReplicationInfo.PlayerName$"!", true, 'CriticalEvent');
         MushMatch(Level.Game).BroadcastUnsuspected(Killer.PlayerReplicationInfo, Other.PlayerReplicationInfo);
     }
-    
+
     if (MushMatch(Level.Game).bMushSelected && !MMI.CheckBeacon(Other.PlayerReplicationInfo)) {
         if (Role == ROLE_Authority) {
             if (!MMI.CheckConfirmedMush(Killer.PlayerReplicationInfo) && !b) CheckSuspects(Killer, Other);
@@ -345,7 +345,7 @@ simulated function HUD_PostRender(Canvas Drawer) {
             CHUD
         );
     }
-    
+
     // draw special game status
     HUD_DrawGameStatus(Drawer, CHUD);
 }
@@ -367,6 +367,8 @@ simulated function string TeamTextAlignment(PlayerReplicationInfo PRI)
 
 simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
 {
+    local MushMatchPRL PlayerPRL;
+    local float FlatSize, ImmuneShow;
     //Super.PostRender(Drawer);
 
     if (MushMatchInfo(PlayerOwner.GameReplicationInfo) == None) {
@@ -378,7 +380,7 @@ simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
         // wait for PRL replication
         return;
     }
-    
+
     if ( PlayerOwner == None ) {
         Warn("PlayerOwner is none!");
         return;
@@ -404,29 +406,41 @@ simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
     if ( MushMatchInfo(PlayerOwner.GameReplicationInfo).bMatchEnd || PlayerOwner.IsInState('Dying') ) {
         return;
     }
-    
-    if ( MushMatchInfo(PlayerOwner.GameReplicationInfo).bMushSelected && !MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bDead )
+
+    PlayerPRL = MushMatchInfo(PlayerOwner.GameReplicationInfo).FindPRL(PlayerOwner.PlayerReplicationInfo);
+
+    if ( MushMatchInfo(PlayerOwner.GameReplicationInfo).bMushSelected && !PlayerPRL.bDead )
     {
+        FlatSize = Drawer.SizeX * 0.05 / 128;
+
         Drawer.DrawColor = BaseHUD.HUDColor * 0.75;
         Drawer.SetPos(Drawer.SizeX * 0.475, 0);
-        
-        if ( PlayerOwner.PlayerReplicationInfo.Team == 0 )
-            Drawer.DrawIcon(Texture'MMHUDHuman', Drawer.SizeX * 0.05 / 128);
-            
+
+        if ( PlayerOwner.PlayerReplicationInfo.Team == 0 ) {
+            Drawer.DrawIcon(Texture'MMHUDHuman', FlatSize);
+
+            if (PlayerPRL.ImmuneLevel < 1) {
+                ImmuneShow = (1.0 - Max(0, PlayerPRL.ImmuneLevel)) * FlatSize;
+                Drawer.SetPos(Drawer.CurX + 4, Drawer.CurY + 4);
+                Drawer.DrawTile(Texture'MMHUDHumanNoimmune', FlatSize - 8, ImmuneShow - 8, 0, 0, FlatSize - 8, ImmuneShow - 8);
+                Drawer.SetPos(Drawer.CurX - 4, Drawer.CurY - 4);
+            }
+        }
+
         else
-            Drawer.DrawIcon(Texture'MMHUDMush', Drawer.SizeX * 0.05 / 128);
-        
+            Drawer.DrawIcon(Texture'MMHUDMush', FlatSize);
+
         Drawer.SetPos(Drawer.SizeX * 0.475, Drawer.SizeX * 0.05);
-        
+
         if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bKnownMush )
-            Drawer.DrawIcon(Texture'MMHUDKnownMush', Drawer.SizeX * 0.05 / 128);
-        
+            Drawer.DrawIcon(Texture'MMHUDKnownMush', FlatSize);
+
         else if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bKnownHuman )
-            Drawer.DrawIcon(Texture'MMHUDKnownHuman', Drawer.SizeX * 0.05 / 128);
-        
+            Drawer.DrawIcon(Texture'MMHUDKnownHuman', FlatSize);
+
         else if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bIsSuspected )
-            Drawer.DrawIcon(Texture'MMHUDSuspected', Drawer.SizeX * 0.05 / 128);
-            
+            Drawer.DrawIcon(Texture'MMHUDSuspected', FlatSize);
+
         //Drawer.DrawColor = BaseHUD.WhiteColor;
     }
 }
@@ -477,15 +491,15 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
         Drawer.DrawColor = BaseHUD.GreenColor;
 
         Linefeed = 40;
-        
+
         if ( TeamText(IdentifyTarget) != "" ) {
-            BaseHUD.DrawTwoColorID(Drawer, "Status", TeamTextStatus(IdentifyTarget), Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale);   
+            BaseHUD.DrawTwoColorID(Drawer, "Status", TeamTextStatus(IdentifyTarget), Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale);
             Linefeed += 24;
             BaseHUD.DrawTwoColorID(Drawer, "Alignment", TeamTextAlignment(IdentifyTarget), Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale);
             Linefeed += 24;
         }
     }
-    
+
     return true;
 }
 

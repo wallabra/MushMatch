@@ -2,6 +2,7 @@ class MushMatchHUD extends ChallengeHUD;
 
 #exec texture import name=MMHUDMush group=HUD file=Textures\HudMush.pcx
 #exec texture import name=MMHUDHuman group=HUD file=Textures\HudHuman.pcx
+#exec texture import name=MMHUDHumanNoimmune group=HUD file=Textures\HudHumanNoimmune.pcx
 #exec texture import name=MMHUDKnownMush group=HUD file=Textures\HudKnownM.pcx
 #exec texture import name=MMHUDKnownHuman group=HUD file=Textures\HudKnownH.pcx
 #exec texture import name=MMHUDSuspected group=HUD file=Textures\HudSuspected.pcx
@@ -25,6 +26,9 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI)
 
 simulated event PostRender(Canvas Drawer)
 {
+    local MushMatchPRL PlayerPRL;
+    local float FlatSize, ImmuneShow;
+
     Super.PostRender(Drawer);
 
     if (MushMatchInfo(PlayerOwner.GameReplicationInfo) == None) {
@@ -36,7 +40,7 @@ simulated event PostRender(Canvas Drawer)
         // wait for PRL replication
         return;
     }
-    
+
     if ( PlayerOwner == None ) {
         Warn("PlayerOwner is none!");
         return;
@@ -62,29 +66,40 @@ simulated event PostRender(Canvas Drawer)
     if ( MushMatchInfo(PlayerOwner.GameReplicationInfo).bMatchEnd || PlayerOwner.IsInState('Dying') ) {
         return;
     }
-    
-    if ( MushMatchInfo(PlayerOwner.GameReplicationInfo).bMushSelected && !MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bDead )
+
+    PlayerPRL = MushMatchInfo(PlayerOwner.GameReplicationInfo).FindPRL(PlayerOwner.PlayerReplicationInfo);
+
+    if ( MushMatchInfo(PlayerOwner.GameReplicationInfo).bMushSelected && !PlayerPRL.bDead )
     {
+        FlatSize = Drawer.SizeX * 0.05 / 128;
         Drawer.DrawColor = HUDColor * 0.75;
         Drawer.SetPos(Drawer.SizeX * 0.475, 0);
-        
-        if ( PlayerOwner.PlayerReplicationInfo.Team == 0 )
-            Drawer.DrawIcon(Texture'MMHUDHuman', Drawer.SizeX * 0.05 / 128);
-            
+
+        if ( PlayerOwner.PlayerReplicationInfo.Team == 0 ) {
+            Drawer.DrawIcon(Texture'MMHUDHuman', FlatSize);
+
+            if (PlayerPRL.ImmuneLevel < 1) {
+                ImmuneShow = (1.0 - Max(0, PlayerPRL.ImmuneLevel)) * FlatSize;
+                Drawer.SetPos(Drawer.CurX + 4, Drawer.CurY + 4);
+                Drawer.DrawTile(Texture'MMHUDHumanNoimmune', FlatSize - 8, ImmuneShow - 8, 0, 0, FlatSize - 8, ImmuneShow - 8);
+                Drawer.SetPos(Drawer.CurX - 4, Drawer.CurY - 4);
+            }
+        }
+
         else
-            Drawer.DrawIcon(Texture'MMHUDMush', Drawer.SizeX * 0.05 / 128);
-        
+            Drawer.DrawIcon(Texture'MMHUDMush', FlatSize);
+
         Drawer.SetPos(Drawer.SizeX * 0.475, Drawer.SizeX * 0.05);
-        
-        if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bKnownMush )
-            Drawer.DrawIcon(Texture'MMHUDKnownMush', Drawer.SizeX * 0.05 / 128);
-        
-        else if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bKnownHuman )
-            Drawer.DrawIcon(Texture'MMHUDKnownHuman', Drawer.SizeX * 0.05 / 128);
-        
-        else if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bIsSuspected )
-            Drawer.DrawIcon(Texture'MMHUDSuspected', Drawer.SizeX * 0.05 / 128);
-            
+
+        if ( PlayerPRL.bKnownMush )
+            Drawer.DrawIcon(Texture'MMHUDKnownMush', FlatSize);
+
+        else if ( PlayerPRL.bKnownHuman )
+            Drawer.DrawIcon(Texture'MMHUDKnownHuman', FlatSize);
+
+        else if ( PlayerPRL.bIsSuspected )
+            Drawer.DrawIcon(Texture'MMHUDSuspected', FlatSize);
+
         Drawer.DrawColor = WhiteColor;
     }
 }
@@ -109,22 +124,22 @@ simulated event bool DrawIdentifyInfo(canvas Canvas)
         Warn("No PRL found for player: "@ PlayerOwner @ PlayerOwner.PlayerReplicationInfo.PlayerName @ MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL);
         return false;
     }
-    
+
     if ( !TraceIdentify(Canvas) )
         return false;
 
     if( IdentifyTarget != None && IdentifyTarget.PlayerName != "" )
     {
-        Canvas.DrawColor = WhiteColor;    
+        Canvas.DrawColor = WhiteColor;
         Canvas.Font = MyFonts.GetBigFont(Canvas.ClipX);
         DrawTwoColorID(Canvas, IdentifyName, IdentifyTarget.PlayerName, Canvas.ClipY - 256 * Scale);
-        
+
         if ( TeamText(IdentifyTarget) != "" ) {
-            DrawTwoColorID(Canvas, "Status", TeamTextStatus(IdentifyTarget), Canvas.ClipY - 216 * Scale);   
+            DrawTwoColorID(Canvas, "Status", TeamTextStatus(IdentifyTarget), Canvas.ClipY - 216 * Scale);
             DrawTwoColorID(Canvas, "Alignment", TeamTextAlignment(IdentifyTarget), Canvas.ClipY - 192 * Scale);
         }
     }
-    
+
     return true;
 }
 
