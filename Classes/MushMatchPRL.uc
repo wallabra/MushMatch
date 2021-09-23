@@ -9,14 +9,31 @@ var             float                   ImmuneMomentum, ImmuneResistance;
 var             PlayerReplicationlist   HatedBy;
 var(MushMatch)  config float            ImmuneMomentumDrag,
                                             ImmuneMomentumThreshold,
-                                            NaturalRegen;
+                                            ImmuneNaturalRegen,
+                                            ImmuneNaturalFallback,
+                                            ImmuneNaturalSnapThreshold,
+                                            ImmuneHitAmount;
+
+var(MushMatch)  config bool             bImmuneNaturallyTendsToFull,
+                                            bImmuneSnap,
+                                            bNoNegativeImmune,
+                                            bNoSuperImmune,
+                                            bImmuneInstantHit;
 
 
 replication
 {
     reliable if (Role == ROLE_Authority)
         bIsSuspected, bKnownHuman, bKnownMush, bDead, HatedBy,
-        ImmuneLevel, ImmuneResistance, ImmuneMomentum, ImmuneMomentumThreshold, ImmuneMomentumDrag;
+
+        // immune level and its parameters
+        ImmuneLevel, ImmuneResistance, ImmuneMomentum, ImmuneMomentumThreshold, ImmuneMomentumDrag,
+        ImmuneNaturalRegen, ImmuneNaturalFallback, ImmuneNaturalSnapThreshold, ImmuneHitAmount,
+
+        // immune level configurations
+        bImmuneNaturallyTendsToFull, bImmuneSnap,
+        bNoNegativeImmune, bNoSuperImmune,
+        bImmuneInstantHit;
 }
 
 
@@ -24,8 +41,12 @@ simulated event Tick(float TimeDelta) {
     if (Abs(ImmuneMomentum) >= ImmuneMomentumThreshold) {
         ImmuneLevel += ImmuneMomentum * TimeDelta;
 
-        if (ImmuneLevel < 0.0) {
+        if (ImmuneLevel < 0.0 && bNoNegativeImmune) {
             ImmuneLevel = 0.0;
+        }
+
+        if (ImmuneLevel > 1.0 && bNoSuperImmune) {
+            ImmuneLevel = 1.0;
         }
 
         ImmuneMomentum -= ImmuneMomentum * TimeDelta * ImmuneMomentumDrag;
@@ -35,7 +56,21 @@ simulated event Tick(float TimeDelta) {
         }
     }
 
-    ImmuneLevel += NaturalRegen / Sqrt(ImmuneLevel) * TimeDelta;
+    if (bImmuneNaturallyTendsToFull) {
+        if (Abs(ImmuneLevel - 1.0) < ImmuneNaturalSnapThreshold) {
+            if (ImmuneMomentum == 0.0 && bImmuneSnap) {
+                ImmuneLevel = 1.0;
+            }
+        }
+
+        else if (ImmuneLevel < 1.0) {
+            ImmuneLevel += ImmuneNaturalRegen / Sqrt(ImmuneLevel) * TimeDelta;
+        }
+
+        else if (!bNoSuperImmune) {
+            ImmuneLevel -= ImmuneNaturalFallback / Sqrt(ImmuneLevel) * TimeDelta;
+        }
+    }
 }
 
 simulated function ImmuneHit(float Amount) {
@@ -65,6 +100,10 @@ function TryToMush(Pawn Instigator) {
 
     // Check if immune level low enough for mushing
 
+    if (bImmuneInstantHit) {
+        ImmuneLevel -= ImmuneHit * InstantImmuneHitFactor;
+    }
+
     if (ImmuneLevel <= 0.0) {
         MushMatch(Level.Game).MakeMush(mushed, Instigator);
         return;
@@ -72,7 +111,10 @@ function TryToMush(Pawn Instigator) {
 
     // If not, just take it as an immune hit
 
-    ImmuneHit(1.0);
+    if (!bImmuneInstantHit) {
+        ImmuneHit(1.0);
+        return;
+    }
 }
 
 simulated event bool HasHate(PlayerReplicationInfo Other)
@@ -122,5 +164,14 @@ defaultproperties
     ImmuneMomentumThreshold=0.05
     ImmuneMomentumDrag=0.6
     ImmuneResistance=1.2
-    NaturalRegen=0.5
+    ImmuneNaturalRegen=0.5
+    ImmuneNaturalFallback=0.2
+    ImmuneNaturalSnapThreshold=0.025
+    bImmuneNaturallyTendsToFull=True
+    bImmuneSnap=True
+    bNoNegativeImmune=True
+    bNoSuperImmune=False
+    bImmuneInstantHit=False
+    InstantImmuneHitFactor=0.6
+    ImmuneHitAmount=1.5
 }
