@@ -15,10 +15,8 @@ var(MushMatch)  config float            ImmuneMomentumDrag,
 replication
 {
     reliable if (Role == ROLE_Authority)
-        bIsSuspected, bKnownHuman, bKnownMush, bDead, HatedBy, ImmuneLevel, ImmuneResistance, ImmuneMomentum;
-
-    reliable if (Role == ROLE_Authority && bNetInitial)
-        ImmuneMomentumThreshold, ImmuneMomentumDrag;
+        bIsSuspected, bKnownHuman, bKnownMush, bDead, HatedBy,
+        ImmuneLevel, ImmuneResistance, ImmuneMomentum, ImmuneMomentumThreshold, ImmuneMomentumDrag;
 }
 
 
