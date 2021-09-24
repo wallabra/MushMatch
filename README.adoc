@@ -76,7 +76,7 @@ _Why the name? Why 'Mush'? Why is 'Mush' an uncountable noun if it is a team tha
 _This does not work with FerBotz! They just kill each other and can tell each other's teams! Cheaty cheaty! What do I do?_::
     Ask Higor, I suppose! I do not know what I can do, as the bot behaviour 
     respecting the rules and their supposed circumstances hangs almost entirely 
-    from the bots respecting the AssessBotAttitude method in the GameType class. 
+    from the bots respecting the AssessBotAttitude method in the GameType class.  
     Keep in mind this isn't really Higor's fault, the FerBotz just weren't ever 
     made with social deduction in mind, and it's not like you're supposed to expect
     anywhere clcose to that from a retro FPS bot :)
