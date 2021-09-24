@@ -6,7 +6,7 @@ MushMatch development team
 :numbered:
 
 MushMatch is a social deduction game type written for classic Unreal Tournament,
-started back in 2018 by Gustavo Rehermann.
+started back in 2018 by Gustavo Ramos Rehermann.
 
 About
 -----
