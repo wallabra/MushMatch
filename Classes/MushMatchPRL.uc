@@ -165,7 +165,7 @@ defaultproperties
     ImmuneLevel=1.0
     ImmuneMomentum=0.0
     ImmuneMomentumThreshold=0.05
-    ImmuneMomentumDrag=0.05
+    ImmuneMomentumDrag=0.5
     ImmuneResistance=1.1
     ImmuneNaturalRegen=0.1
     ImmuneNaturalFallback=0.04
@@ -175,7 +175,7 @@ defaultproperties
     bNoNegativeImmune=True
     bNoSuperImmune=False
     bImmuneInstantHit=False
-    InstantImmuneHitFactor=1.5
+    InstantImmuneHitFactor=1.15
     ImmuneHitAmount=0.75
     ImmuneDangerLevel=0.2
 }
