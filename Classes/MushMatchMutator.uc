@@ -368,7 +368,7 @@ simulated function string TeamTextAlignment(PlayerReplicationInfo PRI)
 simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
 {
     local MushMatchPRL PlayerPRL;
-    local float FlatSize, ImmuneShow;
+    local float FlatSize, FlatScale, ImmuneShow;
     //Super.PostRender(Drawer);
 
     if (MushMatchInfo(PlayerOwner.GameReplicationInfo) == None) {
@@ -411,35 +411,53 @@ simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
 
     if ( MushMatchInfo(PlayerOwner.GameReplicationInfo).bMushSelected && !PlayerPRL.bDead )
     {
-        FlatSize = Drawer.SizeX * 0.05 / 128;
+        FlatScale = Drawer.SizeX * 0.05 / 128;
+        FlatSize = 64;
 
         Drawer.DrawColor = BaseHUD.HUDColor * 0.75;
         Drawer.SetPos(Drawer.SizeX * 0.475, 0);
 
         if ( PlayerOwner.PlayerReplicationInfo.Team == 0 ) {
-            Drawer.DrawIcon(Texture'MMHUDHuman', FlatSize);
+            Drawer.SetPos(Drawer.SizeX * 0.475, 0);
 
             if (PlayerPRL.ImmuneLevel < 1) {
-                ImmuneShow = (1.0 - Max(0, PlayerPRL.ImmuneLevel)) * FlatSize;
+                if (PlayerPRL.ImmuneLevel >= 0.) {
+                    ImmuneShow = (FlatSize - 8) * (1.0 - PlayerPRL.ImmuneLevel);
+                }
+
+                else {
+                    ImmuneShow = FlatSize - 8;
+                }
+
+                Log("ImmuneShow is "$ImmuneShow$" and FlatSize is "$FlatSize);
                 Drawer.SetPos(Drawer.CurX + 4, Drawer.CurY + 4);
-                Drawer.DrawTile(Texture'MMHUDHumanNoimmune', FlatSize - 8, ImmuneShow - 8, 0, 0, FlatSize - 8, ImmuneShow - 8);
+                Drawer.DrawTile(Texture'MMHUDHumanNoimmune', FlatSize - 4, ImmuneShow, 0, 0, FlatSize * 2, ImmuneShow * 2);
                 Drawer.SetPos(Drawer.CurX - 4, Drawer.CurY - 4);
+
+                if (ImmuneShow < FlatSize) {
+                    Drawer.SetPos(Drawer.SizeX * 0.475, ImmuneShow);
+                    Drawer.DrawTile(Texture'MMHUDHuman', FlatSize, FlatSize - ImmuneShow, 0, -ImmuneShow * 2, FlatSize * 2, (FlatSize - ImmuneShow) * 2);
+                }
+            }
+
+            else {
+                Drawer.DrawIcon(Texture'MMHUDHuman', FlatScale);
             }
         }
 
         else
-            Drawer.DrawIcon(Texture'MMHUDMush', FlatSize);
+            Drawer.DrawIcon(Texture'MMHUDMush', FlatScale);
 
         Drawer.SetPos(Drawer.SizeX * 0.475, Drawer.SizeX * 0.05);
 
         if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bKnownMush )
-            Drawer.DrawIcon(Texture'MMHUDKnownMush', FlatSize);
+            Drawer.DrawIcon(Texture'MMHUDKnownMush', FlatScale);
 
         else if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bKnownHuman )
-            Drawer.DrawIcon(Texture'MMHUDKnownHuman', FlatSize);
+            Drawer.DrawIcon(Texture'MMHUDKnownHuman', FlatScale);
 
         else if ( MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(PlayerOwner.PlayerReplicationInfo)).bIsSuspected )
-            Drawer.DrawIcon(Texture'MMHUDSuspected', FlatSize);
+            Drawer.DrawIcon(Texture'MMHUDSuspected', FlatScale);
 
         //Drawer.DrawColor = BaseHUD.WhiteColor;
     }
