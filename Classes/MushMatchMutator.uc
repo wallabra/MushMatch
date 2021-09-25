@@ -1,7 +1,7 @@
 class MushMatchMutator extends DMMutator;
 
 
-var(MushMatch) config float ScreamRadius, DirectionBlameRadius;
+var(MushMatch) config float ScreamRadius, DirectionBlameRadius, MinGuaranteeSuspectDamage, VictimSuspectChance, ScreamSuspectChance, NameClearChanceNormal, NameClearChanceBothMush, SuspectHuntOverlookKillChance, SuspectHuntOverlookDamageChance;
 
 var PlayerPawn PlayerOwner;
 
@@ -72,20 +72,42 @@ function bool HandleEndGame()
 
 simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn InstigatedBy, out Vector HitLocation, out Vector Momentum, name DamageType)
 {
-    if ( InstigatedBy == None || Victim == None || InstigatedBy == Victim )
-        return;
+    local MushMatchInfo MMI;
 
-    if ( MushMatch(Level.Game).bMushSelected  )
-    {
-        if ( !MushMatchInfo(Level.Game.GameReplicationInfo).CheckBeacon(Victim.PlayerReplicationInfo) )
-            CheckSuspects(InstigatedBy, Victim);
+    MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
+
+    // Let other mutators process the damage before we decide upon it ourselves
+    if ( NextDamageMutator != None ) {
+        NextDamageMutator.MutatorTakeDamage(ActualDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
     }
 
-    else
-        Victim.Health = 100;
+    if ( InstigatedBy == None || Victim == None || InstigatedBy == Victim ) {
+        return;
+    }
 
-    if ( NextDamageMutator != None )
-        NextDamageMutator.MutatorTakeDamage(ActualDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
+    if (Role == ROLE_Authority && MushMatch(Level.Game).bMushSelected) {
+        // If already has suspicion beacon, skip; otherwise it would be redundant
+        if ( MushMatchInfo(Level.Game.GameReplicationInfo).CheckBeacon(Victim.PlayerReplicationInfo) ) {
+            return;
+        }
+
+        // Cull small damage events, like falling over top of someone's head, but with a linear probability
+        if (ActualDamage < MinGuaranteeSuspectDamage && FRand() * MinGuaranteeSuspectDamage > ActualDamage) {
+            return;
+        }
+
+        // Damaging someone who is suspected is perfectly fine!
+        if (FRand() < SuspectHuntOverlookDamageChance && MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
+            return;
+        }
+        
+        // See if anyone saw that!
+        CheckSuspects(InstigatedBy, Victim);
+    }
+
+    else {
+        Victim.Health = 100;
+    }
 }
 
 simulated event ModifyPlayer(Pawn Other)
@@ -95,14 +117,18 @@ simulated event ModifyPlayer(Pawn Other)
     w = Other.Weapon;
     Other.Spawn(class'MushBeacon').GiveTo(Other);
 
+    // Give a Sporifier IF the match has already started and the player added is in the mush team
     if (Other.PlayerReplicationInfo.Team == 1 && MushMatch(Level.Game).bMushSelected) {
         Other.Spawn(class'Sporifier').GiveTo(Other);
     }
 
-    if ( w != None ) Other.Weapon = w;
+    if (w != None) {
+        Other.Weapon = w;
+    }
 
-    if ( NextMutator != None )
+    if (NextMutator != None) {
         NextMutator.ModifyPlayer(Other);
+    }
 }
 
 function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
@@ -126,6 +152,11 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
         return false;
     }
 
+    // (only bots count!)
+    if (PlayerPawn(Witness) != None) {
+        return false;
+    }
+
     WitPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Witness.PlayerReplicationInfo);
 
     if (WitPRL.bDead) {
@@ -142,7 +173,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
         // other witness check
         if (Witness != Victim) {
             // scream alerting
-            if (VSize(InstigatedBy.Location - Witness.Location) > ScreamRadius || FRand() < 0.35) {
+            if (VSize(InstigatedBy.Location - Witness.Location) > ScreamRadius || FRand() < ScreamSuspectChance) {
                 return false;
             }
         }
@@ -150,7 +181,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
         // victim's own check
         if (Witness == Victim) {
             // know direction of your own hit, use to blame
-            if (VSize(InstigatedBy.Location - Victim.Location) > DirectionBlameRadius || FRand() < 0.7) {
+            if (VSize(InstigatedBy.Location - Victim.Location) > DirectionBlameRadius || FRand() < VictimSuspectChance) {
                 return false;
             }
         }
@@ -271,10 +302,15 @@ function TellTeam(byte PTeam, string PName, string Pronoun, string PronounCaps)
 
 simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell)
 {
-    local bool b;
+    local bool bNameCleared;
     local Pawn P;
     local MushMatchInfo MMI;
     local MushMatchPRL KPRL;
+    local float IgnoreChance;
+
+    if (Role != ROLE_Authority) {
+        return;
+    }
 
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
@@ -289,25 +325,70 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
     if (KPRL == None || KPRL.bDead)
         return;
 
-    if ( Other.PlayerReplicationInfo.Team == 1 && !MMI.CheckConfirmedMush(Killer.PlayerReplicationInfo) )
-        for ( P = Level.PawnList; P != None; P = P.NextPawn )
-            if ( P.bIsPlayer && P.CanSee(Killer) && P.PlayerReplicationInfo.Team == 0 && P != Killer && !MMI.CheckBeacon(P.PlayerReplicationInfo) ) {
-                KPRL.RemoveHate(P.PlayerReplicationInfo);
-                KPRL.bIsSuspected = False;
-                b = true;
-                break;
+    if (Other.PlayerReplicationInfo.Team == 1 && !MMI.CheckConfirmedMush(Killer.PlayerReplicationInfo) && MMI.CheckBeacon(Killer.PlayerReplicationInfo)) {
+        for (P = Level.PawnList; P != None; P = P.NextPawn) {
+            // Ensure they're not the killer themself
+            if (P == Killer) continue;
+
+            // Ensure they are a member of the match
+            if (!P.bIsPlayer) {
+                continue;
             }
 
-    if (b) {
-        //MushMatch(Level.Game).BroadcastMessage(Killer.PlayerReplicationInfo.PlayerName$" had their suspicions lifted after being witnessed killing a mush,"@Other.PlayerReplicationInfo.PlayerName$"!", true, 'CriticalEvent');
-        MushMatch(Level.Game).BroadcastUnsuspected(Killer.PlayerReplicationInfo, Other.PlayerReplicationInfo);
-    }
+            // Ensure they could see what happened
+            if (!P.CanSee(Killer)) {
+                continue;
+            }
 
-    if (MushMatch(Level.Game).bMushSelected && !MMI.CheckBeacon(Other.PlayerReplicationInfo)) {
-        if (Role == ROLE_Authority) {
-            if (!MMI.CheckConfirmedMush(Killer.PlayerReplicationInfo) && !b) CheckSuspects(Killer, Other);
+            // Ensure they have a clean record (irrespective of whether they really are a mush)
+            if (MMI.CheckBeacon(P.PlayerReplicationInfo) || MMI.CheckConfirmedMush(P.PlayerReplicationInfo)) {
+                continue;
+            }
+
+            // They may not have bothered to
+            // (more likely if both are Mush as they're working together to clean each other's names)
+
+            if (P.PlayerReplicationInfo.Team == 1 && Killer.PlayerReplicationInfo.Team == 1) {
+                IgnoreChance = NameClearChanceBothMush;
+            }
+
+            else {
+                IgnoreChance = NameClearChanceNormal;
+            }
+
+            if (FRand() > IgnoreChance) {
+                continue;
+            }
+
+            KPRL.RemoveHate(P.PlayerReplicationInfo);
+            KPRL.bIsSuspected = False;
+            bNameCleared = true;
+            break;
         }
     }
+
+    if (bNameCleared) {
+        //MushMatch(Level.Game).BroadcastMessage(Killer.PlayerReplicationInfo.PlayerName$" had their suspicions lifted after being witnessed killing a mush,"@Other.PlayerReplicationInfo.PlayerName$"!", true, 'CriticalEvent');
+        MushMatch(Level.Game).BroadcastUnsuspected(Killer.PlayerReplicationInfo, Other.PlayerReplicationInfo);
+
+        return;
+    }
+
+    // Try to check suspects
+
+    if (MMI.CheckConfirmedMush(Killer.PlayerReplicationInfo)) {
+        return;
+    }
+
+    if (FRand() < SuspectHuntOverlookKillChance && MMI.CheckBeacon(Other.PlayerReplicationInfo)) {
+        return;
+    }
+
+    if (!MushMatch(Level.Game).bMushSelected) {
+        return;
+    }
+
+    CheckSuspects(Killer, Other);
 }
 
 //===== HUD Drawing for Modding Compatibility ========//
@@ -545,4 +626,11 @@ defaultproperties
     RemoteRole=ROLE_SimulatedProxy
     bAlwaysRelevant=True
     bNetTemporary=True
+    NameClearChanceNormal=0.3
+    NameClearChanceBothMush=0.9
+    MinGuaranteeSuspectDamage=40
+    VictimSuspectChance=0.7
+    ScreamSuspectChance=0.25
+    SuspectHuntOverlookKillChance=0.75
+    SuspectHuntOverlookDamageChance=0.9
 }
