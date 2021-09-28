@@ -388,6 +388,10 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
         return;
     }
 
+    if (Other.PlayerReplicationInfo.Team == 1) {
+        return;
+    }
+
     CheckSuspects(Killer, Other);
 }
 
