@@ -776,7 +776,7 @@ function bool ChangeTeam(Pawn Other, int N)
     }
 
     else {
-        MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo).PlayerReplicationInfo.Team = 0;
+        Other.PlayerReplicationInfo.Team = 0;
     }
 
     MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo).SetInitialTeam();
@@ -936,4 +936,5 @@ defaultproperties
      DecideChance_Scapegoat=0.4
      SpawnChance_BeaconAmmo=0.04
      SpawnChance_SporeAmmo=0.025
+     bCoopWeaponMode=True
 }
