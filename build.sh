@@ -19,8 +19,8 @@ cleanup() {
         # Build temporary YAML file
         echo "build: '$build'" > "$TMP_YML"
         echo "version: '$version'" >> "$TMP_YML"
-        echo "buildpackage: '$package-$build'" > "$TMP_YML"
         echo >> "$TMP_YML"
+        cat "MushMatch/MushMatch.yml" >> "$TMP_YML"
 
         # Copy assets
         for asset in Models Textures Sounds make.ini; do
