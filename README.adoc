@@ -1,11 +1,11 @@
-MushMatch
-=========
-MushMatch development team
+Mush Match
+==========
+Mush Match development team
 :homepage: https://ut99.org/viewtopic.php?f=4&t=14820
 :toc:
 :numbered:
 
-MushMatch is a social deduction game type written for classic Unreal Tournament,
+Mush Match is a social deduction game type written for classic Unreal Tournament,
 started back in 2018 by Gustavo Ramos Rehermann.
 
 About
@@ -42,9 +42,9 @@ of this are still asymmetric, though, both in lore and in the methods available
 to each team.
 
 It is playable in any Deathmatch level. Eventually, I plan on having it enhance 
-existing levels with MushMatch-specific props (more than just decorations!), 
+existing levels with Mush-Match-specific props (more than just decorations!), 
 such as security cameras and water balloon dispensers, and alternatively 
-support DM-MM-... levels built specifically for MushMatch with open areas and 
+support DM-MM-... levels built specifically for Mush Match with open areas and 
 tight corridors and stuff.
 
 Mush Match was also written with bot support in mind. Bots are even able to 
@@ -62,8 +62,7 @@ _Mush Match appears twice on my gameplay selection screen! What do I do?_::
     If you have any instance of GusPackII.u or GusPackII.int in your System 
     folder, try removing any lines referencing MushMatch or ArenaMush from 
     GusPackII.int. That is an outdated version, and GusPackII has never seen a 
-full 
-    release (and may never see).
+    full release (and may never see) anyway.
 
 _I found this bug offline, or that glitch online, or this crazy crash, or some lag-spike weedy-de-doo! What do?_::
     Report it! Preferably, in the issues tracker - see the links at the top of 
