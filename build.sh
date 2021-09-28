@@ -38,11 +38,11 @@ cleanup() {
 
         sem --id="formatint" --wait
 
-        # Format .int with Mustache
-        mustache MushMatch/MushMatch.int.mo < "$TMP_YML" | dos2unix > "System/MushMatch-$build.int"
-
         # Build .u
         WINEPREFIX="$wineprefix" wine "$umake" "MushMatch-$build"
+
+        # Format .int with Mustache
+        mustache MushMatch/MushMatch.int.mo < "$TMP_YML" | dos2unix > "System/MushMatch-$build.int"
 
         # Package up
         tar cvf "MushMatch-$build.tar" "System/MushMatch-$build.int" "System/MushMatch-$build.u" Help/MushMatch.adoc
@@ -56,6 +56,7 @@ cleanup() {
 
         rm "MushMatch-$build.tar"
 
+        # Move to Dist
         mkdir -pv "$dist/MushMatch/$build"
         mv "MushMatch-$build."{tar.*,zip} "$dist/MushMatch/$build"
     )
