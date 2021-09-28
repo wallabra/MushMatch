@@ -4,27 +4,46 @@ source ./config.sh
 
 cleanup() {
     rm -rv "MushMatch-$build"
+    rm "System/MushMatch-$build."{int,u}
 }
 
 ( # Subshell to preserve original working dir
     cd ..
+
+    TMP_YML="$(mktemp)"
 
     ( # Subshell to exit early on error, to go right into cleanup
         set -e
 
         mkdir MushMatch-"$build"
 
-        for asset in Classes Models Textures Sounds make.ini; do
+        # Build temporary YAML file
+        echo "build: '$build'" > "$TMP_YML"
+        echo "version: '$version'" >> "$TMP_YML"
+        echo "buildpackage: '$package-$build'" > "$TMP_YML"
+        echo >> "$TMP_YML"
+
+        # Copy assets
+        for asset in Models Textures Sounds make.ini; do
             cp -rv MushMatch/"$asset" MushMatch-"$build"
         done
 
+        # Format classes with Mustache
+        mkdir MushMatch-"$build"/Classes
+
+        for class in MushMatch/Classes/*; do
+            class="$(basename "$class")"
+            echo "Formatting: MushMatch-$build/Classes/$class"
+            mustache "MushMatch/Classes/$class" < "$TMP_YML" > "MushMatch-$build/Classes/$class"
+        done
+
+        sem --id="formatint" --wait
+
+        # Format .int with Mustache
+        mustache MushMatch/MushMatch.int.mo < "$TMP_YML" | dos2unix > "System/MushMatch-$build.int"
+
         # Build .u
         WINEPREFIX="$wineprefix" wine "$umake" "MushMatch-$build"
-
-        # Build .int
-        pushd MushMatch
-        ./formatint.sh "$build" "$version" >"../System/MushMatch-$build.int"
-        popd
 
         # Package up
         tar cvf "MushMatch-$build.tar" "System/MushMatch-$build.int" "System/MushMatch-$build.u" Help/MushMatch.adoc
@@ -38,10 +57,11 @@ cleanup() {
 
         rm "MushMatch-$build.tar"
 
-        mkdir -pv $dist/MushMatch/$build
-        mv MushMatch-$build.{tar.*,zip} $dist/MushMatch/$build
+        mkdir -pv "$dist/MushMatch/$build"
+        mv "MushMatch-$build."{tar.*,zip} "$dist/MushMatch/$build"
     )
 
     # Finish up
+    rm "$TMP_YML"
     cleanup
 )
