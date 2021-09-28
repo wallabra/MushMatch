@@ -405,13 +405,17 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
     local PlayerReplicationInfo BotPRI, OtherPRI;
     local MushMatchPRL BotMPRL, OtherMPRL;
     
-    if (Other == None || aBot == None || !Other.bIsPlayer || !aBot.bIsPlayer || Other.IsInState('Dying') || aBot.IsInState('Dying'))
+    if (Other == None || aBot == None || !Other.bIsPlayer || !aBot.bIsPlayer || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
+        //Log("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying or not player");
         return Super.AssessBotAttitude(aBot, Other);
+    }
     
-
     if (aBot.PlayerReplicationInfo == None || Other.PlayerReplicationInfo == None) {
+        //Log("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no PlayerReplicationInfo");
         return 2;
     }
+
+    MMI = MushMatchInfo(GameReplicationInfo);
 
     if (MMI == None || (MMI.CheckDead(aBot.PlayerReplicationInfo) || MMI.CheckDead(Other.PlayerReplicationInfo))) {
         return 2;
@@ -421,7 +425,6 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
         return 1; // just two players left, duke it out!!
     }
 
-    MMI = MushMatchInfo(GameReplicationInfo);
     BotPRI = aBot.PlayerReplicationinfo;
     OtherPRI = Other.PlayerReplicationInfo;
     BotMPRL = MMI.FindPRL(BotPRI);
