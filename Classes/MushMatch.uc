@@ -928,7 +928,7 @@ defaultproperties
      MushSuspectedMessageType=Class'MushSuspectedMessage'
      MushSelectedMessageType=Class'MushSelectedMessage'
      bMushUseOwnPronoun=True
-     DecideChance_Infect=0.4
+     DecideChance_Infect=0.75
      DecideChance_SuspectAttack=0.5
      DecideChance_GrudgeAttack=0.8
      DecideChance_TeamUp=0.35
