@@ -4,6 +4,7 @@ var             bool                    bIsSuspected;
 var             bool                    bKnownMush;
 var             bool                    bKnownHuman;
 var             bool                    bDead;
+var             byte                    InitialTeam;
 var             float                   ImmuneLevel;
 var             float                   ImmuneMomentum, ImmuneResistance;
 var             PlayerReplicationlist   HatedBy;
@@ -26,7 +27,7 @@ var(MushMatch)  config bool             bImmuneNaturallyTendsToFull,
 replication
 {
     reliable if (Role == ROLE_Authority)
-        bIsSuspected, bKnownHuman, bKnownMush, bDead, HatedBy,
+        bIsSuspected, bKnownHuman, bKnownMush, bDead, HatedBy, InitialTeam,
 
         // immune level and its parameters
         ImmuneLevel, ImmuneResistance, ImmuneMomentum, ImmuneMomentumThreshold, ImmuneMomentumDrag,
@@ -36,7 +37,9 @@ replication
         // immune level configurations
         bImmuneNaturallyTendsToFull, bImmuneSnap,
         bNoNegativeImmune, bNoSuperImmune,
-        bImmuneInstantHit;
+        bImmuneInstantHit,
+
+        SetInitialTeam;
 }
 
 
@@ -170,6 +173,10 @@ simulated event bool RemoveHate(PlayerReplicationInfo Other)
     else {
         return HatedBy.RemovePlayer(Other, HatedBy);
     }
+}
+
+simulated event SetInitialTeam() {
+    InitialTeam = PlayerReplicationInfo(Owner).Team;
 }
 
 

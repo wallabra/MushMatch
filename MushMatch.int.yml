@@ -1,6 +1,6 @@
 package: MushMatch
-build: '20213900'
-version: '1.1.2'
+build: '20213903'
+version: '1.2.0'
 
 mutators:
 - class: ArenaMush

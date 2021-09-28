@@ -246,18 +246,28 @@ simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
 
 simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn Other)
 {
+    local MushMatchPRL MPRL;
+
     if (CheckDead(PRI)) {
-        if ( PRI.Team == 1 )
+        if (PRI.Team == 1)
             return "Mush";
             
-        if ( PRI.Team == 0 )
+        if (PRI.Team == 0)
             return "Human";
     }
 
     if (bMushSelected) {
-        if ( Other.PlayerReplicationInfo == PRI || Other.PlayerReplicationInfo.Team == 1 || bMatchEnd || CheckDead(Other.PlayerReplicationInfo) ) {
-            if ( PRI.Team == 1 ) {
-                return "Mush";
+        if (Other.PlayerReplicationInfo == PRI || Other.PlayerReplicationInfo.Team == 1 || bMatchEnd || CheckDead(Other.PlayerReplicationInfo)) {
+            if (PRI.Team == 1) {
+                MPRL = FindPRL(PRI);
+            
+                if (MPRL != None && PRI.Team == MPRL.InitialTeam) {
+                    return "Mush";
+                }
+
+                else {
+                    return "* Mush";
+                }
             }
                 
             else if ( PRI.Team == 0 ) {
@@ -269,11 +279,11 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
             }
         }
         
-        if ( PRI.Team == 0 && CheckConfirmedHuman(PRI) ) {
+        if (PRI.Team == 0 && CheckConfirmedHuman(PRI)) {
             return "Human";
         }
 
-        if ( PRI.Team == 1 && CheckConfirmedMush(PRI) ) {
+        if (PRI.Team == 1 && CheckConfirmedMush(PRI)) {
             return "Mush";
         }
         

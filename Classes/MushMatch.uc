@@ -728,6 +728,8 @@ function bool SetUpPlayer(Pawn P)
         else {
             P.PlayerReplicationInfo.Team = 0;
         }
+
+        MushMatchInfo(GameReplicationInfo).FindPRL(P.PlayerReplicationInfo).SetInitialTeam();
     }
 
     prl = MushMatchInfo(GameReplicationInfo).FindPRL(P.PlayerReplicationInfo);
@@ -769,11 +771,15 @@ function bool ChangeTeam(Pawn Other, int N)
         return true;
     }
 
-    if (FRand() * MushScarceRatio < 1.0)
+    if (FRand() * MushScarceRatio < 1.0) {
         Other.PlayerReplicationInfo.Team = 1;
+    }
 
-    else
-        Other.PlayerReplicationInfo.Team = 0;
+    else {
+        MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo).PlayerReplicationInfo.Team = 0;
+    }
+
+    MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo).SetInitialTeam();
 
     return true;
 }
@@ -806,6 +812,7 @@ function Selected()
 {
     local Pawn p;
     local Sporifier sp;
+    local MushMatchPRL PRL;
 
     foreach AllActors(class'Sporifier', sp) {
         sp.MushSelected();
@@ -815,6 +822,9 @@ function Selected()
         if ( p.bIsPlayer && p.PlayerReplicationInfo != none )
         {
             p.Health = Max(p.Health, p.Class.Default.Health);
+
+            PRL = MushMatchInfo(GameReplicationInfo).FindPRL(p.PlayerReplicationInfo);
+            PRL.SetInitialTeam();
         }
     }
 
