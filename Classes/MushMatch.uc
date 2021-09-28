@@ -519,6 +519,21 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
     //return Super.AssessBotAttitude(aBot, Other);
 }
 
+// Unset the enemy of a pawn
+function UnsetEnemy(Pawn Other) {
+    // Don't meddle with players. They're snobby and weird.
+    if (PlayerPawn(Other) != None) {
+        return;
+    }
+
+    Other.Enemy = None;
+
+    // Avoid bots in the Attacking state with Enemy set to None.
+    if (Bot(Other) != None && Bot(Other).IsInState('Attacking')) {
+        Bot(Other).WhatToDoNext('', '');
+    }
+}
+
 function MakeMush(Pawn Other, Pawn Instigator) {
     local Weapon w;
 
@@ -533,8 +548,8 @@ function MakeMush(Pawn Other, Pawn Instigator) {
         
     mushmatch(Level.Game).CheckEnd();
     
-    if ( Other.Enemy == Instigator ) Other.Enemy = none;
-    if ( Other == Instigator.Enemy ) instigator.Enemy = none;
+    if ( Other.Enemy == Instigator ) UnsetEnemy(Other);
+    if ( Other == Instigator.Enemy ) UnsetEnemy(Instigator);
     
     // -- Infections are low-key, don't alert everyone in a newly infected mush's vicinity, that's dumb. -- {
     //     for ( p = Level.PawnList; p != none; p = p.nextPawn )
