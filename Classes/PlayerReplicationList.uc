@@ -1,12 +1,12 @@
 class PlayerReplicationList extends ReplicationInfo;
 
-var PlayerReplicationList next;
+var PlayerReplicationList Next, Root;
 
 
 replication
 {
     reliable if (Role == ROLE_Authority)
-        next;
+        Next, Root;
 }
 
 
@@ -17,17 +17,18 @@ simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo othe
     if (PRLType == None)
         PRLType = class;
 
-    for ( prl = self; prl.next != None; prl = prl.next );
+    for ( prl = self; prl.Next != None; prl = prl.Next );
     
-    prl.next = Spawn(PRLType, other);
-    return prl.next;
+    prl.Next = Spawn(PRLType, other);
+    prl.Root = Root;
+    return prl.Next;
 }
 
 simulated function PlayerReplicationList FindPlayer(PlayerReplicationInfo other)
 {
     local PlayerReplicationList prl;
 
-    for ( prl = self; prl != None; prl = prl.next ) if ( prl.owner == other ) return prl;
+    for ( prl = self; prl != None; prl = prl.Next ) if ( prl.owner == other ) return prl;
     
     return None;
 }
@@ -37,23 +38,29 @@ simulated function bool RemovePlayer(PlayerReplicationInfo other, out PlayerRepl
     local PlayerReplicationList prl, prev;
 
     if (Owner == Other) {
-        if (newRoot == Self)
-            newRoot = next;
+        if (newRoot == Self) {
+            newRoot = Next;
+
+            // update everyone's roots
+            for (prl = Next; prl != None; prl = prl.Next) {
+                prl.Root = Next;
+            }
+        }
             
         Destroy();
 
         return True;
     }
 
-    for ( prl = self; prl != None && prl.Owner != other; prl = prl.next )
+    for ( prl = self; prl != None && prl.Owner != other; prl = prl.Next )
         prev = prl;
     
     if ( prl == None ) return False;
     
     if (newRoot == prl)
-        newRoot = prl.next;
+        newRoot = prl.Next;
         
-    prev.next = prl.next;
+    prev.Next = prl.Next;
     prl.Destroy();
     
     return True;
@@ -63,5 +70,6 @@ simulated function bool RemovePlayer(PlayerReplicationInfo other, out PlayerRepl
 defaultproperties
 {
     RemoteRole=ROLE_SimulatedProxy
-    next=None
+    Next=None
+    Root=None
 }

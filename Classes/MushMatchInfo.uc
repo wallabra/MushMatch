@@ -47,6 +47,7 @@ function MushMatchPRL RegisterPRL(PlayerReplicationinfo PRI) {
 
     if (PRL == None) {
         PRL = Spawn(class'MushMatchPRL', PRI);
+        PRL.Root = PRL;
         NewPRL = PRL;
     }
 

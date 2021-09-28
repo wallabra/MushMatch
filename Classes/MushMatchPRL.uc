@@ -128,6 +128,24 @@ simulated event bool HasHate(PlayerReplicationInfo Other)
     return HatedBy.FindPlayer(Other) != None;
 }
 
+simulated event bool HasHateOnPlayer(PlayerReplicationInfo Other)
+{
+    local MushMatchPRL OtherMPRL;
+
+    OtherMPRL = MushMatchPRL(Root.FindPlayer(Other));
+
+    return HasHateOnPRL(OtherMPRL);
+}
+
+simulated event bool HasHateOnPRL(MushMatchPRL Other)
+{
+    if (Other == None || Other.HatedBy == None)
+        return false;
+
+    return Other.HatedBy.FindPlayer(PlayerReplicationInfo(Owner)) != None;
+}
+
+
 simulated event bool HasAnyHate()
 {
     return HatedBy != None;
