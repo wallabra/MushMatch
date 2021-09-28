@@ -18,7 +18,8 @@ var(MushMatch) config float MushScarceRatio;
 var(MushMatch) config class<Spectator> SpectatorClass;
 var(MushMatch) config class<LocalMessagePlus> MushDiedMessageType, MushSpottedMessageType, MushSuspectedMessageType, MushSelectedMessageType;
 var(MushMatch) config bool bMushUseOwnPronoun;
-var(MushMatch) config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack;
+var(MushMatch) config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack, DecideChance_TeamUp, DecideChance_MushHelpMush;
+var(MushMatch) config float SpawnChance_BeaconAmmo, SpawnChance_SporeAmmo;
 var(MushMatch) localized string RTeamNames[2];
 
 var bool bMushSelected, bHumanVictory, bMatchEnd, bHasHate, bHasBeacon;
@@ -48,8 +49,8 @@ function SpreadMatchAmmo() {
     
     foreach AllActors(class'NavigationPoint', np)
     {
-        if ( FRand() < 0.03 ) np.Spawn(class'MushBeaconAmmo');
-        else if ( FRand() < 0.015 ) np.Spawn(class'SporeCanister');
+        if ( FRand() < SpawnChance_BeaconAmmo ) np.Spawn(class'MushBeaconAmmo');
+        else if ( FRand() < SpawnChance_SporeAmmo ) np.Spawn(class'SporeCanister');
     }
 }
 
@@ -401,37 +402,44 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
     local Pawn P;
     local MushMatchInfo MMI;
     local bool bNoSneaking;
+    local PlayerReplicationInfo BotPRI, OtherPRI;
+    local MushMatchPRL BotMPRL, OtherMPRL;
     
     if (Other == None || aBot == None || !Other.bIsPlayer || !aBot.bIsPlayer || Other.IsInState('Dying') || aBot.IsInState('Dying'))
         return Super.AssessBotAttitude(aBot, Other);
-
-    MMI = MushMatchInfo(GameReplicationInfo);
+    
 
     if (aBot.PlayerReplicationInfo == None || Other.PlayerReplicationInfo == None)
         return 2;
 
-    if (MMI != None && (MMI.CheckDead(aBot.PlayerReplicationInfo) || MMI.CheckDead(Other.PlayerReplicationInfo)))
+    if (MMI == None || (MMI.CheckDead(aBot.PlayerReplicationInfo) || MMI.CheckDead(Other.PlayerReplicationInfo)))
         return 2;
 
     if (aBot.bIsPlayer && Other.bIsPlayer && NumBots + NumPlayers - NumSpectators <= 2) {
         return 1; // just two players left, duke it out!!
     }
 
+    MMI = MushMatchInfo(GameReplicationInfo);
+    BotPRI = aBot.PlayerReplicationinfo;
+    OtherPRI = Other.PlayerReplicationInfo;
+    BotMPRL = MMI.FindPRL(BotPRI);
+    OtherMPRL = MMI.FindPRL(OtherPRI);
+
     // check for Mush-specific behaviour
-    if ( aBot.PlayerReplicationInfo.Team == 1 )
+    if (BotPRI.Team == 1)
     {
-        if ( Other.PlayerReplicationInfo.Team == 0 )
+        if (OtherPRI.Team == 0)
         {
             // if spotted mush, don't hold back
-            if (MMI.CheckConfirmedMush(aBot.PlayerReplicationInfo)) {
+            if (BotMPRL.bKnownMush) {
                 return 1;
             }
 
             // maybe try to infect, if you can be sneaky!
             if (!Other.CanSee(aBot) && aBot.FindInventoryType(class'Sporifier') != None && FRand() < DecideChance_Infect) {
-                for ( P = Level.PawnList; P != None; P = P.NextPawn ) {
-                    if ( P.bIsPlayer && P.PlayerReplicationInfo != None && P.PlayerReplicationInfo.Team == 0 && P.LineOfSightTo(aBot) && P != Other ) {
-                        bNoSneaking == true;
+                for (P = Level.PawnList; P != None; P = P.NextPawn) {
+                    if (P.bIsPlayer && P.PlayerReplicationInfo != None && P.PlayerReplicationInfo.Team == 0 && P.LineOfSightTo(aBot) && P != Other) {
+                        bNoSneaking = true;
                     }
                 }
 
@@ -448,29 +456,29 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
         }
 
         // mush help mush always
-        else if (FRand() < 0.8) {
+        else if (FRand() < DecideChance_MushHelpMush) {
             return 3;
         }
     }
 
     // check for general behaviour (or maybe a façade thereof) towards humans
-    if (aBot.PlayerReplicationInfo.Team == 0 || Other.PlayerReplicationInfo.Team == 0)
+    if (BotPRI.Team == 0 || OtherPRI.Team == 0)
     {
         if (
             Other.bIsPlayer
             // if the other is not safe
-            && !MMI.CheckConfirmedHuman(Other.PlayerReplicationInfo)
+            && !OtherMPRL.bKnownHuman
             &&
             (
                 // if the other is DEFINITELY not safe, aka a mush
-                MMI.CheckConfirmedMush(Other.PlayerReplicationInfo)
+                OtherMPRL.bKnownMush
                 ||
                 (
                     // OR if we have a grudge on the other
                     bHasHate
                     && MMI.CheckHate(Other.PlayerReplicationInfo, aBot.PlayerReplicationInfo)
                     && !(Other.PlayerReplicationInfo.Team == 1 && aBot.PlayerReplicationInfo.Team == 1)
-                    && FRandom() < DecideChance_GrudgeAttack
+                    && FRand() < DecideChance_GrudgeAttack
                 )
                 ||
                 (
@@ -486,7 +494,7 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
 
         // maybe be a friend and gang up, just in case - numbers always make might and make safety!
         // (always!.... right?)
-        if ( FRand() < 0.3 )
+        if ( FRand() < DecideChance_TeamUp )
             return 3;
     }
 
@@ -527,22 +535,28 @@ function MakeMush(Pawn Other, Pawn Instigator) {
 function bool SpotMush(Pawn Other, Pawn Finder)
 {
     local MushMatchPRL OtherPRL;
+    local PlayerReplicationInfo FinderPRI, OtherPRI;
+    local MushMatchInfo MMI;
+
+    MMI = MushMatchInfo(GameReplicationInfo);
 
     if (Other == None || Finder == None || !Other.bIsPlayer || Other.PlayerReplicationInfo == none || MMI.CheckConfirmedMush(Other.PlayerReplicationInfo))
         return False;
 
-    OtherPRL = MushMatchPRL(MushMatchInfo(GameReplicationInfo).PRL.FindPlayer(Other.PlayerReplicationInfo));
+    OtherPRL = MMI.FindPRL(Other.PlayerReplicationInfo);
+    OtherPRI = Other.PlayerReplicationInfo;
+    FinderPRI = Finder.PlayerReplicationInfo;
     
     if (OtherPRL != None) {
         /* -- old method
-           BroadcastMessage(Other.PlayerReplicationInfo.Playername@"was discovered as mush!", true, 'CriticalEvent');
+           BroadcastMessage(OtherPRI.Playername@"was discovered as mush!", true, 'CriticalEvent');
          * -- */
 
-        BroadcastSpotted(Finder.PlayerReplicationInfo, Other.PlayerReplicationInfo);
+        BroadcastSpotted(FinderPRI, OtherPRI);
         
         if (PlayerPawn(Other) != None && DiscoveredMusic != "")
         {
-            Log("Playing discovered music"@ DiscoveredMusic @"for:"@ Other.PlayerReplicationInfo.PlayerName);
+            Log("Playing discovered music"@ DiscoveredMusic @"for:"@ OtherPRI.PlayerName);
             Spawn(class'MushMusic', Other);
         }
         
@@ -559,7 +573,7 @@ function bool SpotMush(Pawn Other, Pawn Finder)
     }
 
     else
-        Warn("SpotMush failed; no PRL could be found for"@ Other.PlayerReplicationInfo.PlayerName $"!");
+        Warn("SpotMush failed; no PRL could be found for"@ OtherPRI.PlayerName $"!");
 
     return False;
 }
@@ -877,4 +891,8 @@ defaultproperties
      DecideChance_Infect=0.3
      DecideChance_SuspectAttack=0.4
      DecideChance_GrudgeAttack=0.75
+     DecideChance_TeamUp=0.35
+     SpawnChance_BeaconAmmo=0.04
+     SpawnChance_SporeAmmo=0.025
+     DecideChance_MushHelpMush=0.85
 }
