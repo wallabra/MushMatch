@@ -14,8 +14,8 @@ class MushBeaconAmmo extends TournamentAmmo;
 
 defaultproperties
 {
-     AmmoAmount=10
-     MaxAmmo=45
+     AmmoAmount=3
+     MaxAmmo=20
      PickupMessage="You got some Mush Beacons."
      ItemName="Spore Canister"
      PickupViewMesh=LodMesh'MBeaconAmmo'

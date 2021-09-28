@@ -101,7 +101,7 @@ simulated function Timer()
 
 simulated function PlayFiring()
 {
-    PlayAnim('Fire', 0.8, 0.05);
+    PlayAnim('Fire', 0.8, 0.25);
     PlayOwnedSound(FireSound, SLOT_Misc, 1.0);
 }
 
@@ -164,7 +164,7 @@ function Projectile ProjectileFire(class<projectile> ProjClass, float ProjSpeed,
 defaultproperties
 {
      AmmoName=Class'SporeCanister'
-     PickupAmmoCount=18
+     PickupAmmoCount=20
      FireOffset=(X=32.000000)
      ProjectileClass=Class'SporeProj'
      AltProjectileClass=Class'SporeProj'

@@ -185,7 +185,7 @@ simulated function PlayIdle()
 defaultproperties
 {
      AmmoName=Class'MushBeaconAmmo'
-     PickupAmmoCount=15
+     PickupAmmoCount=5
      FireOffset=(X=32.000000)
      ProjectileClass=Class'MushBeaconProj'
      AltProjectileClass=Class'MushBeaconProj'

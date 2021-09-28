@@ -14,8 +14,8 @@ class SporeCanister extends TournamentAmmo;
 
 defaultproperties
 {
-     AmmoAmount=22
-     MaxAmmo=84
+     AmmoAmount=20
+     MaxAmmo=100
      PickupMessage="You got a Spore Canister to refuel your Sporifier."
      ItemName="Spore Canister"
      PickupViewMesh=LodMesh'SporeCanister'
