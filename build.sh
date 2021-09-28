@@ -4,7 +4,6 @@ source ./config.sh
 
 cleanup() {
     rm -rv "MushMatch-$build"
-    rm "System/MushMatch-$build."{int,u}
 }
 
 ( # Subshell to preserve original working dir
