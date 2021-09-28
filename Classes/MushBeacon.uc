@@ -16,7 +16,7 @@ class MushBeacon extends TournamentWeapon;
 
 
 var bool bRating;
-var config(MushMatch) float BeaconFirerate;
+var(MushMatch) config float BeaconFirerate;
 
 
 replication {

@@ -36,7 +36,7 @@ class Sporifier extends TournamentWeapon;
 
 var bool bDanger;
 
-var config(MushMatch) float SporifierFirerate;
+var(MushMatch) config float SporifierFirerate;
 
 
 replication {
