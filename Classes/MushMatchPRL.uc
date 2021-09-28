@@ -203,4 +203,5 @@ defaultproperties
     InstantImmuneHitFactor=1.15
     ImmuneHitAmount=0.75
     ImmuneDangerLevel=0.2
+    InitialTeam=0
 }

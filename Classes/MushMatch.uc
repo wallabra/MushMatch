@@ -88,14 +88,26 @@ function PostBeginPlay()
 
 function Logout(pawn Exiting)
 {
+    local MushMatchPRL MPRL;
+
     Super.Logout(Exiting);
 
     if (Exiting.bIsPlayer && Exiting.PlayerReplicationInfo != None) {
-        MushMatchInfo(GameReplicationInfo).RemovePRL(Exiting.PlayerReplicationInfo);
+        MPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Exiting.PlayerReplicationInfo);
 
         if (bMushSelected) {
             CheckEnd();
         }
+
+        if (bMatchEnd) {
+            return;
+        }
+
+        if (MPRL.bDead) {
+            TotalKills--;
+        }
+
+        MushMatchInfo(GameReplicationInfo).RemovePRL(Exiting.PlayerReplicationInfo);
     }
 }
 
@@ -421,7 +433,7 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
         return 2;
     }
 
-    if (aBot.bIsPlayer && Other.bIsPlayer && NumBots + NumPlayers - NumSpectators <= 2) {
+    if (aBot.bIsPlayer && Other.bIsPlayer && NumBots + NumPlayers - TotalKills <= 2) {
         return 1; // just two players left, duke it out!!
     }
 
