@@ -363,7 +363,6 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
             KPRL.RemoveHate(P.PlayerReplicationInfo);
             KPRL.bIsSuspected = False;
             bNameCleared = true;
-            break;
         }
     }
 
