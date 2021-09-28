@@ -634,6 +634,6 @@ defaultproperties
     MinGuaranteeSuspectDamage=40
     VictimSuspectChance=0.7
     ScreamSuspectChance=0.25
-    SuspectHuntOverlookKillChance=0.75
+    SuspectHuntOverlookKillChance=0.8
     SuspectHuntOverlookDamageChance=0.9
 }
