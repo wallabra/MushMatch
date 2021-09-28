@@ -16,6 +16,7 @@ class MushBeacon extends TournamentWeapon;
 
 
 var bool bRating;
+var config(MushMatch) float BeaconFirerate;
 
 
 replication {
@@ -173,7 +174,7 @@ function float RateSelf(out int bUseAltMode)
 
 simulated function PlayFiring()
 {
-    PlayAnim('Fire', 1.4, 0.1);
+    PlayAnim('Fire', BeaconFirerate, 0.1);
     PlayOwnedSound(FireSound, SLOT_Misc, 1.0);
 }
 
@@ -206,4 +207,5 @@ defaultproperties
      Icon=Texture'Botpack.Icons.IconPulse'
      Mesh=LodMesh'MBeaconWeap'
      Mass=65.000000
+     BeaconFirerate=1.2
 }

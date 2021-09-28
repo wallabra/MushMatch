@@ -36,6 +36,8 @@ class Sporifier extends TournamentWeapon;
 
 var bool bDanger;
 
+var config(MushMatch) float SporifierFirerate;
+
 
 replication {
     reliable if (Role == ROLE_Authority)
@@ -46,7 +48,9 @@ replication {
 function PostBeginPlay()
 {
     if (Role == ROLE_Authority) {
-        bDanger = true;
+        if (PlayerPawn(Owner) == None) {
+            bDanger = true;
+        }
         
         if (MushMatch(Level.Game).bMushSelected)
             MushSelected();
@@ -55,7 +59,9 @@ function PostBeginPlay()
 
 simulated function MushSelected()
 {
-    SetTimer(1.0, false);
+    if (PlayerPawn(Owner) == None) {
+        SetTimer(1.0, false);
+    }
 }
 
 simulated function float RateSelf(out int bUseAltMode)
@@ -74,7 +80,7 @@ simulated function float RateSelf(out int bUseAltMode)
     
     bUseAltMode = 0;
 
-    if (!MMI.CheckConfirmedMush(Pawn(Owner).PlayerReplicationInfo)) {
+    if (PlayerPawn(Owner) == None && !MMI.CheckConfirmedMush(Pawn(Owner).PlayerReplicationInfo)) {
         for ( P = Level.PawnList; P != none; P = P.nextPawn )
             if (P.bIsPlayer && ( ( FastTrace(P.Location) && P.CanSee(Owner) && P.PlayerReplicationInfo.Team == 0 && FRand() > 0.625 ) || P.Enemy == Owner || Pawn(Owner).PlayerReplicationInfo.Team == 0 ) ) {
                 bDanger = true;
@@ -101,7 +107,7 @@ simulated function Timer()
 
 simulated function PlayFiring()
 {
-    PlayAnim('Fire', 0.8, 0.25);
+    PlayAnim('Fire', SporifierFirerate, 0.05);
     PlayOwnedSound(FireSound, SLOT_Misc, 1.0);
 }
 
@@ -187,4 +193,5 @@ defaultproperties
      Mass=35.000000
      bAltWarnTarget=false
      bWarnTarget=false
+     SporifierFirerate=1.5
 }
