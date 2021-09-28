@@ -18,7 +18,7 @@ var(MushMatch) config float MushScarceRatio;
 var(MushMatch) config class<Spectator> SpectatorClass;
 var(MushMatch) config class<LocalMessagePlus> MushDiedMessageType, MushSpottedMessageType, MushSuspectedMessageType, MushSelectedMessageType;
 var(MushMatch) config bool bMushUseOwnPronoun;
-var(MushMatch) config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack, DecideChance_TeamUp, DecideChance_MushHelpMush;
+var(MushMatch) config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack, DecideChance_TeamUp, DecideChance_MushHelpMush, DecideChance_Scapegoat;
 var(MushMatch) config float SpawnChance_BeaconAmmo, SpawnChance_SporeAmmo;
 var(MushMatch) localized string RTeamNames[2];
 
@@ -409,11 +409,13 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
         return Super.AssessBotAttitude(aBot, Other);
     
 
-    if (aBot.PlayerReplicationInfo == None || Other.PlayerReplicationInfo == None)
+    if (aBot.PlayerReplicationInfo == None || Other.PlayerReplicationInfo == None) {
         return 2;
+    }
 
-    if (MMI == None || (MMI.CheckDead(aBot.PlayerReplicationInfo) || MMI.CheckDead(Other.PlayerReplicationInfo)))
+    if (MMI == None || (MMI.CheckDead(aBot.PlayerReplicationInfo) || MMI.CheckDead(Other.PlayerReplicationInfo))) {
         return 2;
+    }
 
     if (aBot.bIsPlayer && Other.bIsPlayer && NumBots + NumPlayers - NumSpectators <= 2) {
         return 1; // just two players left, duke it out!!
@@ -473,29 +475,39 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
                 // if the other is DEFINITELY not safe, aka a mush
                 OtherMPRL.bKnownMush
                 ||
-                (
-                    // OR if we have a grudge on the other
+                (   // OR if we have a grudge on the other
                     bHasHate
-                    && MMI.CheckHate(Other.PlayerReplicationInfo, aBot.PlayerReplicationInfo)
-                    && !(Other.PlayerReplicationInfo.Team == 1 && aBot.PlayerReplicationInfo.Team == 1)
+                    && BotPRI.Team == 0
+                    && MMI.CheckHate(OtherPRI, BotPRI)
+                    && !(OtherPRI.Team == 1 && BotPRI.Team == 1)
                     && FRand() < DecideChance_GrudgeAttack
                 )
                 ||
                 (
                     // OR if the other has a suspicion beacon
                     bHasBeacon
+                    && (
+                        // if we're a human or scapegoating
+                        BotPRI.Team == 0
+                        || (
+                            BotMPRL.bIsSuspected
+                            && FRand() < DecideChance_Scapegoat
+                        )
+                    )
                     && MMI.CheckBeacon(Other.PlayerReplicationInfo)
-                    && !MMI.CheckConfirmedMush(MMI.CheckBeaconInstigator(Other.PlayerReplicationInfo).PlayerReplicationInfo)
+                    && !MMI.CheckConfirmedMush(MMI.CheckBeaconInstigator(OtherPRI).PlayerReplicationInfo)
                     && FRand() < DecideChance_SuspectAttack
                 )
             )
-        )
+        ) {
             return 1;
+        }
 
         // maybe be a friend and gang up, just in case - numbers always make might and make safety!
         // (always!.... right?)
-        if ( FRand() < DecideChance_TeamUp )
+        if (FRand() < DecideChance_TeamUp) {
             return 3;
+        }
     }
 
     // ehh... we live in a society
@@ -888,11 +900,12 @@ defaultproperties
      MushSuspectedMessageType=Class'MushSuspectedMessage'
      MushSelectedMessageType=Class'MushSelectedMessage'
      bMushUseOwnPronoun=True
-     DecideChance_Infect=0.3
-     DecideChance_SuspectAttack=0.4
-     DecideChance_GrudgeAttack=0.75
+     DecideChance_Infect=0.4
+     DecideChance_SuspectAttack=0.5
+     DecideChance_GrudgeAttack=0.8
      DecideChance_TeamUp=0.35
+     DecideChance_MushHelpMush=0.9
+     DecideChance_Scapegoat=0.4
      SpawnChance_BeaconAmmo=0.04
      SpawnChance_SporeAmmo=0.025
-     DecideChance_MushHelpMush=0.85
 }
