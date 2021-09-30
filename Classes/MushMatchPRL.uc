@@ -79,6 +79,16 @@ simulated event Tick(float TimeDelta) {
     }
 }
 
+function PostBeginPlay() {
+    // Assert Owner is a PlayerReplicationInfo.
+    if (PlayerReplicationInfo(Owner) == None) {
+        Log(self@"is not owned by a PlayerReplicationInfo! Owner:"@Owner);
+        return;
+    }
+
+    InitialTeam = PlayerReplicationInfo(Owner).Team;
+}
+
 simulated function ImmuneHit(float Amount) {
     ImmuneMomentum -= Amount / ImmuneResistance;
 

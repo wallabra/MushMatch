@@ -740,12 +740,10 @@ function bool SetUpPlayer(Pawn P)
         else {
             P.PlayerReplicationInfo.Team = 0;
         }
-
-        MushMatchInfo(GameReplicationInfo).FindPRL(P.PlayerReplicationInfo).SetInitialTeam();
     }
 
     prl = MushMatchInfo(GameReplicationInfo).FindPRL(P.PlayerReplicationInfo);
-
+    
     if (prl == None) {
         prl = MushMatchInfo(GameReplicationInfo).RegisterPRL(P.PlayerReplicationInfo);
 
@@ -754,11 +752,9 @@ function bool SetUpPlayer(Pawn P)
         }
     }
 
-    else {
-        // treat spectators like dead players
-        if (CHSpectator(P) != None) {
-            prl.bDead = True;
-        }
+    // treat spectators like dead players
+    if (CHSpectator(P) != None) {
+        prl.bDead = True;
     }
 
     return prl != None;
