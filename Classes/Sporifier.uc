@@ -153,7 +153,7 @@ simulated function Tick(float TimeDelta)
             }
         }
 
-        PRL = MushMatchInfo(Pawn(Owner));
+        PRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Pawn(Owner).PlayerReplicationInfo);
 
         if (PRL == None) {
             return;
