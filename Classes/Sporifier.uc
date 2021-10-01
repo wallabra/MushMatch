@@ -98,12 +98,12 @@ simulated function float RateSelf(out int bUseAltMode)
     return 9000000;
 }
 
-simulated function PutDown() {
+simulated function bool PutDown() {
     if (Role == ROLE_Authority) {
         SafeTime = 0;
     }
 
-    Super.PutDown();
+    return Super.PutDown();
 }
 
 simulated function Timer()
