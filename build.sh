@@ -19,6 +19,7 @@ cleanup() {
         # Build temporary YAML file
         echo "build: '$build'" > "$TMP_YML"
         echo "version: '$version'" >> "$TMP_YML"
+        echo "package: '$package-$build'" >> "$TMP_YML"
 
         if [[ "$debug" == 1 ]]; then
             echo "namesuffix: ' ($build)'" >> "$TMP_YML"

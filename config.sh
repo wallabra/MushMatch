@@ -1,8 +1,9 @@
 #!/bin/sh
 
-export build=20213911
+export build=20213912
 export version=1.2.4
 export debug=1
+export package=MushMatch
 
 export wineprefix=$HOME/Applications/@wine/ut99
 export umake='Tools/UMake/UMake.exe'
