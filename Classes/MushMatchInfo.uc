@@ -249,8 +249,17 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
     local MushMatchPRL MPRL;
 
     if (CheckDead(PRI)) {
-        if (PRI.Team == 1)
-            return "Mush";
+        if (PRI.Team == 1) {
+            MPRL = FindPRL(PRI);
+                        
+            if (MPRL != None && PRI.Team == MPRL.InitialTeam) {
+                return "Mush";
+            }
+
+            else {
+                return "* Mush";
+            }
+        }
             
         if (PRI.Team == 0)
             return "Human";
