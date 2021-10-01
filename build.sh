@@ -19,6 +19,13 @@ cleanup() {
         # Build temporary YAML file
         echo "build: '$build'" > "$TMP_YML"
         echo "version: '$version'" >> "$TMP_YML"
+
+        if [[ "$debug" == 1 ]]; then
+            echo "namesuffix=' ($build)'" >> "$TMP_YML"
+        else
+            echo "namesuffix: ''" >> "$TMP_YML"
+        fi
+
         echo >> "$TMP_YML"
         cat "MushMatch/MushMatch.yml" >> "$TMP_YML"
 
