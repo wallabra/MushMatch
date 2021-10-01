@@ -416,6 +416,7 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
     local bool bNoSneaking;
     local PlayerReplicationInfo BotPRI, OtherPRI;
     local MushMatchPRL BotMPRL, OtherMPRL;
+    local Sporifier sporer;
     
     if (Other == None || aBot == None || !Other.bIsPlayer || !aBot.bIsPlayer || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
         //Log("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying or not player");
@@ -464,7 +465,13 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
                     VSize(Other.Location - Other.MoveTarget.Location) > 128 &&
                     Normal(Other.MoveTarget.Location - Other.Location) dot Normal(aBot.Location - Other.Location) < -0.25
                 ))) {
-                    aBot.Weapon = Weapon(aBot.FindInventoryType(class'Sporifier'));
+                    sporer = Weapon(aBot.FindInventoryType(class'Sporifier'));
+
+                    if (aBot.Weapon != sporer) {
+                        sporer.BringUp();
+                        sporer.SafeTime = 0;
+                    }
+
                     return 1;
                 }
             }
@@ -546,14 +553,26 @@ function UnsetEnemy(Pawn Other) {
     }
 }
 
-function MakeMush(Pawn Other, Pawn Instigator) {
+function SafeGiveSporifier(Pawn Other) {
     local Weapon w;
-
+    
     w = Other.Weapon;
                 
-    Spawn(class'Sporifier').GiveTo(Other); // HA! You are now a mush!
+    Spawn(class'Sporifier').GiveTo(Other);
+
+    if (Other.Weapon != w) {
+        Other.Weapon = w;
+
+        if (Sporifier(Other.PendingWeapon) != None) {
+            Other.PendingWeapon = None;
+            w.BringUp(); // just in case
+        }
+    }
+}
+
+function MakeMush(Pawn Other, Pawn Instigator) {
+    SafeGiveSporifier(Other);
     
-    Other.Weapon = w;
     Other.PlayerReplicationInfo.Team = 1; // 0 = human, 1 = mush
     
     Instigator.PlayerReplicationInfo.Score += 1;
@@ -846,8 +865,7 @@ state GameStarted
     function SelectTraitor()
     {
         local Pawn p, c;
-        local bool b;   
-        local Weapon w;
+        local bool b;  
         
         while ( p == none )
         {
@@ -865,10 +883,7 @@ state GameStarted
         }
                     
         p.PlayerReplicationInfo.Team = 1;
-        w = p.Weapon;
-        // DeathMatchPlus(Level.Game).GiveWeapon(p, "Sporifier");
-        Spawn(class'Sporifier').GiveTo(p);
-        p.Weapon = w;
+        SafeGiveSporifier(p);
         
         // Log(p@"("$p.PlayerReplicationInfo.PlayerName$") is now mush!");
     }
