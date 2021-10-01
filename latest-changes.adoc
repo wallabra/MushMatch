@@ -7,3 +7,4 @@
  * Fix InitialTeam being ignored when displaying the alignment of a dead Mush in the Scoreboard
  * Make sure that giving the Sporifier on selecting or infecting a Mush doesn't break Weapon/PendingWeapon states
  * Ensure that for any non-PlayerPawn, a Sporifier without ammo is always automatically put down (though this may be redundant)
+ * Return from MushMatch.Logout early if the match has already ended

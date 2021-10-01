@@ -92,15 +92,15 @@ function Logout(pawn Exiting)
 
     Super.Logout(Exiting);
 
+    if (bMatchEnd) {
+        return;
+    }
+
     if (Exiting.bIsPlayer && Exiting.PlayerReplicationInfo != None) {
         MPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Exiting.PlayerReplicationInfo);
 
         if (bMushSelected) {
             CheckEnd();
-        }
-
-        if (bMatchEnd) {
-            return;
         }
 
         if (MPRL.bDead) {
