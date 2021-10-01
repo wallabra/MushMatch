@@ -141,7 +141,9 @@ event playerpawn Login
     
     NewPlayer = Super.Login(Portal, Options, Error, SpawnClass);
 
-    SetUpPlayer(NewPlayer);
+    if (NewPlayer != None) {
+        SetUpPlayer(NewPlayer);
+    }
 
     return NewPlayer;
 }
