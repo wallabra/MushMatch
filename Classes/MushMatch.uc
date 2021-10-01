@@ -925,7 +925,7 @@ defaultproperties
      ScoreBoardType=Class'MushMatchScoreBoard'
      //HUDType=Class'MushMatchHUD'
      BeaconName="MUSH"
-     GameName="Mush Match {{{version}}}{{{debug-suffix}}}"
+     GameName="Mush Match {{{version}}}{{{namesuffix}}}"
      GameReplicationInfoClass=Class'MushMatchInfo'
      MutatorClass=Class'MushMatchMutator'
      bAlwaysForceRespawn=True
