@@ -1,4 +1,6 @@
 1.2.4
 =====
 
+ * Add maximum safe time for a Bot to hold a Sporifier without being confirmed mush
  * Fix InitialTeam being set to 0 for players/bots logged after Mush selection (meaning all Mush bots would have asterisks in front even if they were never infected in the first place).
+ * Fix InitialTeam being ignored when displaying the alignment of a dead Mush in the Scoreboard
