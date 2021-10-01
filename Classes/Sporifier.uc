@@ -140,6 +140,11 @@ simulated function Tick(float TimeDelta)
         Destroy();
         return;
     }
+
+    if (PlayerPawn(Owner) != None && (AmmoType != None) && (AmmoType.AmmoAmount <= 0)) {
+        PutDown();
+        return;
+    }
     
     if (Role == ROLE_Authority) {
         if ( Pawn(Owner).Weapon != self ) {
