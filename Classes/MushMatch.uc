@@ -465,7 +465,7 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
                     VSize(Other.Location - Other.MoveTarget.Location) > 128 &&
                     Normal(Other.MoveTarget.Location - Other.Location) dot Normal(aBot.Location - Other.Location) < -0.25
                 ))) {
-                    sporer = Weapon(aBot.FindInventoryType(class'Sporifier'));
+                    sporer = Sporifier(aBot.FindInventoryType(class'Sporifier'));
 
                     if (aBot.Weapon != sporer) {
                         sporer.BringUp();
