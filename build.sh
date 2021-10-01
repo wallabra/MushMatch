@@ -21,7 +21,7 @@ cleanup() {
         echo "version: '$version'" >> "$TMP_YML"
 
         if [[ "$debug" == 1 ]]; then
-            echo "namesuffix=' ($build)'" >> "$TMP_YML"
+            echo "namesuffix: ' ($build)'" >> "$TMP_YML"
         else
             echo "namesuffix: ''" >> "$TMP_YML"
         fi
