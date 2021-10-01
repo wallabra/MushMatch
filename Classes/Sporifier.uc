@@ -34,25 +34,21 @@
 class Sporifier extends TournamentWeapon;
 
 
-var bool bDanger;
-var float SafeTime; 
+var float SafeTime;
 
 var(MushMatch) config float SporifierFirerate, SporifierAIMaxSafeTime;
 
 
 replication {
     reliable if (Role == ROLE_Authority)
-        bDanger;
+        SporifierFirerate, SporifierAIMaxSafeTime,
+        ResetSafeTime;
 }
 
 
 function PostBeginPlay()
 {
     if (Role == ROLE_Authority) {
-        if (PlayerPawn(Owner) == None) {
-            bDanger = true;
-        }
-        
         if (MushMatch(Level.Game).bMushSelected)
             MushSelected();
     }
@@ -60,9 +56,9 @@ function PostBeginPlay()
 
 simulated function MushSelected()
 {
-    if (PlayerPawn(Owner) == None) {
+    /*if (PlayerPawn(Owner) == None) {
         SetTimer(1.0, false);
-    }
+    }*/
 }
 
 simulated function float RateSelf(out int bUseAltMode)
@@ -79,42 +75,19 @@ simulated function float RateSelf(out int bUseAltMode)
 
     if (MMI == None) return -2;
     
-    bUseAltMode = 0;
+    return 0;
+}
 
-    if (PlayerPawn(Owner) == None && !MMI.CheckConfirmedMush(Pawn(Owner).PlayerReplicationInfo)) {
-        for ( P = Level.PawnList; P != none; P = P.nextPawn )
-            if (P.bIsPlayer && ( ( FastTrace(P.Location) && P.CanSee(Owner) && P.PlayerReplicationInfo.Team == 0 && FRand() > 0.625 ) || P.Enemy == Owner || Pawn(Owner).PlayerReplicationInfo.Team == 0 ) ) {
-                bDanger = true;
-                SetTimer(2.0, false);
-                
-                return 0;
-            }
-            
-            else if ( bDanger ) {
-                return 0;
-            }
-    }   
-            
-    return 9000000;
+simulated function ResetSafeTime() {
+    SafeTime = 0;
 }
 
 simulated function bool PutDown() {
     if (Role == ROLE_Authority) {
-        SafeTime = 0;
+        ResetSafeTime();
     }
 
     return Super.PutDown();
-}
-
-simulated function Timer()
-{
-    if ( bDanger ) {
-        Pawn(Owner).SwitchToBestWeapon();
-        bDanger = false;
-    }
-        
-    else
-        Super.Timer();
 }
 
 simulated function PlayFiring()
@@ -146,31 +119,33 @@ simulated function Tick(float TimeDelta)
         return;
     }
     
-    if (Role == ROLE_Authority) {
-        if ( Pawn(Owner).Weapon != self ) {
-            return;
-        }
-        
+    if (Pawn(Owner).Weapon != self) {
+        return;
+    }
+
+    if (Role == ROLE_Authority) {    
         for ( p = Level.PawnList; p != none; p = p.nextPawn ) {
             if ( p.bIsPlayer && p != Owner && p.PlayerReplicationInfo != none && p.PlayerReplicationInfo.Deaths <= 0 && p.CanSee(Owner) && Pawn(Owner).PlayerReplicationInfo.Team == 1  && p.PlayerReplicationInfo.Team == 0 ) {
                 MushMatch(Level.Game).SpotMush(Pawn(Owner), p);
                 break;
             }
         }
+    }
 
-        PRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Pawn(Owner).PlayerReplicationInfo);
+    PRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Pawn(Owner).PlayerReplicationInfo);
 
-        if (PRL == None) {
-            return;
-        }
+    if (PRL == None) {
+        return;
+    }
 
-        if (PRL.bKnownMush) {
-            return;
-        }
+    if (PRL.bKnownMush) {
+        return;
+    }
 
-        SafeTime += TimeDelta;
+    SafeTime += TimeDelta;
 
-        if (SafeTime >= SporifierAIMaxSafeTime) {
+    if (SafeTime >= SporifierAIMaxSafeTime) {
+        if (Role == ROLE_Authority) {
             Pawn(Owner).SwitchToBestWeapon();
         }
     }
@@ -204,6 +179,11 @@ function Projectile ProjectileFire(class<projectile> ProjClass, float ProjSpeed,
     FireOffset.X = Default.FireOffset.X;
     
     pj.Instigator = Pawn(Owner);
+
+    // Sporifier in active use, don't randomly put down!
+    if (PlayerPawn(Owner) == None) {
+        ResetSafeTime();
+    }
     
     return pj;
 }
@@ -235,5 +215,5 @@ defaultproperties
      bAltWarnTarget=false
      bWarnTarget=false
      SporifierFirerate=1.5
-     SporifierAIMaxSafeTime=20
+     SporifierAIMaxSafeTime=15
 }
