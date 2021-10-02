@@ -8,12 +8,12 @@ RUN apt update &&\
     rm -rf /var/lib/apt/lists/*
 
 # Grab Go, and use it to grab another build dependency
-RUN curl https://golang.org/dl/go1.17.1.linux-386.tar.gz -o/var/tmp/go1.17.1.linux-386.tar.gz &&\
+RUN curl -L -C- https://golang.org/dl/go1.17.1.linux-386.tar.gz -o/var/tmp/go1.17.1.linux-386.tar.gz &&\
     tar -C /usr/local -xf /var/tmp/go1.17.1.linux-386.tar.gz &&\
     rm /var/tmp/go1.17.1.linux-386.tar.gz
 
 RUN echo PATH="$PATH:/usr/local/go/bin">>$HOME/.profile &&\
-    go get github.com/cbroglie/mustache/...
+    /usr/local/go/bin/go install github.com/cbroglie/mustache/...
 
 # Prepare the build environment
 RUN mkdir -pv /opt/ut-server/MushMatch
