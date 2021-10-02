@@ -84,10 +84,8 @@ cleanup() {
         tar cvf "$packagefull.tar" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
 
         sem -j4 --id=mushmatch-pkg -- zip -9vr "$packagefull.zip" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
-        sem -j4 --id=mushmatch-pkg -- zstd -19 -T0 -v "$packagefull.tar" -o "$packagefull.tar.zst"
         sem -j4 --id=mushmatch-pkg -- gzip --best -k "$packagefull.tar"
         sem -j4 --id=mushmatch-pkg -- bzip2 --best -k "$packagefull.tar"
-        sem -j4 --id=mushmatch-pkg -- xz -9 --extreme -k "$packagefull.tar"
         sem --id=mushmatch-pkg --wait
 
         rm "$packagefull.tar"
