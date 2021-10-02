@@ -103,7 +103,7 @@ that to build MushMatch, and copying the MushMatch build back out.
 
     ```console
     docker build . # Build the image.
-    docker run 'gustavo6046/debian-ut99-mushmatch:/opt/ut-server/Dist/MushMatch/Latest/*' --name='mushmatch_build'  # Run the image in a container.
+    docker run --name='mushmatch_build' 'gustavo6046/debian-ut99-mushmatch:/opt/ut-server/Dist/MushMatch/Latest/*'  # Run the image in a container.
     docker cp 'mushmatch_build:/opt/ut-server/Dist/MushMatch/Latest/*' .  # Get the result files off the container.
     ```
 
