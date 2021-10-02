@@ -88,14 +88,14 @@ cleanup() {
         rm "$packagefull.tar"
 
         # Move to Dist
-        dist="$utdir/$dist"
+        echo Packaging up...
         mkdir -pv "$dist/$package/$build"
         mv "$packagefull."{tar.*,zip} "$dist/$package/$build"
 
         # Update Dist/Latest
         mkdir -pv "$dist/$package/Latest"
         rm -f "$dist/$package/Latest/*"
-        cp "$dist/$package/$build/*" "$dist/$package/Latest"
+        cp "$dist/$package/$build/"* "$dist/$package/Latest"
     )
 
     # Finish up
