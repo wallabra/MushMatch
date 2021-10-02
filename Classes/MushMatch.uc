@@ -270,8 +270,12 @@ function bool CheckEnd()
 {
     local int h, m;
 
-    if ( !bMushSelected || bMatchEnd ) {
-        return;
+    if (!bMushSelected) {
+        return false;
+    }
+
+    if (bMatchEnd) {
+        return true;
     }
     
     GetAliveTeams(h, m);
