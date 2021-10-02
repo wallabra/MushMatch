@@ -4,7 +4,7 @@ LABEL maintainer="Gustavo Ramos Rehermann <rehermann6046@gmail.com>"
 # Install build dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update &&\
-    apt install -y --force-yes tar bzip2 gzip curl zip git bash parallel &&\
+    apt install -y --force-yes tar bzip2 gzip curl zip git bash parallel zstd xzip &&\
     rm -rf /var/lib/apt/lists/*
 
 # Grab Go, and use it to grab another build dependency
