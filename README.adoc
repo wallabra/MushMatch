@@ -87,33 +87,31 @@ If you want to build a source modification, there is a `build.sh` build system.
 *It requires a Linux system, with a native Linux version of Unreal Tournament*
 *installed, and that MushMatch is cloned as a subdirectory of said UT install.*
 
-Alternatively, a Dockerfile is provided that builds an image that can build
-MushMatch for you. If you run this in the MushMatch directory:
+Alternatively, you can build it all the Docker way.
 
-    ```console
-    $ docker build .
-    ```
-
-This produces an image that, each time when run, will pull `master` from GitHub
-and use that to build the very latest build of MushMatch.
-
-The Docker tag for this image is `gustavo6046/alpine-ut99-mushmatch`.
-
-This does not need a pre-existing UT install, as the Unreal Tournament server
-assets and binaries are presumably not copyrighted; in any case, they are
-hosted by UT-Files.com, and thus any possible liability falls upon them. The
-server install is only used to build MushMatch using `ucc`.
+This does not need a pre-existing UT install, as the bare Unreal Tournament server,
+with just minimal assets and binaries, are presumably not copyrighted – in any case,
+they are hosted by UT-Files.com, and thus any possible liability falls upon them. The
+UT install is ultimately only used to build MushMatch using `ucc`.
 
 The container will have a Unreal Tournament server in `/opt/ut-server`;
-when built, MushMatch will have ZIPs made and ready for distribution at
+at the end, MushMatch will have ZIPs made and ready for distribution at
 `/opt/ut-server/Dist`.
 
-Thus, to get the MushMatch zip file out of the container, one must perform this
-command _after running the Docker container to build MushMatch_:
+The build process is broken down into three simple steps: building the image, running
+that to build MushMatch, and copying the MushMatch build back out.
 
     ```console
-    docker cp 'gustavo6046/alpine-ut99-mushmatch:/opt/ut-server/Dist/MushMatch/Latest/*' target/dir
+    docker build . # Build the image.
+    docker run 'gustavo6046/debian-ut99-mushmatch:/opt/ut-server/Dist/MushMatch/Latest/*' --name='mushmatch_build'  # Run the image in a container.
+    docker cp 'mushmatch_build:/opt/ut-server/Dist/MushMatch/Latest/*' .  # Get the result files off the container.
     ```
+
+After those commands are run, some MushMatch-related files should be in your
+current directory. That is the MushMatch built, packaged neatly and ready
+for distribution.
+
+So nice and easy! :)
 
 Lore
 ----
