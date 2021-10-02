@@ -13,7 +13,7 @@ RUN curl -L -C- https://golang.org/dl/go1.17.1.linux-386.tar.gz -o/var/tmp/go1.1
     rm /var/tmp/go1.17.1.linux-386.tar.gz
 
 RUN echo PATH="$PATH:/usr/local/go/bin">>$HOME/.profile &&\
-    /usr/local/go/bin/go install github.com/cbroglie/mustache/...
+    /usr/local/go/bin/go install github.com/cbroglie/mustache/...@latest
 
 # Prepare the build environment
 RUN mkdir -pv /opt/ut-server/MushMatch

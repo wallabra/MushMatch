@@ -77,7 +77,7 @@ cleanup() {
 
         # Format .int with Mustache
         echo "Formatting: System/$package.int"
-        mustache "$package/$package.int" < "$TMP_YML" | dos2unix > "System/$packagefull.int"
+        mustache "$package/$package.int" < "$TMP_YML" > "System/$packagefull.int"
 
         # Package up
         cp -f "$package/README.adoc" "Help/$package.adoc"
