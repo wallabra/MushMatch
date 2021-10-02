@@ -9,7 +9,7 @@ RUN apt update &&\
 
 # Grab Go, and use it to grab another build dependency
 RUN curl https://golang.org/dl/go1.17.1.linux-386.tar.gz -o/var/tmp/go1.17.1.linux-386.tar.gz &&\
-    tar -C /usr/local -xzf /var/tmp/go1.17.1.linux-386.tar.gz &&\
+    tar -C /usr/local -xf /var/tmp/go1.17.1.linux-386.tar.gz &&\
     rm /var/tmp/go1.17.1.linux-386.tar.gz
 
 RUN echo PATH="$PATH:/usr/local/go/bin">>$HOME/.profile &&\
