@@ -100,6 +100,9 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
 function DrawCategoryHeaders(Canvas Canvas)
 {
     local float Offset, XL, YL;
+    local MushMatchInfo MMI;
+    
+    MMI = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo);
 
     Offset = Canvas.CurY;
     Canvas.DrawColor = WhiteColor;
@@ -108,7 +111,7 @@ function DrawCategoryHeaders(Canvas Canvas)
     Canvas.SetPos((Canvas.ClipX / 8)*2 - XL/2, Offset);
     Canvas.DrawText(PlayerString);
 
-    if (bCanDrawScoresNow) {
+    if (bDrawScoreOnMatchEnd && MMI.bMatchEnd) {
         Canvas.StrLen(ScoreString, XL, YL);
         Canvas.SetPos((Canvas.ClipX / 8)*4.4 - XL/2, Offset);
         Canvas.DrawText(ScoreString);
