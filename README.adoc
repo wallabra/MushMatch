@@ -157,7 +157,7 @@ or responsibility with regards to that.
 
 In case any actual legal infraction is proved to be, consider forwarding legal proceedings and
 inquiries to UT-Files.com, the hosts of the file in question. In any case, it would be polite
-to notify the author of the project, at the e-mail addressmailto:rehermnan6046@gmail.com[rehermann6046@gmail.com],
+to notify the author of the project, at the e-mail address mailto:rehermnan6046@gmail.com[rehermann6046@gmail.com],
 so as to be made aware of this nuance and rectify the project to no longer be affected by it.
 
 In case legal contention is had specifically and explicitly with this projecti tself, please
