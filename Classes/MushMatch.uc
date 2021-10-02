@@ -246,16 +246,20 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     CheckEnd();
 }
     
-function CheckEnd()
+function bool CheckEnd()
 {
     local int h, m;
 
-    if ( !bMushSelected || bMatchEnd )
+    if ( !bMushSelected || bMatchEnd ) {
         return;
+    }
     
     GetAliveTeams(h, m);
         
-    if ( h == 0 || m == 0 ) SetEndCams("teamstand");
+    if ( h == 0 || m == 0 ) {
+        SetEndCams("teamstand");
+        return true;
+    }
 }
 
 function GetAliveTeams(out int humans, out int mush) {
@@ -577,19 +581,23 @@ function MakeMush(Pawn Other, Pawn Instigator) {
     SafeGiveSporifier(Other);
     
     Other.PlayerReplicationInfo.Team = 1; // 0 = human, 1 = mush
-    
-    Instigator.PlayerReplicationInfo.Score += 1;
         
-    mushmatch(Level.Game).CheckEnd();
-    
-    if ( Other.Enemy == Instigator ) UnsetEnemy(Other);
-    if ( Other == Instigator.Enemy ) UnsetEnemy(Instigator);
-    
-    // -- Infections are low-key, don't alert everyone in a newly infected mush's vicinity, that's dumb. -- {
-    //     for ( p = Level.PawnList; p != none; p = p.nextPawn )
-    //         if ( p.bIsPlayer && p != Other && p.PlayerReplicationInfo != none && p.PlayerReplicationInfo.Deaths <= 0 && p.CanSee(Other) && Other.PlayerReplicationInfo.Team == 1  && p.PlayerReplicationInfo.Team == 0 )
-    //             mushmatch(Level.Game).SpotMush(Other, p);
-    // }
+    if (MushMatch(Level.Game).CheckEnd()) {
+        return;
+    }
+
+    if (Instigator != None) {
+        Instigator.PlayerReplicationInfo.Score += 1;
+
+        if ( Other.Enemy == Instigator ) UnsetEnemy(Other);
+        if ( Other == Instigator.Enemy ) UnsetEnemy(Instigator);
+        
+        // -- Infections are low-key, don't alert everyone in a newly infected mush's vicinity, that's dumb. -- {
+        //     for ( p = Level.PawnList; p != none; p = p.nextPawn )
+        //         if ( p.bIsPlayer && p != Other && p.PlayerReplicationInfo != none && p.PlayerReplicationInfo.Deaths <= 0 && p.CanSee(Other) && Other.PlayerReplicationInfo.Team == 1  && p.PlayerReplicationInfo.Team == 0 )
+        //             mushmatch(Level.Game).SpotMush(Other, p);
+        // }
+    }
             
     if (PlayerPawn(Other) != None && !MushMatch(Level.Game).bMatchEnd) {
         Other.PlayOwnedSound(sound'Infected');
