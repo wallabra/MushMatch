@@ -159,7 +159,7 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     hMom = vect(0,0,0);
     dmg = 32767;
 
-    if (Killer != None && Killer.bIsPlayer && (!Killer.PlayerReplicationInfo.bIsABot || Killer.PlayerReplicationInfo.Team == 1))
+    if (Killer != None && Killer.bIsPlayer)
         LastTauntTime   = Level.TimeSeconds + 6; // auto-taunts also make it easy to spot killers, disable for 6 seconds for players and mushes
 
     OPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
