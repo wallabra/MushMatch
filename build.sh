@@ -12,6 +12,7 @@ cleanup() {
     packagefull="$package"-"$build"
     packagedir="$(realpath .)"
 
+    utdir="$(realpath "$utdir")"
     TMPINI="$(mktemp)"
     cat "$makeini">"$TMPINI"
     echo EditPackages="$packagefull">>"$TMPINI"
@@ -92,6 +93,7 @@ cleanup() {
         rm "$packagefull.tar"
 
         # Move to Dist
+        dist="$(realpath "$utdir/$dist")"
         mkdir -pv "$dist/$package/$build"
         mv "$packagefull."{tar.*,zip} "$dist/$package/$build"
 
