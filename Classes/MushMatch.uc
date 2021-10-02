@@ -456,7 +456,7 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
             }
 
             // maybe try to infect, if you can be sneaky!
-            if (!Other.CanSee(aBot) && aBot.FindInventoryType(class'Sporifier') != None && FRand() < DecideChance_Infect) {
+            if (!Other.CanSee(aBot) && aBot.FindInventoryType(class'Sporifier') != None && FRand() < DecideChance_Infect && !aBot.IsInState('attacking')) {
                 for (P = Level.PawnList; P != None; P = P.NextPawn) {
                     if (P.bIsPlayer && P.PlayerReplicationInfo != None && P.PlayerReplicationInfo.Team == 0 && P.LineOfSightTo(aBot) && P != Other) {
                         bNoSneaking = true;
