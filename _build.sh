@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./config.sh
+source ./buildconfig.sh
 
 cleanup() {
     pushd "$utdir"
@@ -54,8 +54,6 @@ cleanup() {
             mustache "$package/Classes/$class" < "$TMP_YML" > "$packagefull/Classes/$class"
         done
 
-        sem --id="formatint" --wait
-
         # Build .u
         pushd System
         #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
@@ -83,10 +81,9 @@ cleanup() {
         cp -f "$package/README.adoc" "Help/$package.adoc"
         tar cvf "$packagefull.tar" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
 
-        sem -j4 --id=mushmatch-pkg -- zip -9vr "$packagefull.zip" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
-        sem -j4 --id=mushmatch-pkg -- gzip --best -k "$packagefull.tar"
-        sem -j4 --id=mushmatch-pkg -- bzip2 --best -k "$packagefull.tar"
-        sem --id=mushmatch-pkg --wait
+        zip -9vr "$packagefull.zip" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
+        gzip --best -k "$packagefull.tar"
+        bzip2 --best -k "$packagefull.tar"
 
         rm "$packagefull.tar"
 
@@ -96,7 +93,7 @@ cleanup() {
         mv "$packagefull."{tar.*,zip} "$dist/$package/$build"
 
         # Update Dist/Latest
-        mkdir -p "$dist/$package/Latest"
+        mkdir -pv "$dist/$package/Latest"
         rm -f "$dist/$package/Latest/*"
         cp "$dist/$package/$build/*" "$dist/$package/Latest"
     )

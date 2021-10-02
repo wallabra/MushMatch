@@ -8,8 +8,7 @@ Mush Match development team
 Mush Match is a social deduction game type written for classic Unreal Tournament,
 started back in 2018 by Gustavo Ramos Rehermann.
 
-About
------
+== About
 
 It was inspired by an online early 2010s turn-based, online multiplayer,
 Flash-based, social deduction game, called https://mush.twinoid.com[Mush].
@@ -20,13 +19,14 @@ Like many other social deduction games, it plays asymmetrically;
 the humans and the Mush have different goals and different tools to achieve
 them. In the end, the last team standing wins.
 
-Download
---------
+== Download
 
 See the https://github.com/Gustavo6046/MushMatch/releases[Releases] page!
 
-Rules
------
+If you want to build from source, you must be on a Linux system. See the
+section link:#building-from-source[*Building from Source*] below.
+
+== Rules
 
 Every person has only one life, and their team is identified on death.
 
@@ -55,8 +55,7 @@ other human bots –  are more likely to act in an anti-social manner – and
 also know how to be sneaky when either killing or infecting. Which is to say, 
 good luck spotting them, before they spot _you_!
 
-FAQ
-----
+== FAQ
 
 _Mush Match appears twice on my gameplay selection screen! What do I do?_::
     If you have any instance of GusPackII.u or GusPackII.int in your System 
@@ -80,41 +79,39 @@ _This does not work with FerBotz! They just kill each other and can tell each ot
     made with social deduction in mind, and it's not like you're supposed to expect
     anywhere clcose to that from a retro FPS bot :)
 
-Building
---------
+== Building from Source
 
-If you want to build a source modification, there is a `build.sh` build system.
-*It requires a Linux system, with a native Linux version of Unreal Tournament*
-*installed, and that MushMatch is cloned as a subdirectory of said UT install.*
+Currently you can only build MushMatch from a Linux system.
 
-Alternatively, you can build it all the Docker way.
+If you are on Windows, you may try to use Cygwin, WSL, or elaborate a virtual
+machine or Dockerfile, but there is no warranty that it will work, thus caveat
+emptor.
 
-This does not need a pre-existing UT install, as the bare Unreal Tournament server,
-with just minimal assets and binaries, are presumably not copyrighted – in any case,
-they are hosted by UT-Files.com, and thus any possible liability falls upon them. The
-UT install is ultimately only used to build MushMatch using `ucc`.
+==== Prerequisites
 
-The container will have a Unreal Tournament server in `/opt/ut-server`;
-at the end, MushMatch will have ZIPs made and ready for distribution at
-`/opt/ut-server/Dist`.
 
-The build process is broken down into three simple steps: building the image, running
-that to build MushMatch, and copying the MushMatch build back out.
+If you want to build from source, make sure you have the build dependencies
+beforehand. You most likely already have `curl`, `zip`, `tar`, `gzip` and `bz2`,
+but you'll also need to install a Go package named `mustache`.
+
+You can grab it by https://golang.org/doc/install[installing Go],
+and then running:
 
     ```console
-    docker build . # Build the image.
-    docker run --name='mushmatch_build' 'gustavo6046/debian-ut99-mushmatch:/opt/ut-server/Dist/MushMatch/Latest/*'  # Run the image in a container.
-    docker cp 'mushmatch_build:/opt/ut-server/Dist/MushMatch/Latest/*' .  # Get the result files off the container.
+    $ go install github.com/cbroglie/mustache/...@latest
     ```
 
-After those commands are run, some MushMatch-related files should be in your
-current directory. That is the MushMatch built, packaged neatly and ready
-for distribution.
+==== Build
 
-So nice and easy! :)
+Simply run `make`. The provided Makefile should automatically take care
+of downloads, setting up a bare UT tree, and building MushMatch in it, all for you!
 
-Lore
-----
+==== Settings
+
+A few variables control how the build is done. Usually, those variables don't
+have to be edited, as they 
+
+== Lore
 
 A Mush is actually a fungus, borne from a distant planet from another star, 
 which can be pathogenic and takes full control of its host's body, and 
@@ -137,7 +134,41 @@ Of course it is all much more complicated than this, but this is a succinct
 summary. If you want more info, see the 
 http://www.mushpedia.com/wiki/Main_Page[Mushpedia]!
 
-Licensing
----------
 
-The license only applies to the code here. See the [LICENSE.md] file
+== Licensing
+
+The license only applies to the code inside the `Classes/` subdirectory,
+and files in the project's top folder. For those, see the [LICENSE.md] file.
+
+All non-code assets, i.e. files within the `Models/`, `Sounds/` and `Textures/`
+subdirectories, are provided under the
+https://creativecommons.org/licenses/by-sa/4.0/[CC-BY-SA 4.0].
+
+==== Legal Copyright Disclaimer
+
+The build system does, indeed, download a bare copy of Unreal Tournament (1999), which is
+meant to have only the minimum assets required to run as a server. Due to its free availability
+online compared to other instances where said files occur (such as retail), it is presumed that
+no copyright infringement or other law infraction is inflicted by this.
+
+Additionally, this project does not host this downloaded file; it is provided by UT-Files.com.
+Therefore, the authors, maintainers, and users of this project should be waived of any liability
+or responsibility with regards to that.
+
+In case any actual legal infraction is proved to be, consider forwarding legal proceedings and
+inquiries to UT-Files.com, the hosts of the file in question. In any case, it would be polite
+to notify the author of the project, at the e-mail addressmailto:rehermnan6046@gmail.com[rehermann6046@gmail.com],
+so as to be made aware of this nuance and rectify the project to no longer be affected by it.
+
+In case legal contention is had specifically and explicitly with this projecti tself, please
+send any legal inquiries or takedown requests toward the e-mail address
+mailto:rehermnan6046@gmail.com[rehermann6046@gmail.com]. Response and/or action may be expected
+in up to seven days, after the which a DMCA takedown notice is more than polite, although there
+is little against otherwise other than objection.
+
+In case a DMCA takedown notice is received, it would be preferable for the repository to be
+made private so that project files can be downloaded and backed up, at least temporarily.
+
+The main author of the project, Gustavo Ramos Rehermann as of writing (October 2021), is not
+situated in the United States of America, nor under American jurisdiction. Please refer to the
+Brazilian justice system for appropriate research and proceedings.
