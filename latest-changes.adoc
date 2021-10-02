@@ -9,3 +9,4 @@
  * Ensure that for any non-PlayerPawn, a Sporifier without ammo is always automatically put down (though this may be redundant)
  * Return from MushMatch.Logout early if the match has already ended
  * Prevent bots from switching to the Sporifier to attack someone if they're already attacking someone else
+ * Augment Sporifier's RateSelf when it is solicited by the gametype AI code
