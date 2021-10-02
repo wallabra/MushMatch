@@ -159,12 +159,11 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     hMom = vect(0,0,0);
     dmg = 32767;
 
-    if (Killer != None && Killer.bIsPlayer)
-        LastTauntTime   = Level.TimeSeconds + 6; // auto-taunts also make it easy to spot killers, disable for 6 seconds for players and mushes
+    if (Killer != None && Killer.bIsPlayer) {
+        LastTauntTime   = Level.TimeSeconds + 6; // auto-taunts also make it easy to spot killers, disable momentarily
+    }
 
     OPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
-
-    DiscardInventory(Other);
 
     if (Other.PlayerReplicationInfo == None || (Killer != None && Killer.PlayerReplicationInfo == None)) {
         Super.Killed(Killer, Other, DamageType);
@@ -197,8 +196,9 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
                 Warn("MushMatch replication list entry for"@ Other.PlayerReplicationInfo.PlayerName @"not found!");
                 Log("Found:");
 
-                for (OPRL = MushMatchInfo(GameReplicationInfo).PRL; OPRL != None; OPRL = MushMatchPRL(OPRL.next))
+                for (OPRL = MushMatchInfo(GameReplicationInfo).PRL; OPRL != None; OPRL = MushMatchPRL(OPRL.next)) {
                     Log(" * "@ PlayerReplicationInfo(OPRL.Owner).PlayerName @"("$ OPRL @ OPRL.Owner $ ") - next:"@ OPRL.next);
+                }
             }
         }
     }
@@ -237,12 +237,14 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     MushMatchMutator(BaseMutator).MutatorScoreKill(Killer, Other);
     Super.Killed(Killer, Other, DamageType);
     
-    if ( bMatchEnd )
+    if (bMatchEnd) {
         return;
+    }
 
-    if ( PlayerPawn(Other) != none )
-        PlayerPawn(Other).PlayerReplicationInfo.Deaths += 1;
-        
+    if (Other.bIsPlayer) {
+        Other.PlayerReplicationInfo.Deaths += 1;
+    }
+
     CheckEnd();
 }
     
