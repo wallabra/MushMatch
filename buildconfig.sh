@@ -12,6 +12,6 @@ export package=MushMatch
 # in the build/ subdirectory provide a sufficiently predictable build environment.
 
 export utdir=".."
-export ucc="./ucc-bin"
+export ucc="./ucc-bin-x86"
 export makeini="make.ini"
 export dist='Dist'

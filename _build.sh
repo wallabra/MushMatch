@@ -3,21 +3,20 @@
 source ./buildconfig.sh
 
 cleanup() {
-    pushd "$utdir"
-    rm -rv "$packagefull"
-    popd
+    pushd "$utdir">/dev/null
+    rm -r "$packagefull"
+    popd>/dev/null
 }
 
 ( # Subshell to preserve original working dir
     packagefull="$package"-"$build"
-    packagedir="$(realpath .)"
+    packagedir="."
 
-    utdir="$(realpath "$utdir")"
     TMPINI="$(mktemp)"
     cat "$makeini">"$TMPINI"
     echo EditPackages="$packagefull">>"$TMPINI"
 
-    pushd "$utdir"
+    pushd "$utdir">/dev/null
 
     TMP_YML="$(mktemp)"
 
@@ -55,10 +54,11 @@ cleanup() {
         done
 
         # Build .u
-        pushd System
+        pushd System>/dev/null
         #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
         if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
-        "$ucc" make ini="$TMPINI" | tee "$packagedir/make.log"
+        echo "* Invoking ucc make in $(pwd)"
+        "$ucc" make -NoBind ini="$TMPINI" | tee "$packagedir/make.log"
 
         # Ensure .u is built
         if [[ ! -f "$packagefull.u" ]]; then
@@ -66,12 +66,12 @@ cleanup() {
                 mv "$HOME/.utpg/System/$packagefull.u" .
 
             else
-                popd
+                popd>/dev/null
                 exit 1
             fi
         fi
         
-        popd
+        popd>/dev/null
 
         # Format .int with Mustache
         echo "Formatting: System/$package.int"
@@ -79,16 +79,16 @@ cleanup() {
 
         # Package up
         cp -f "$package/README.adoc" "Help/$package.adoc"
-        tar cvf "$packagefull.tar" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
+        tar cf "$packagefull.tar" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
 
-        zip -9vr "$packagefull.zip" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
+        zip -9r "$packagefull.zip" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc" >/dev/null
         gzip --best -k "$packagefull.tar"
         bzip2 --best -k "$packagefull.tar"
 
         rm "$packagefull.tar"
 
         # Move to Dist
-        dist="$(realpath "$utdir/$dist")"
+        dist="$utdir/$dist"
         mkdir -pv "$dist/$package/$build"
         mv "$packagefull."{tar.*,zip} "$dist/$package/$build"
 
@@ -99,7 +99,7 @@ cleanup() {
     )
 
     # Finish up
-    popd
+    popd>/dev/null
 
     rm "$TMP_YML"
     cleanup

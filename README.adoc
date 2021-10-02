@@ -91,8 +91,8 @@ emptor.
 
 
 If you want to build from source, make sure you have the build dependencies
-beforehand. You most likely already have `curl`, `zip`, `tar`, `gzip` and `bz2`,
-but you'll also need to install a Go package named `mustache`.
+beforehand. You most likely already have `curl`, `zip`, `tar`, `gzip`, `bash`
+and `bz2`, but you will also need to install a Go package named `mustache`.
 
 You can grab it by https://golang.org/doc/install[installing Go],
 and then running:

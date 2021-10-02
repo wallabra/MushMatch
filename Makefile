@@ -1,11 +1,14 @@
-
 MUSHMATCH_ROOT ?= .
 DIR_BUILD ?= build
 DIR_DEPS ?= $(DIR_BUILD)/deps
 DIR_TARG ?= $(DIR_BUILD)/ut-server
-CURLFLAGS ?=
+BUILD_LOG ?= ./build.log
+DIR_DIST = $(DIR_TARG)/Dist
+CAN_DOWNLOAD ?= 1
 
-CMDS_EXPECTED = curl tar gzip bzip2 zip mustache
+CMDS_EXPECTED = curl tar gzip bzip2 zip bash mustache
+
+all: build
 
 expect-cmd-%:
 	if ! which "${*}" >/dev/null; then \
@@ -35,32 +38,60 @@ expect-mustache:
 	echo "----'">&2; \
 	exit 2; fi
 
-deps/ut-server-linux-436.tar.gz: expect-cmd-curl
-	pushd "$(DIR_BUILD)" >/dev/null
-	echo '=== Downloading UT Linux v436 bare server...'
-	curl 'http://ut-files.com/index.php?dir=Entire_Server_Download/&file=ut-server-linux-436.tar.gz' -LC- -o'deps/ut-server-linux-436.tar.gz'
-	popd >/dev/null
+download:
+	echo '=== Downloading UT Linux v436 bare server...' ;\
+	curl 'http://ut-files.com/index.php?dir=Entire_Server_Download/&file=ut-server-linux-436.tar.gz' -LC- -o"$(DIR_DEPS)/ut-server-linux-436.tar.gz" ;\
+	echo '=== Downloading UT Linux v469 patch...' ;\
+	curl 'https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469b/OldUnreal-UTPatch469b-Linux.tar.bz2' -LC- -o"$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" ;\
+	echo Done. ;\
 
-deps/OldUnreal-UTPatch469b-Linux.tar.bz2: expect-cmd-curl
-	pushd "$(DIR_BUILD)" >/dev/null
-	echo '=== Downloading UT Linux v469 patch...'
-	curl 'https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469b/OldUnreal-UTPatch469b-Linux.tar.bz2' -LC- -o'deps/OldUnreal-UTPatch469b-Linux.tar.bz2' "$(CURLFLAGS)"
-	popd >/dev/null
+cannot-download:
+	echo "----.">&2; \
+	echo "    Building this mod requires downloading some files that are">&2; \
+	echo "    used to setup a build environment. Those files can be downloaded">&2; \
+	echo "    automatically, but CAN_DOWNLOAD is set to 0, which is useful for">&2; \
+	echo "    build environments that are restrained of network availability for">&2; \
+	echo "    security (such as NixOS), but requires those files to be downloaded or.">&2; \
+	echo "    copied beforehand, either manually or via 'make download'">&2; \
+	echo >&2; \
+	echo "    Either set CAN_DOWNLOAD to 1 so they may be downloaded automatically, or">&2; \
+	echo "    run 'make download'.">&2; \
+	echo >&2; \
+	echo "    More specifically, 'make download' places the following two remote files">&2; \
+	echo "    inside build/dist without renaming from their remote names:">&2; \
+	echo "        http://ut-files.com/index.php?dir=Entire_Server_Download/&file=ut-server-linux-436.tar.gz">&2; \
+	echo "        https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469b/OldUnreal-UTPatch469b-Linux.tar.bz2">&2; \
+	echo >&2; \
+	echo "    If you insist on a manual download, download them like so. If done properly,">&2; \
+	echo "	  Make should be able to find them and deem an auto-download unnecessary anyway.">&2; \
+	echo >&2; \
+	echo "----'">&2; \
+	exit 1
+
+auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), download, cannot-download)
 
 #-- Entrypoint rules
 
-download: deps/ut-server-linux-436.tar.gz deps/OldUnreal-UTPatch469b-Linux.tar.bz2
+"$(DIR_DEPS)/ut-server-linux-436.tar.gz" "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2": auto-download
 
-configure: download deps/ut-server-linux-436.tar.gz deps/OldUnreal-UTPatch469b-Linux.tar.bz2 expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
-	pushd "$(DIR_BUILD)" >/dev/null
-	echo '=== Extracting and setting up...'
-	tar -xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz"-C "$(DIR_BUILD)"
-	tar -xjpf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" -C "$(DIR_TARG)"
-	ln -sv "../../$(MUSHMATCH_ROOT)" "$(DIR_TARG)/MushMatch"
+configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2 expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
+	echo '=== Extracting and setting up...' ;\
+	tar xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" -C "$(DIR_BUILD)" ;\
+	tar xjpf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" -C "$(DIR_TARG)" ;\
+	ln -s "../../$(MUSHMATCH_ROOT)" "$(DIR_TARG)/MushMatch" ;\
+	echo Done.
+
+"$(DIR_TARG)/MushMatch/_build.sh": configure
+
+build: $(DIR_TARG)/MushMatch/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
+	echo '=== Starting build!' ;\
+	pushd "$(DIR_TARG)"/MushMatch >/dev/null ;\
+	if bash ./_build.sh 2>&1 | tee $(BUILD_LOG); then\
+		echo "Build finished: see $(DIR_DIST)" 2>&1 ;\
+	else\
+		echo "Build errored: see $(BUILD_LOG)" 2>&1 ;\
+	fi;\
 	popd >/dev/null
-
-build: configure ut-server/System/ucc-bin ut-server/System/UnrealTournament.ini expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-mustache
-	pushd "$(DIR_TARG)"/MushMatch >/dev/null; ./_build.sh; popd >/dev/null
 
 clean-downloads:
 	rm deps/*
@@ -70,6 +101,6 @@ clean-tree:
 
 clean: clean-downloads clean-tree
 
-
-.PHONY: download configure build expect-cmd-% expect-mustache clean clean-downloads clean-tree
+.PHONY: download configure build expect-cmd-% expect-mustache clean clean-downloads clean-tree \
+		.ut-server-linux-436.tar.gz .OldUnreal-UTPatch469b-Linux.tar.bz2
 .SILENT:
