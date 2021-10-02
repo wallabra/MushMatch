@@ -1,4 +1,5 @@
-MUSHMATCH_ROOT ?= .
+PACKAGE_NAME ?= MushMatch
+PACKAGE_ROOT ?= .
 DIR_BUILD ?= build
 DIR_DEPS ?= $(DIR_BUILD)/deps
 DIR_TARG ?= $(DIR_BUILD)/ut-server
@@ -29,7 +30,7 @@ expect-mustache:
 	echo "   Command 'mustache' not found! It is required for build!">&2; \
 	echo >&2; \
 	echo "   mustache is a formatting tool used by the build process">&2; \
-	echo "   when formatting MushMatch-*.int, as well as the UnrealScript">&2; \
+	echo "   when formatting the .int, as well as the UnrealScript">&2; \
 	echo "	 classes to be built, to provide slight environment-awareness..">&2; \
 	echo >&2; \
 	echo "	 It must be installed via Go, but assuming Go is already installed,">&2; \
@@ -78,14 +79,14 @@ configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch4
 	echo '=== Extracting and setting up...' ;\
 	tar xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" -C "$(DIR_BUILD)" ;\
 	tar xjpf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
-	ln -s "../../$(MUSHMATCH_ROOT)" "$(DIR_TARG)/MushMatch" ;\
+	ln -s "../../$(PACKAGE_ROOT)" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
 
-"$(DIR_TARG)/MushMatch/_build.sh": configure
+"$(DIR_TARG)/$(PACKAGE_NAME)/_build.sh": configure
 
-build: $(DIR_TARG)/MushMatch/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
+build: $(DIR_TARG)/$(PACKAGE_NAME)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
 	echo '=== Starting build!' ;\
-	pushd "$(DIR_TARG)"/MushMatch >/dev/null ;\
+	pushd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
 	if bash ./_build.sh 2>&1 | tee $(BUILD_LOG); then\
 		echo "Build finished: see $(DIR_DIST)" 2>&1 ;\
 	else\
