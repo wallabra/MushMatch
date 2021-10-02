@@ -112,9 +112,9 @@ function DrawCategoryHeaders(Canvas Canvas)
     Canvas.DrawText(PlayerString);
 
     if (bDrawScoreOnMatchEnd && MMI.bMatchEnd) {
-        Canvas.StrLen(ScoreString, XL, YL);
+        Canvas.StrLen(FragsString, XL, YL);
         Canvas.SetPos((Canvas.ClipX / 8)*4.4 - XL/2, Offset);
-        Canvas.DrawText(ScoreString);
+        Canvas.DrawText(FragsString);
     }
 
     Canvas.StrLen(StatusString, XL, YL);
