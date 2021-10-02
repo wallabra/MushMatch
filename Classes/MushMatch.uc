@@ -470,8 +470,8 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
                     sporer = Sporifier(aBot.FindInventoryType(class'Sporifier'));
 
                     if (aBot.Weapon != sporer) {
-                        sporer.BringUp();
                         sporer.SafeTime = 0;
+                        sporer.BringUp();
                     }
 
                     return 1;
