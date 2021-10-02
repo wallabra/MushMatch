@@ -97,9 +97,9 @@ and `bz2`, but you will also need to install a Go package named `mustache`.
 You can grab it by https://golang.org/doc/install[installing Go],
 and then running:
 
-    ```console
-    $ go install github.com/cbroglie/mustache/...@latest
-    ```
+```console
+$ go install github.com/cbroglie/mustache/...@latest
+```
 
 ==== Build
 
@@ -152,8 +152,8 @@ online compared to other instances where said files occur (such as retail), it i
 no copyright infringement or other law infraction is inflicted by this.
 
 Additionally, this project does not host this downloaded file; it is provided by UT-Files.com.
-Therefore, the authors, maintainers, and users of this project should be waived of any liability
-or responsibility with regards to that.
+Therefore, the authors, maintainers, and users of this project consider themselves waived of
+any liability or responsibility with regards to that.
 
 In case any actual legal infraction is proved to be, consider forwarding legal proceedings and
 inquiries to UT-Files.com, the hosts of the file in question. In any case, it would be polite

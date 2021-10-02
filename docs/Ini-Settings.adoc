@@ -1,0 +1,51 @@
+MushMatch INI settings
+======================
+Mush Match development team
+:homepage: https://ut99.org/viewtopic.php?f=4&t=14820
+
+A lot of behaviour in Mush Match is configurable in the `UnrealTournament.ini` file,
+under the section `[MushMatch-BUILDNUMBER.MushMatch]`, where BUILDNUMBER is,
+self-explanatorily, the build number of the related Mush Match install.
+
+The compendium of available options ranges in effect, from whether Mush players should
+be referred to by neuter pronouns ('it', as opposed to 'he' or 'she') in ingame messages,
+to whether score penalties shall be incurred on teamkills, to how fast the Sporifier fires
+or the immune level regenerates.
+
+A standard Mush Match is expected to abide to default parameters. However, they are provided
+for the sake of fun and flexibility. A profile system is planned for the near future.
+
+:toc:
+:numbered:
+
+== Available Options
+
+==== Gameplay
+
+==== Gamerules
+
+==== Cosmetic
+
+== Default Parameters
+
+The default, standard parameters follow.
+
+```ini
+DiscoveredMusic=Cannon.Cannon
+FragLimit=30
+TimeLimit=0
+bMultiWeaponStay=True
+bUseTranslocator=True
+MinFOV=80.000000
+MaxFOV=130.000000
+MaxNameChanges=0
+WarmUpTime=10.000000
+MushRatio=0.200000
+MushScarceRatio=5.000000
+SpectatorClass=Class'Botpack.CHSpectator'
+bMushUseOwnPronoun=True
+MushDiedMessageType=Class'MushMatch.MushDiedMessage'
+MushSpottedMessageType=Class'MushMatch.MushSpottedMessage'
+MushSuspectedMessageType=Class'MushMatch.MushSuspectedMessage'
+MushSelectedMessageType=Class'MushMatch.MushSelectedMessage'
+```
