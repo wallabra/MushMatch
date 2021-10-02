@@ -7,7 +7,7 @@ var             bool                    bDead;
 var             byte                    InitialTeam;
 var             float                   ImmuneLevel;
 var             float                   ImmuneMomentum, ImmuneResistance;
-var             PlayerReplicationlist   HatedBy;
+var             PlayerReplicationList   HatedBy;
 var(MushMatch)  config float            ImmuneMomentumDrag,
                                             ImmuneMomentumThreshold,
                                             ImmuneNaturalRegen,
