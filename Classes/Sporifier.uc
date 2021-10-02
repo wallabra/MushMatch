@@ -64,7 +64,7 @@ simulated function MushSelected()
 
 simulated function float RateSelf(out int bUseAltMode)
 {
-    local Pawn P;
+    //local Pawn P;
     local MushMatchInfo MMI;
 
     if ( (AmmoType != None) && (AmmoType.AmmoAmount <=0) )
