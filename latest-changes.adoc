@@ -10,3 +10,5 @@
  * Return from MushMatch.Logout early if the match has already ended
  * Prevent bots from switching to the Sporifier to attack someone if they're already attacking someone else
  * Augment Sporifier's RateSelf when it is solicited by the gametype AI code
+ * Penalize for same-team kills, and, by default, multiply any infectee's score by -0.5 (negative of half) to represent reverse contribution to their new team
+ * Allow showing score on match end by default

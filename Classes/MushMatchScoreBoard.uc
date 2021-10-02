@@ -2,27 +2,34 @@ class MushMatchScoreBoard extends TournamentScoreBoard;
 
 
 var localized string StatusString, TeamString;
+var(MushMatch) config bool bDrawScoreOnMatchEnd;
 
 
 // slightly modified version of Super.DrawNameAndPing
 // that does not draw frags, as those are possibly
-// incriminating
+// incriminating (except for match end, if configured to!)
 function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset, float YOffset, bool bCompressed)
 {
     local float XL, YL, XL2, YL2, XL3, YL3;
     local bool bLocalPlayer;
     local PlayerPawn PlayerOwner;
     local int Time;
-    local string Status, Team;
+    local string Status, Team, ScoreNum;
     local MushMatchPRL PPRL;
+    local bool bCanDrawScoresNow;
+    local MushMatchInfo MMI;
+
+    MMI = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo);
+    bCanDrawScoresNow = bDrawScoreOnMatchEnd && MMI.bMatchEnd;
     
     if (PRI.Team == 254) return; // don't render the Strawman
     if (PRI.Team == 253) return; // don't render spectators
 
-    Status = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo).TeamTextStatus(PRI, PlayerPawn(Owner));
-    Team = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo).TeamTextAlignment(PRI, PlayerPawn(Owner));
+    Status = MMI.TeamTextStatus(PRI, PlayerPawn(Owner));
+    Team = MMI.TeamTextAlignment(PRI, PlayerPawn(Owner));
+    ScoreNum = ""$ PRI.Score;
     
-    PPRL = MushMatchPRL(MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo).PRL.FindPlayer(PRI));
+    PPRL = MMI.FindPRL(PRI);
 
     PlayerOwner = PlayerPawn(Owner);
 
@@ -47,6 +54,13 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
 
     if ( !bCompressed && PlayerPawn(Owner).GameReplicationInfo != None )
     {
+        if (bCanDrawScoresNow) {
+            // Draw Score
+            Canvas.StrLen(ScoreNum, XL2, YL);
+            Canvas.SetPos(Canvas.ClipX * 0.55 + XL * 0.5 - XL2, YOffset);
+            Canvas.DrawText(ScoreNum, false);
+        }
+        
         // Draw Status
         Canvas.StrLen(Status, XL2, YL);
         Canvas.SetPos(Canvas.ClipX * 0.625 + XL * 0.5 - XL2, YOffset);
@@ -69,10 +83,12 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
         Canvas.SetPos( Canvas.ClipX * 0.75 + XL, YOffset );
         Canvas.DrawText( TimeString$":"@Time, false );
 
-        // Draw FPH
-        Canvas.TextSize( FPHString$": 999", XL2, YL2 );
-        Canvas.SetPos( Canvas.ClipX * 0.75 + XL, YOffset + 0.5 * YL );
-        Canvas.DrawText( FPHString$": "@int(60 * PRI.Score/Time), false );
+        if (bCanDrawScoresNow) {
+            // Draw FPH
+            Canvas.TextSize( FPHString$": 999", XL2, YL2 );
+            Canvas.SetPos( Canvas.ClipX * 0.75 + XL, YOffset + 0.5 * YL );
+            Canvas.DrawText( FPHString$": "@int(60 * PRI.Score/Time), false );
+        }
 
         XL3 = FMax(XL3, XL2);
         // Draw Ping
@@ -92,11 +108,17 @@ function DrawCategoryHeaders(Canvas Canvas)
     Canvas.SetPos((Canvas.ClipX / 8)*2 - XL/2, Offset);
     Canvas.DrawText(PlayerString);
 
-    Canvas.StrLen(TeamString, XL, YL);
+    if (bCanDrawScoresNow) {
+        Canvas.StrLen(ScoreString, XL, YL);
+        Canvas.SetPos((Canvas.ClipX / 8)*4.4 - XL/2, Offset);
+        Canvas.DrawText(ScoreString);
+    }
+
+    Canvas.StrLen(StatusString, XL, YL);
     Canvas.SetPos((Canvas.ClipX / 8)*5 - XL/2, Offset);
     Canvas.DrawText(StatusString);
 
-    Canvas.StrLen(StatusString, XL, YL);
+    Canvas.StrLen(TeamString, XL, YL);
     Canvas.SetPos((Canvas.ClipX / 8)*6 - XL/2, Offset);
     Canvas.DrawText(TeamString);
 }
@@ -176,4 +198,5 @@ defaultproperties
 {
     StatusString="Status"
     TeamString="Alignment"
+    bDrawScoreOnMatchEnd=true;
 }

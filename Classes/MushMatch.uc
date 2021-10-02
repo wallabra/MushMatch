@@ -21,6 +21,8 @@ var(MushMatch) config bool bMushUseOwnPronoun;
 var(MushMatch) config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack, DecideChance_TeamUp, DecideChance_MushHelpMush, DecideChance_Scapegoat;
 var(MushMatch) config float SpawnChance_BeaconAmmo, SpawnChance_SporeAmmo;
 var(MushMatch) localized string RTeamNames[2];
+var(MUSHMATCH) config float InfectionScoreMultiplier;
+var(MUSHMATCH) config bool bPenalizeSameTeamKill;
 
 var bool bMushSelected, bHumanVictory, bMatchEnd, bHasHate, bHasBeacon;
 var byte winTeam;
@@ -148,6 +150,20 @@ event playerpawn Login
     return NewPlayer;
 }
 
+function ScoreKill(Pawn Killer, Pawn Other)
+{
+    if (!bMushSelected) {
+        return;
+    }
+
+    Super.ScoreKill(Killer, Other);
+
+	if (Killer.PlayerReplicationInfo.Team == Other.PlayerReplicationInfo.Team && bPenalizeSameTeamKill) {
+	    // revert the score reward to a score penalty
+	    Killer.PlayerReplicationInfo.Score -= 2;
+	}
+}
+
 function Killed(Pawn Killer, Pawn Other, name DamageType)
 {
     local vector hLoc, hMom;
@@ -217,7 +233,7 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
         return;
     }
 
-    if (Killer == None) {
+    if (Killer == None || Killer == Other) {
         Super.Killed(Killer, Other, DamageType);
     
         if ( bMushSelected )
@@ -585,6 +601,7 @@ function MakeMush(Pawn Other, Pawn Instigator) {
     SafeGiveSporifier(Other);
     
     Other.PlayerReplicationInfo.Team = 1; // 0 = human, 1 = mush
+    Other.PlayerReplicationInfo.Score *= InfectionScoreMultiplier;
         
     if (MushMatch(Level.Game).CheckEnd()) {
         return;
@@ -975,4 +992,6 @@ defaultproperties
      SpawnChance_BeaconAmmo=0.04
      SpawnChance_SporeAmmo=0.025
      bCoopWeaponMode=True
+     InfectionScoreMultiplier=-0.5
+     bPenalizeSameTeamKill=true
 }
