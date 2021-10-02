@@ -471,6 +471,7 @@ function byte AssessBotAttitude(Bot aBot, Pawn Other)
 
                     if (aBot.Weapon != sporer) {
                         sporer.SafeTime = 0;
+                        sporer.bDesired = true;
                         sporer.BringUp();
                     }
 

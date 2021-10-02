@@ -35,6 +35,7 @@ class Sporifier extends TournamentWeapon;
 
 
 var float SafeTime;
+var bool bDesired;
 
 var(MushMatch) config float SporifierFirerate, SporifierAIMaxSafeTime;
 
@@ -74,6 +75,8 @@ simulated function float RateSelf(out int bUseAltMode)
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
     if (MMI == None) return -2;
+
+    if (Role == ROLE_Authority && bDesired) return 50000;
     
     return 0;
 }
@@ -85,6 +88,7 @@ simulated function ResetSafeTime() {
 simulated function bool PutDown() {
     if (Role == ROLE_Authority) {
         ResetSafeTime();
+        bDesired = false;
     }
 
     return Super.PutDown();
@@ -146,6 +150,7 @@ simulated function Tick(float TimeDelta)
 
     if (SafeTime >= SporifierAIMaxSafeTime) {
         if (Role == ROLE_Authority) {
+            bDesired = false; // just in case we don't get put down
             Pawn(Owner).SwitchToBestWeapon();
         }
     }
