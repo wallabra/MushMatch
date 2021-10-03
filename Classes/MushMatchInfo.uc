@@ -363,6 +363,9 @@ event byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
         return 2;
     }
 
+    BotPRI = aBot.PlayerReplicationInfo;
+    OtherPRI = Other.PlayerReplicationInfo;
+
     if (Role == ROLE_Authority) {
         MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
     }
@@ -371,10 +374,7 @@ event byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
         MMI = MushMatchInfo(GetLocalPlayer().GameReplicationInfo);
     }
 
-    BotPRI = aBot.PlayerReplicationInfo;
-    OtherPRI = Other.PlayerReplicationInfo;
-
-    if (MMI == None || (MMI.CheckDead(BotPRI.PlayerReplicationInfo) || MMI.CheckDead(OtherPRI.PlayerReplicationInfo))) {
+    if (MMI == None || (MMI.CheckDead(BotPRI) || MMI.CheckDead(OtherPRI))) {
         return 2;
     }
 
@@ -382,8 +382,6 @@ event byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
         return 1; // just two players left, duke it out!!
     }
 
-    BotPRI = aBot.PlayerReplicationinfo;
-    OtherPRI = Other.PlayerReplicationInfo;
     BotMPRL = MMI.FindPRL(BotPRI);
     OtherMPRL = MMI.FindPRL(OtherPRI);
 
