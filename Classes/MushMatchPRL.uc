@@ -1,8 +1,8 @@
 class MushMatchPRL extends PlayerReplicationList;
 
 var             bool                    bIsSuspected;
-var             bool                    bKnownMush;
-var             bool                    bKnownHuman;
+var             bool                    bMush;
+var             bool                    bKnownMush, bKnownHuman;
 var             bool                    bDead;
 var             byte                    InitialTeam;
 var             float                   ImmuneLevel;
@@ -27,7 +27,7 @@ var(MushMatch)  config bool             bImmuneNaturallyTendsToFull,
 replication
 {
     reliable if (Role == ROLE_Authority)
-        bIsSuspected, bKnownHuman, bKnownMush, bDead, HatedBy, InitialTeam,
+        bIsSuspected, bMush, bKnownHuman, bKnownMush, bDead, InitialTeam, HatedBy,
 
         // immune level and its parameters
         ImmuneLevel, ImmuneResistance, ImmuneMomentum, ImmuneMomentumThreshold, ImmuneMomentumDrag,
