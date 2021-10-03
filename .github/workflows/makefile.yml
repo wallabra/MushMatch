@@ -24,6 +24,7 @@ jobs:
     - name: Install Mustache (build dependency)
       run: |
         go get github.com/cbroglie/mustache/cmd/mustache
+        hash -r
         which mustache
 
     - name: Cache Build Environment Downloads
