@@ -1,8 +1,9 @@
 PACKAGE_NAME ?= MushMatch
 PACKAGE_ROOT ?= .
-DIR_BUILD ?= build
-DIR_DEPS ?= $(DIR_BUILD)/deps
-DIR_TARG ?= $(DIR_BUILD)/ut-server
+MUSHMATCH_BUILD ?= build
+DIR_DEPS ?= $(MUSHMATCH_BUILD)/deps
+DIR_TARG = $(MUSHMATCH_BUILD)/ut-server
+DIR_TARG_PACKAGE = $(DIR_TARG)/$(PACKAGE_NAME)
 BUILD_LOG ?= ./build.log
 DIR_DIST = $(DIR_TARG)/Dist
 CAN_DOWNLOAD ?= 1
@@ -40,6 +41,7 @@ expect-mustache:
 	exit 2; fi
 
 download:
+	mkdir -p "$(DIR_DEPS)" ;\
 	echo '=== Downloading UT Linux v436 bare server...' ;\
 	curl 'http://ut-files.com/index.php?dir=Entire_Server_Download/&file=ut-server-linux-436.tar.gz' -LC- -o"$(DIR_DEPS)/ut-server-linux-436.tar.gz" ;\
 	echo '=== Downloading UT Linux v469 patch...' ;\
@@ -73,18 +75,19 @@ auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), download, cannot-download)
 
 #-- Entrypoint rules
 
-"$(DIR_DEPS)/ut-server-linux-436.tar.gz" "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2": auto-download
+$(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2: auto-download
 
 configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2 expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
+	mkdir -p "$(DIR_DEPS)" ;\
 	echo '=== Extracting and setting up...' ;\
-	tar xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" -C "$(DIR_BUILD)" ;\
+	tar xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" -C "$(MUSHMATCH_BUILD)" ;\
 	tar xjpf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
 	ln -s "../../$(PACKAGE_ROOT)" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
 
-"$(DIR_TARG)/$(PACKAGE_NAME)/_build.sh": configure
+$(DIR_TARG_PACKAGE)/_build.sh: configure
 
-build: $(DIR_TARG)/$(PACKAGE_NAME)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
+build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
 	echo '=== Starting build!' ;\
 	pushd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
 	if bash ./_build.sh 2>&1 | tee $(BUILD_LOG); then\
