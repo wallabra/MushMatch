@@ -24,10 +24,12 @@ jobs:
     - name: Install Mustache (build dependency)
       run: |
         go get github.com/cbroglie/mustache/cmd/mustache
-        hash -r
+
+    - name: Check Mustache is installed
+      run: |
         which mustache
 
-    - name: Cache Build Environment Downloads
+    - name: Cache build environment downloads
       id: cache-downloads
       uses: actions/cache@v2
       with:
@@ -38,17 +40,18 @@ jobs:
         restore-keys: |
             ${{ runner.os }}-
 
-    - name: Download Build Environment
+    - name: Download build environment
       if: steps.cache-downloads.outputs.cache-hit != 'true'
       run: make download
 
-    - name: Setup Build Environment
+    - name: Set up build environment
       run: make configure
 
     - name: Build
       run: make build
 
     - uses: actions/upload-artifact@v2
+      name: Upload build artifacts
       with:
         name: mushmatch-distrib
         path: build/ut-server/Dist/Latest/*
