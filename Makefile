@@ -81,7 +81,8 @@ auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), download, cannot-download)
 configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2 expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
 	mkdir -p "$(DIR_DEPS)" ;\
 	echo '=== Extracting and setting up...' ;\
-	tar xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" -C "$(MUSHMATCH_BUILD)" ;\
+	rm -rv "$(DIR_TARG)" ;\
+	tar xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" --overwrite -C "$(MUSHMATCH_BUILD)" ;\
 	tar xjpf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
 	ln -sf -T "$(shell realpath $(PACKAGE_ROOT))" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
