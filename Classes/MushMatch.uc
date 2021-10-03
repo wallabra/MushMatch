@@ -165,13 +165,18 @@ event playerpawn Login
 
 function ScoreKill(Pawn Killer, Pawn Other)
 {
+    local MushMatchPRL KPRL, OPRL;
+
+    KPRL = FindPawnPRL(Killer);
+    OPRL = FindPawnPRL(Other);
+
     if (!bMushSelected) {
         return;
     }
 
     Super.ScoreKill(Killer, Other);
 
-	if (Killer.PlayerReplicationInfo.Team == Other.PlayerReplicationInfo.Team && bPenalizeSameTeamKill) {
+	if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush && bPenalizeSameTeamKill) {
 	    // revert the score reward to a score penalty
 	    Killer.PlayerReplicationInfo.Score -= 2;
 	}
@@ -317,11 +322,11 @@ function GetAliveTeams(out int humans, out int mush) {
             PRL = MushMatchInfo(GameReplicationInfo).FindPRL(p.PlayerReplicationInfo);
 
             if (!PRL.bDead) {
-                if (p.PlayerReplicationInfo.Team == 0) {
+                if (!PRL.bMush) {
                     humans += 1;
                 }
             
-                if (p.PlayerReplicationInfo.Team == 1) {
+                else {
                     mush += 1;
                 }
             }
@@ -335,6 +340,7 @@ function bool SetEndCams(string Reason)
     local Pawn P, RWinner;
     local PlayerPawn Player;
     local int h, m;
+    local MushMatchPRL MPRL;
 
     GetAliveTeams(h, m);
 
@@ -356,26 +362,40 @@ function bool SetEndCams(string Reason)
     
     for ( P=Level.PawnList; P!=None; P=P.nextPawn )
     {
-        if ( P.bIsPlayer && P.PlayerReplicationInfo != none && P.PlayerReplicationInfo.Team == winTeam && P.PlayerReplicationInfo.Deaths <= 0 && ( RWinner == none || P.PlayerReplicationInfo.Score > RWinner.PlayerReplicationInfo.Score ) )
-            RWinner = P;
+        if (!P.bIsPlayer) continue;
+        if (P.PlayerReplicationInfo == None) continue;
+
+        MPRL = FindPawnPRL(P);
+
+        if (MPRL == None) continue;
+        if (MPRL.bDead) continue;
+        if (Int(MPRL.bMush) != winTeam) continue;
+        if (P.PlayerReplicationInfo.Deaths > 0) continue;
+        if (RWinner != None && P.PlayerReplicationInfo.Score < RWinner.PlayerReplicationInfo.Score) continue;
+
+        RWinner = P;
     }
     
-    for ( P=Level.PawnList; P!=None; P=P.nextPawn )
+    for (P = Level.PawnList; P != None; P = P.nextPawn)
     {
         Player = PlayerPawn(P);
+        MPRL = FindPawnPRL(P);
         
-        if ( Player != None )
+        if (Player != None && MPRL != None)
         {
-            if (!bTutorialGame)
-                PlayWinMessage(Player, (Player.PlayerReplicationInfo.Team == winTeam));
+            if (!bTutorialGame) {
+                PlayWinMessage(Player, (Int(MPRL.bMush) == winTeam));
+            }
                 
             Player.bBehindView = true;
             
-            if ( RWinner != None )
+            if (RWinner != None) {
                 Player.ViewTarget = RWinner;
-                
-            else
+            }
+
+            else {
                 Player.ViewTarget = Player;
+            }
                 
             Player.ClientGameEnded();
         }
@@ -399,35 +419,35 @@ function bool StrapBeacon(Pawn Other, optional Pawn Suspector)
     if (Other == None)
         return False;
 
-    if (Suspector != None && Suspector.PlayerReplicationInfo != None && Suspector.PlayerReplicationInfo.Team == 1) {
-        SuspectorPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Suspector.PlayerReplicationInfo);
+    OtherPRL = FindPawnPRL(Other);
 
-        if (SuspectorPRL != None && SuspectorPRL.bKnownMush)
-            return False; // known mush can't suspect
+    if (Suspector != None) {
+        SuspectorPRL = FindPawnPRL(Suspector);
+
+        if (SuspectorPRL != None && SuspectorPRL.bMush && SuspectorPRL.bKnownMush) {
+            return False;  // known mush can't suspect
+        }
     }
 
-    if (MushMatchInfo(GameReplicationInfo).CheckConfirmedHuman(Other.PlayerReplicationInfo)) {
-        return False; // confirmed humans can't be suspected, only spotted!
+    if (OtherPRL != None && OtherPRL.bKnownHuman) {
+        return False;  // confirmed humans can't be suspected, only spotted!
     }
         
     bHasBeacon = true;
     
-    if (MushMatchInfo(GameReplicationInfo).CheckBeacon(Other.PlayerReplicationInfo))
+    if (MushMatchInfo(GameReplicationInfo).CheckBeacon(Other.PlayerReplicationInfo)) {
         return False;  // Already has beacon, but for that same reason the act of strapping did not succeed, so False.
-
-    OtherPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
+    }
     
     if (OtherPRL != None) {
-        if (PlayerPawn(Other) != None)
+        if (PlayerPawn(Other) != None) {
             PlayerPawn(Other).PlayOwnedSound(sound'Suspected');
-            
-        //BroadcastMessage(Suspector.PlayerReplicationInfo.PlayerName@"attached a suspicion beacon on"@Other.PlayerReplicationInfo.PlayerName$"!", true, 'CriticalEvent');
+        }
+
         BroadcastSuspected(Suspector.PlayerReplicationInfo, Other.PlayerReplicationInfo);
-        
+
         OtherPRL.bIsSuspected = True;
         OtherPRL.Instigator = Suspector;
-    
-        //Log("SUSPECTING ON: "@Other.PlayerReplicationInfo.PlayerName @ OtherPRL);
     }
     
     return OtherPRL != None;
@@ -500,10 +520,27 @@ function SafeGiveSporifier(Pawn Other) {
     }
 }
 
+function MushMatchPRL FindPawnPRL(Pawn Other) {
+    if (Other == None || Other.PlayerReplicationInfo == None) {
+        return None;
+    }
+
+    return MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
+}
+
 function MakeMush(Pawn Other, Pawn Instigator) {
+    local MushMatchPRL MRPL;
+
+    MPRL = FindPawnPRL(Other);
+
+    if (MPRL == None) {
+        Warn("MakeMush could not find MushMatchPRL for"@ Other);
+        return;
+    }
+
     SafeGiveSporifier(Other);
     
-    Other.PlayerReplicationInfo.Team = 1; // 0 = human, 1 = mush
+    FindPawnPRL.bMush = true;
     Other.PlayerReplicationInfo.Score *= InfectionScoreMultiplier;
         
     if (MushMatch(Level.Game).CheckEnd()) {
@@ -686,15 +723,7 @@ function bool SetUpPlayer(Pawn P)
         return false;
     }
 
-    if (CHSpectator(P) == None) {
-        if (bMushSelected && FRand() * MushScarceRatio < 1.0) {
-            P.PlayerReplicationInfo.Team = 1;
-        }
-            
-        else {
-            P.PlayerReplicationInfo.Team = 0;
-        }
-    }
+    P.PlayerReplicationInfo.Team = 0;
 
     prl = MushMatchInfo(GameReplicationInfo).FindPRL(P.PlayerReplicationInfo);
     
@@ -709,6 +738,13 @@ function bool SetUpPlayer(Pawn P)
     // treat spectators like dead players
     if (CHSpectator(P) != None) {
         prl.bDead = True;
+        prl.bSpectator = True;
+    }
+
+    // select some newcomers to be mush
+    else if (bMushSelected && FRand() * MushScarceRatio < 1.0) {
+        prl.bMush = true;
+        prl.SetInitialTeam();
     }
 
     return prl != None;
@@ -723,27 +759,12 @@ function AddDefaultInventory(Pawn PlayerPawn)
 
 function bool ChangeTeam(Pawn Other, int N) 
 {
-    if (!bMushSelected) {
-        Other.PlayerReplicationInfo.Team = 0;
-        return true;
-    }
-
     if (bGameEnded || TotalKills > 0.15 * (NumPlayers + NumBots) || CHSpectator(Other) != None) {
         // the spectator edge case is handled elsewhere
         return true;
     }
 
-    if (FRand() * MushScarceRatio < 1.0) {
-        Other.PlayerReplicationInfo.Team = 1;
-    }
-
-    else {
-        Other.PlayerReplicationInfo.Team = 0;
-    }
-
-    MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo).SetInitialTeam();
-
-    return true;
+    return false;
 }
 
 function int CountPlayers()
@@ -762,10 +783,18 @@ function int MushCount()
 {
     local int i;
     local Pawn p;
+    local MushMatchPRL PRL;
     
-    for ( p = Level.PawnList; p != none; p = p.NextPawn )
-        if ( p.bIsPlayer && p.PlayerReplicationInfo != none && p.PlayerReplicationInfo.Team == 1 )
-            i++;
+    for (p = Level.PawnList; p != none; p = p.NextPawn) {
+        if (!p.bIsPlayer) continue;
+
+        PRL = FindPawnPRL(p);
+
+        if (PRL == None) continue;
+        if (PRL.bMush) continue;
+
+        i++;
+    }
 
     return i;
 }
@@ -797,30 +826,36 @@ auto state Idle {}
 
 state GameStarted
 {
-    function SelectTraitor()
-    {
-        local Pawn p, c;
-        local bool b;  
+    function SelectTraitor() {
+        local Pawn Selected, Curr;
+        local MushMatchPRL PRL;
+        local int NumChoices;
+
+        NumChoices = CountPlayers() - MushCount();
+
+        if (NumChoices == 0) {
+            Error("Match has no players [to select to be mush]!");
+        }
         
-        while ( p == none )
-        {
-            for ( c = Level.PawnList; c != none; c = c.nextPawn )
-            {
-                if ( c.bIsPlayer )
-                    b = true;
+        while (Selected == None) {
+            for (Curr = Level.PawnList; Curr != none; Curr = Curr.nextPawn) {
+                if (!Curr.bIsPlayer) continue;
+
+                PRL = FindPawnPRL(Curr);
+
+                if (PRL == None) continue;
+                if (PRL.bMush) continue;
+
+                b = true;
             
-                if ( FRand() * (NumPlayers + NumBots) < 1.0 && c.bIsPlayer && c.PlayerReplicationInfo != none && c.PlayerReplicationInfo.Team == 0 )
-                    p = c;
+                if (FRand() * NumChoices < 1.0) {
+                    Selected = Curr;
+                }
             }
-            
-            if ( !b )
-                Error("Match has no players!");
         }
                     
-        p.PlayerReplicationInfo.Team = 1;
-        SafeGiveSporifier(p);
-        
-        // Log(p@"("$p.PlayerReplicationInfo.PlayerName$") is now mush!");
+        PRL.bMush = true;
+        SafeGiveSporifier(Selected);
     }
     
 Begin:
