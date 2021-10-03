@@ -36,7 +36,7 @@ expect-mustache:
 	echo >&2; \
 	echo "	 It must be installed via Go, but assuming Go is already installed,">&2; \
 	echo "	 install it with the following command:">&2; \
-	echo "	 	go install github.com/cbroglie/mustache/...@latest"; \
+	echo "	 	go install github.com/cbroglie/mustache/cmd/mustache@latest"; \
 	echo "----'">&2; \
 	exit 2; fi
 
