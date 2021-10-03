@@ -11,7 +11,25 @@ replication
 var     bool            bMushSelected, bMatchEnd, bMatchStart;
 var     MushMatchPRL    PRL;
 var     Music           MushDiscoveredMusic;
+var     PlayerPawn      LocalPlayer;
 
+
+simulated function PlayerPawn GetLocalPlayer() {
+    if (Role == ROLE_Authority) {
+        return None;
+    }
+
+    if (LocalPlayer != None) {
+        return LocalPlayer;
+    }
+
+    foreach AllActors(class'PlayerPawn', LocalPlayer) {
+        return LocalPlayer;
+    }
+
+    Warn(self @"found no local player found, but Role is not ROLE_Authority! Net mode:"@ Level.NetMode);
+    return None;
+}
 
 
 simulated function PreSelected() {
@@ -327,6 +345,141 @@ simulated event string TeamTextStatus(PlayerReplicationInfo PRI, PlayerPawn Othe
     return "...";
 }
 
+event byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
+    local Pawn P;
+    local MushMatchInfo MMI;
+    local bool bNoSneaking;
+    local PlayerReplicationInfo BotPRI, OtherPRI;
+    local MushMatchPRL BotMPRL, OtherMPRL;
+    local Sporifier sporer;
+    
+    if (Other == None || aBot == None || !Other.bIsPlayer || !aBot.bIsPlayer || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
+        //Log("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying or not player");
+        return 255;
+    }
+    
+    if (aBot.PlayerReplicationInfo == None || Other.PlayerReplicationInfo == None) {
+        //Log("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no PlayerReplicationInfo");
+        return 2;
+    }
+
+    if (Role == ROLE_Authority) {
+        MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
+    }
+
+    else {
+        MMI = MushMatchInfo(GetLocalPlayer().GameReplicationInfo);
+    }
+
+    BotPRI = aBot.PlayerReplicationInfo;
+    OtherPRI = Other.PlayerReplicationInfo;
+
+    if (MMI == None || (MMI.CheckDead(BotPRI.PlayerReplicationInfo) || MMI.CheckDead(OtherPRI.PlayerReplicationInfo))) {
+        return 2;
+    }
+
+    if (aBot.bIsPlayer && Other.bIsPlayer && NumBots + NumPlayers - TotalKills <= 2) {
+        return 1; // just two players left, duke it out!!
+    }
+
+    BotPRI = aBot.PlayerReplicationinfo;
+    OtherPRI = Other.PlayerReplicationInfo;
+    BotMPRL = MMI.FindPRL(BotPRI);
+    OtherMPRL = MMI.FindPRL(OtherPRI);
+
+    // check for Mush-specific behaviour
+    if (BotPRI.Team == 1)
+    {
+        if (OtherPRI.Team == 0)
+        {
+            // if spotted mush, don't hold back
+            if (BotMPRL.bKnownMush) {
+                return 1;
+            }
+
+            // maybe try to infect, if you can be sneaky!
+            if (!Other.CanSee(aBot) && aBot.FindInventoryType(class'Sporifier') != None && FRand() < DecideChance_Infect && !aBot.IsInState('attacking')) {
+                for (P = Level.PawnList; P != None; P = P.NextPawn) {
+                    if (P.bIsPlayer && P.PlayerReplicationInfo != None && P.PlayerReplicationInfo.Team == 0 && P.LineOfSightTo(aBot) && P != Other) {
+                        bNoSneaking = true;
+                    }
+                }
+
+                if (!bNoSneaking && (Other.MoveTarget == None || (
+                    VSize(Other.Location - Other.MoveTarget.Location) > 128 &&
+                    Normal(Other.MoveTarget.Location - Other.Location) dot Normal(aBot.Location - Other.Location) < -0.25
+                ))) {
+                    sporer = Sporifier(aBot.FindInventoryType(class'Sporifier'));
+
+                    if (aBot.Weapon != sporer) {
+                        sporer.SafeTime = 0;
+                        sporer.bDesired = true;
+                        sporer.BringUp();
+                    }
+
+                    return 1;
+                }
+            }
+        
+            return 2;
+        }
+
+        // mush help mush always
+        else if (FRand() < DecideChance_MushHelpMush) {
+            return 3;
+        }
+    }
+
+    // check for general behaviour (or maybe a façade thereof) towards humans
+    if (BotPRI.Team == 0 || OtherPRI.Team == 0)
+    {
+        if (
+            Other.bIsPlayer
+            // if the other is not safe
+            && !OtherMPRL.bKnownHuman
+            &&
+            (
+                // if the other is DEFINITELY not safe, aka a mush
+                OtherMPRL.bKnownMush
+                ||
+                (   // OR if we have a grudge on the other
+                    bHasHate
+                    && BotPRI.Team == 0
+                    && MMI.CheckHate(OtherPRI, BotPRI)
+                    && !(OtherPRI.Team == 1 && BotPRI.Team == 1)
+                    && FRand() < DecideChance_GrudgeAttack
+                )
+                ||
+                (
+                    // OR if the other has a suspicion beacon
+                    bHasBeacon
+                    && (
+                        // if we're a human or scapegoating
+                        BotPRI.Team == 0
+                        || (
+                            BotMPRL.bIsSuspected
+                            && FRand() < DecideChance_Scapegoat
+                        )
+                    )
+                    && MMI.CheckBeacon(Other.PlayerReplicationInfo)
+                    && !MMI.CheckConfirmedMush(MMI.CheckBeaconInstigator(OtherPRI).PlayerReplicationInfo)
+                    && FRand() < DecideChance_SuspectAttack
+                )
+            )
+        ) {
+            return 1;
+        }
+
+        // maybe be a friend and gang up, just in case - numbers always make might and make safety!
+        // (always!.... right?)
+        if (FRand() < DecideChance_TeamUp) {
+            return 3;
+        }
+    }
+
+    // ehh... we live in a society
+    return 2;
+}
 
 
 defaultproperties {
