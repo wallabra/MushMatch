@@ -23,8 +23,8 @@ jobs:
 
     - name: Install Mustache (build dependency)
       run: |
-        ls ~/.*
-        echo 'export PATH="$HOME/go/bin:$PATH"'>>~/.bashrc
+        echo $SHELL
+        echo 'export PATH="$HOME/go/bin:$PATH"'>>~/.bash_profile
         go get github.com/cbroglie/mustache/...
 
     - name: Check Mustache is installed
