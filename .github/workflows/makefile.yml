@@ -22,10 +22,10 @@ jobs:
       uses: actions/setup-go@v2.1.4
 
     - name: Install Mustache (build dependency)
-      run: |
-        echo $SHELL
-        echo 'export PATH="$HOME/go/bin:$PATH"'>>~/.bash_profile
-        go get github.com/cbroglie/mustache/...
+      run: go get github.com/cbroglie/mustache/...
+
+    - name: Add Go bin to PATH
+      run: echo 'export PATH="$HOME/go/bin:$PATH"'>>~/.bash_profile
 
     - name: Check Mustache is installed
       run: |
