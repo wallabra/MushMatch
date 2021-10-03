@@ -32,7 +32,8 @@ jobs:
           build
           !build/ut-server
         key: ${{ runner.os }}-${{ hashFiles('build/deps/**') }}
-        restoreKey: ${{ runner.os }}-
+        restore-keys:
+            - ${{ runner.os }}-
 
     - name: Download Build Environment
       if: steps.cache-downloads.outputs.cache-hit != 'true'
