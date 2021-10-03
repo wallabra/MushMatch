@@ -34,9 +34,9 @@ expect-mustache:
 	echo "   when formatting the .int, as well as the UnrealScript">&2; \
 	echo "	 classes to be built, to provide slight environment-awareness..">&2; \
 	echo >&2; \
-	echo "	 It must be installed via Go, but assuming Go is already installed,">&2; \
-	echo "	 install it with the following command:">&2; \
-	echo "	 	go install github.com/cbroglie/mustache/cmd/mustache@latest"; \
+	echo "	 It must be installed via Go. Assuming Go is already installed,">&2; \
+	echo "	 it's one simple command.">&2; \
+	echo "	 See README.adoc for more info on how to install it.">&2; \
 	echo "----'">&2; \
 	exit 2; fi
 

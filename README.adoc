@@ -1,4 +1,4 @@
-Mush Match
+\Mush Match
 ==========
 Mush Match development team
 :homepage: https://ut99.org/viewtopic.php?f=4&t=14820
@@ -98,7 +98,7 @@ You can grab it by https://golang.org/doc/install[installing Go],
 and then running:
 
 ```console
-$ go install github.com/cbroglie/mustache/cmd/mustache@latest
+$ go install github.com/cbroglie/mustache/cmd/mustache
 ```
 
 ==== Build
