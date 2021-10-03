@@ -22,7 +22,9 @@ jobs:
       uses: actions/setup-go@v2.1.4
 
     - name: Install Mustache (build dependency)
-      run: go get github.com/cbroglie/mustache/...
+      run: |
+        go get github.com/cbroglie/mustache/...
+        which mustache
 
     - name: Cache Build Environment Downloads
       id: cache-downloads
