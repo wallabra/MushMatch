@@ -113,6 +113,19 @@ function Logout(pawn Exiting)
     }
 }
 
+function NotifySpree(Pawn Other, int num)
+{
+    // Don't notify sprees in the middle of the match.
+
+    if (!bMushSelected) {
+        return Super.NotifySpree(Other, num);
+    }
+
+    if (bMatchEnd) {
+        return Super.NotifySpree(Other, num);
+    }
+}
+
 function bool NeedPlayers()
 {
     if ( bGameEnded || TotalKills > 0.15 * (NumPlayers + NumBots) )
