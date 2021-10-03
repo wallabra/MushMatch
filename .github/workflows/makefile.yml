@@ -29,8 +29,7 @@ jobs:
 
     - name: Check Mustache is installed
       run: |
-        echo $PATH
-        which mustache
+        which "$HOME/go/bin/mustache"
 
     - name: Cache build environment downloads
       id: cache-downloads
@@ -51,7 +50,7 @@ jobs:
       run: make configure
 
     - name: Build
-      run: make build
+      run: MUSTACHE="$HOME/go/bin/mustache" make build
 
     - uses: actions/upload-artifact@v2
       name: Upload build artifacts

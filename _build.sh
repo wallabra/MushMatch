@@ -2,6 +2,8 @@
 
 source ./buildconfig.sh
 
+MUSTACHE="${MUSTACHE?-mustache}"
+
 cleanup() {
     pushd "$utdir">/dev/null
     rm -r "$packagefull"
@@ -50,7 +52,7 @@ cleanup() {
         for class in "$package"/Classes/*; do
             class="$(basename "$class")"
             echo "Formatting: $packagefull/Classes/$class"
-            mustache "$package/Classes/$class" < "$TMP_YML" > "$packagefull/Classes/$class"
+            "$MUSTACHE" "$package/Classes/$class" < "$TMP_YML" > "$packagefull/Classes/$class"
         done
 
         # Build .u
@@ -59,7 +61,7 @@ cleanup() {
         #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
         if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
         echo "* Invoking ucc make in $(pwd)"
-        ("$ucc" make -NoBind ini="$TMPINI"  2>&1 || exit 1) | tee "$packagedir/make.log"
+        ( "$ucc" make -NoBind ini="$TMPINI" || exit 1 ) | tee "$packagedir/make.log"
 
         # Ensure .u is built
         if [[ ! -f "$packagefull.u" ]]; then
@@ -76,7 +78,7 @@ cleanup() {
 
         # Format .int with Mustache
         echo "Formatting: System/$package.int"
-        mustache "$package/$package.int" < "$TMP_YML" > "System/$packagefull.int"
+        "$MUSTACHE" "$package/$package.int" < "$TMP_YML" > "System/$packagefull.int"
 
         # Package up
         cp -f "$package/README.adoc" "Help/$package.adoc"
@@ -88,7 +90,7 @@ cleanup() {
 
         rm "$packagefull.tar"
 
-        # Move to Dist
+        # Move to dist
         echo Packaging up...
         mkdir -pv "$dist/$package/$build"
         mv "$packagefull."{tar.*,zip} "$dist/$package/$build"

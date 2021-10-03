@@ -5,6 +5,7 @@ DIR_DEPS ?= $(MUSHMATCH_BUILD)/deps
 DIR_TARG = $(MUSHMATCH_BUILD)/ut-server
 DIR_TARG_PACKAGE = $(DIR_TARG)/$(PACKAGE_NAME)
 BUILD_LOG ?= ./build.log
+MUSTACHE ?= mustache
 DIR_DIST = $(MUSHMATCH_BUILD)/dist
 CAN_DOWNLOAD ?= 1
 
@@ -26,7 +27,7 @@ expect-cmd-%:
 	exit 2; fi
 
 expect-mustache:
-	if ! which "mustache" >/dev/null; then \
+	if ! which "$(MUSTACHE)" >/dev/null; then \
 	echo "----.">&2; \
 	echo "   Command 'mustache' not found! It is required for build!">&2; \
 	echo >&2; \
@@ -90,7 +91,7 @@ configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch4
 build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
 	echo '=== Starting build!' ;\
 	pushd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
-	if bash ./_build.sh 2>&1; then\
+	if MUSTACHE="$(MUSTACHE)" bash ./_build.sh 2>&1; then\
 		echo "Build finished: see $(DIR_DIST)" 2>&1 ; code=0 ;\
 	else\
 		echo "Build errored: see $(BUILD_LOG)" 2>&1 ; code=1 ;\
