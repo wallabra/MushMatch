@@ -3,8 +3,8 @@
 # Edit this file if necessary; it is read by _build.sh in order to
 # provide some context variables.
 
-export build=20213920
-export version=1.2.4
+export build=20213921
+export version=1.3.0
 export debug=1
 export package=MushMatch
 
@@ -12,6 +12,6 @@ export package=MushMatch
 # in the build/ subdirectory provide a sufficiently predictable build environment.
 
 export utdir=".."
-export ucc="./ucc-bin-x86"
+export ucc="./ucc-bin"
 export makeini="make.ini"
-export dist='Dist'
+export dist='../dist'
