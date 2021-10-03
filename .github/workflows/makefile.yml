@@ -18,12 +18,12 @@ jobs:
     - name: Install dependencies
       run: sudo apt install zip bzip2 gzip tar curl bash
 
-    - name: Setup Go environment
+    - name: Setup Go
       uses: actions/setup-go@v2.1.4
 
     - name: Install Mustache (build dependency)
       run: |
-        sudo go get github.com/cbroglie/mustache/...
+        go get github.com/cbroglie/mustache/cmd/mustache
         which mustache
 
     - name: Cache Build Environment Downloads
