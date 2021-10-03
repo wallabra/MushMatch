@@ -1,4 +1,4 @@
-name: MushMatch Makefile CI
+name: MushMatch Makefile build
 
 on:
   push:
@@ -23,10 +23,11 @@ jobs:
 
     - name: Install Mustache (build dependency)
       run: |
-        go get github.com/cbroglie/mustache/cmd/mustache
+        go get github.com/cbroglie/mustache/...
 
     - name: Check Mustache is installed
       run: |
+        echo $PATH
         which mustache
 
     - name: Cache build environment downloads
