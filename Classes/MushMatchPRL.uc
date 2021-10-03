@@ -3,7 +3,7 @@ class MushMatchPRL extends PlayerReplicationList;
 var             bool                    bIsSuspected;
 var             bool                    bMush;
 var             bool                    bKnownMush, bKnownHuman;
-var             bool                    bDead;
+var             bool                    bDead, bSpectator;
 var             byte                    InitialTeam;
 var             float                   ImmuneLevel;
 var             float                   ImmuneMomentum, ImmuneResistance;
@@ -196,6 +196,8 @@ defaultproperties
     bKnownMush=false
     bKnownHuman=false
     bDead=false
+    bSpectator=false
+    bMush=false
     HatedBy=none
     ImmuneLevel=1.0
     ImmuneMomentum=0.0
