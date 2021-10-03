@@ -345,21 +345,28 @@ simulated event string TeamTextStatus(PlayerReplicationInfo PRI, PlayerPawn Othe
     return "...";
 }
 
-event byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
+function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     local Pawn P;
     local MushMatchInfo MMI;
     local bool bNoSneaking;
     local PlayerReplicationInfo BotPRI, OtherPRI;
     local MushMatchPRL BotMPRL, OtherMPRL;
     local Sporifier sporer;
+    local MushMatch MM;
+
+    MM = MushMatch(Level.Game);
+
+    if (MM == None) {
+        return 255;
+    }
     
     if (Other == None || aBot == None || !Other.bIsPlayer || !aBot.bIsPlayer || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
-        //Log("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying or not player");
+        Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying or not player");
         return 255;
     }
     
     if (aBot.PlayerReplicationInfo == None || Other.PlayerReplicationInfo == None) {
-        //Log("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no PlayerReplicationInfo");
+        Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no PlayerReplicationInfo");
         return 2;
     }
 
@@ -378,7 +385,7 @@ event byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
         return 2;
     }
 
-    if (aBot.bIsPlayer && Other.bIsPlayer && NumBots + NumPlayers - TotalKills <= 2) {
+    if (aBot.bIsPlayer && Other.bIsPlayer && MM.NumBots + MM.NumPlayers - MM.TotalKills <= 2) {
         return 1; // just two players left, duke it out!!
     }
 
