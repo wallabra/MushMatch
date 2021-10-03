@@ -73,8 +73,8 @@ cannot-download:
 
 auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), download, cannot-download)
 
-$(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2: auto-download
-$(DIR_TARG_PACKAGE)/_build.sh: configure
+"$(DIR_DEPS)/ut-server-linux-436.tar.gz" "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2": auto-download
+"$(DIR_TARG_PACKAGE)/_build.sh": configure
 
 #-- Entrypoint rules
 
