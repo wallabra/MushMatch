@@ -12,4 +12,4 @@
  * Augment Sporifier's RateSelf when it is solicited by the gametype AI code
  * Penalize for same-team kills, and, by default, multiply any infectee's score by -0.5 (negative of half) to represent reverse contribution to their new team
  * Allow showing score on match end by default
- * Don't notify killing sprees if the match is 
+ * Don't notify killing sprees, which can incriminate killers
