@@ -54,11 +54,12 @@ cleanup() {
         done
 
         # Build .u
+        pwd
         pushd System>/dev/null
         #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
         if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
         echo "* Invoking ucc make in $(pwd)"
-        "$ucc" make -NoBind ini="$TMPINI" | tee "$packagedir/make.log"
+        "$ucc" make -NoBind ini="$TMPINI" | tee "$packagedir/make.log" || exit 1
 
         # Ensure .u is built
         if [[ ! -f "$packagefull.u" ]]; then

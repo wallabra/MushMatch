@@ -73,19 +73,18 @@ cannot-download:
 
 auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), download, cannot-download)
 
-#-- Entrypoint rules
-
 $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2: auto-download
+$(DIR_TARG_PACKAGE)/_build.sh: configure
+
+#-- Entrypoint rules
 
 configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2 expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
 	mkdir -p "$(DIR_DEPS)" ;\
 	echo '=== Extracting and setting up...' ;\
 	tar xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" -C "$(MUSHMATCH_BUILD)" ;\
 	tar xjpf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
-	ln -s "../../$(PACKAGE_ROOT)" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
+	ln -sf -T "$(shell realpath $(PACKAGE_ROOT))" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
-
-$(DIR_TARG_PACKAGE)/_build.sh: configure
 
 build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
 	echo '=== Starting build!' ;\
