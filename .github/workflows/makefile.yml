@@ -31,7 +31,7 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('build/deps/**') }}
 
     - name: Download Build Environment
-      if: step.cache-downloads.outputs.cache-hit != 'true'
+      if: steps.cache-downloads.outputs.cache-hit != 'true'
       run: make download
 
     - name: Setup Build Environment
