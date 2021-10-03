@@ -59,7 +59,7 @@ cleanup() {
         #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
         if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
         echo "* Invoking ucc make in $(pwd)"
-        "$ucc" make -NoBind ini="$TMPINI" | tee "$packagedir/make.log" || exit 1
+        ("$ucc" make -NoBind ini="$TMPINI"  2>&1 || exit 1) | tee "$packagedir/make.log"
 
         # Ensure .u is built
         if [[ ! -f "$packagefull.u" ]]; then
@@ -98,10 +98,14 @@ cleanup() {
         rm -f "$dist/$package/Latest/*"
         cp "$dist/$package/$build/"* "$dist/$package/Latest"
     )
+    code=$?
 
     # Finish up
     popd>/dev/null
 
     rm "$TMP_YML"
     cleanup
+
+    exit $code
 )
+exit $?

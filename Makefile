@@ -89,12 +89,13 @@ configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch4
 build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
 	echo '=== Starting build!' ;\
 	pushd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
-	if bash ./_build.sh 2>&1 | tee $(BUILD_LOG); then\
-		echo "Build finished: see $(DIR_DIST)" 2>&1 ;\
+	if bash ./_build.sh 2>&1; then\
+		echo "Build finished: see $(DIR_DIST)" 2>&1 ; code=0 ;\
 	else\
-		echo "Build errored: see $(BUILD_LOG)" 2>&1 ;\
-	fi;\
-	popd >/dev/null
+		echo "Build errored: see $(BUILD_LOG)" 2>&1 ; code=1 ;\
+	fi | tee $(BUILD_LOG) ;\
+	popd >/dev/null ;\
+	exit $code
 
 clean-downloads:
 	rm deps/*
