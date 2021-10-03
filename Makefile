@@ -5,7 +5,7 @@ DIR_DEPS ?= $(MUSHMATCH_BUILD)/deps
 DIR_TARG = $(MUSHMATCH_BUILD)/ut-server
 DIR_TARG_PACKAGE = $(DIR_TARG)/$(PACKAGE_NAME)
 BUILD_LOG ?= ./build.log
-DIR_DIST = $(DIR_TARG)/Dist
+DIR_DIST = $(MUSHMATCH_BUILD)/dist
 CAN_DOWNLOAD ?= 1
 
 CMDS_EXPECTED = curl tar gzip bzip2 zip bash mustache
