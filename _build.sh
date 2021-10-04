@@ -18,7 +18,11 @@ cleanup() {
     cat "$makeini">"$TMPINI"
     echo EditPackages="$packagefull">>"$TMPINI"
 
+    echo pre utdir
+    pwd
+    echo post utdir
     pushd "$utdir">/dev/null
+    pwd
 
     TMP_YML="$(mktemp)"
 
@@ -56,6 +60,7 @@ cleanup() {
         done
 
         # Build .u
+        echo pre system
         pwd
         pushd System>/dev/null
         #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
