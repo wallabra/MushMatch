@@ -213,59 +213,75 @@ simulated function bool CheckDead(PlayerReplicationInfo Other)
 
 simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
 {
-    local MushMatchPRL OtherPRL;
+    local MushMatchPRL OtherPRL, TargPRL;
 
+    TargPRL = FindPRL(PRI);
     OtherPRL = FindPRL(Other.PlayerReplicationInfo);
 
+    if (TargPRL == None) {
+        return "???";
+    }
+
     if (CheckDead(PRI)) {
-        if ( PRI.Team == 1 )
+        if (OtherPRL.bMush) {
             return "Mush (dead)";
+        }
             
-        if ( PRI.Team == 0 )
+        else {
             return "Human (dead)";
+        }
     }
 
     if (bMushSelected) {
         if (Other.PlayerReplicationInfo == PRI || (OtherPRL != None && OtherPRL.bMush) || bMatchEnd || CheckDead(Other.PlayerReplicationInfo)) {
-            if ( PRI.Team == 1 ) {
-                if ( CheckBeacon(PRI) )
+            if (TargPRL.bMush) {
+                if (CheckBeacon(PRI)) {
                     return "Mush (susp.)";
+                }
                 
-                if ( !CheckConfirmedMush(PRI) )
+                if (!CheckConfirmedMush(PRI)) {
                     return "Mush (unk.)";
+                }
             }
                 
-            else if ( PRI.Team == 0 ) {	                    
-                if ( CheckConfirmedHuman(PRI) )
+            else {	                    
+                if (CheckConfirmedHuman(PRI)) {
                     return "Human (cert)";
+                }
                     
-                else if ( CheckBeacon(PRI) )
+                else if ( CheckBeacon(PRI)) {
                     return "Human (susp.)";
+                }
                 
-                else
+                else {
                     return "Human";
+                }
             }
             
-            else
+            else {
                 return "[WTF]";
+            }
         }
         
-        if ( CheckBeacon(PRI) )
+        if (CheckBeacon(PRI))
             return "Suspected";
         
-        if ( PRI.Team == 0 && CheckConfirmedHuman(PRI) )
+        if (!TargPRL.bMush && TargPRL.bKnownHuman) {
             return "Human (cert)";
+        }
 
-        if ( PRI.Team == 1 && CheckConfirmedMush(PRI) )
+        if (TargPRL.bMush  && TargPRL.bKnownMush) {
             return "Mush (found)";
+        }
         
-        if ( CheckBeacon(PRI) && !CheckConfirmedMush(PRI) )
+        if (CheckBeacon(PRI) && !CheckConfirmedMush(PRI)) {
             return "Suspected";
+        }
         
-        return "Unknown";
+        return " - ";
     }
     
-    return "";
+    return "...";
 }
 
 simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn Other)
@@ -274,12 +290,15 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
     local MushMatchPRL OtherPRL;
     
     OtherPRL = FindPRL(Other.PlayerReplicationInfo);
+    MPRL = FindPRL(PRI);
+
+    if (MPRL == None) {
+        return None;
+    }
 
     if (CheckDead(PRI)) {
-        if (PRI.Team == 1) {
-            MPRL = FindPRL(PRI);
-                        
-            if (MPRL != None && PRI.Team == MPRL.InitialTeam) {
+        if (MPRL.bMush) {    
+            if (Int(MPRL.bMush) == MPRL.InitialTeam) {
                 return "Mush";
             }
 
@@ -288,16 +307,17 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
             }
         }
             
-        if (PRI.Team == 0)
+        else {
             return "Human";
+        }
     }
 
     if (bMushSelected) {
         if (Other.PlayerReplicationInfo == PRI || (OtherPRL != None && OtherPRL.bMush) || bMatchEnd || CheckDead(Other.PlayerReplicationInfo)) {
-            if (PRI.Team == 1) {
+            if (MPRL.bMush) {
                 MPRL = FindPRL(PRI);
             
-                if (MPRL != None && PRI.Team == MPRL.InitialTeam) {
+                if (MPRL != None && Int(MPRL.bMush) == MPRL.InitialTeam) {
                     return "Mush";
                 }
 
@@ -306,24 +326,20 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
                 }
             }
                 
-            else if ( PRI.Team == 0 ) {
-                return "Human";
-            }
-            
             else {
-                return "[WTF]";
+                return "Human";
             }
         }
         
-        if (PRI.Team == 0 && CheckConfirmedHuman(PRI)) {
+        if (!MPRL.bMush && CheckConfirmedHuman(PRI)) {
             return "Human";
         }
 
-        if (PRI.Team == 1 && CheckConfirmedMush(PRI)) {
+        if (MPRL.bMush && CheckConfirmedMush(PRI)) {
             return "Mush";
         }
         
-        return "Unknown";
+        return " - ";
     }
     
     return "...";
