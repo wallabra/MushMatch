@@ -839,7 +839,8 @@ state GameStarted
         NumChoices = CountPlayers() - MushCount();
 
         if (NumChoices == 0) {
-            Error("Match has no players [to select to be mush]!");
+            Warn("Match has no players [to select to be mush]!");
+            GoToState('Ongoing');
         }
         
         while (Selected == None) {
@@ -874,6 +875,8 @@ Begin:
     
     bMushSelected = true;
     MushMatchInfo(GameReplicationInfo).bMushSelected = true;
+
+    GoToState('Ongoing');
 }
 
 function BroadcastDeceased(PlayerReplicationInfo Who) {
@@ -894,6 +897,11 @@ function BroadcastSuspected(PlayerReplicationInfo By, PlayerReplicationInfo Whom
 
 function BroadcastUnsuspected(PlayerReplicationInfo Whom, PlayerReplicationInfo Victim) {
     BroadcastLocalizedMessage(MushSuspectedMessageType, 1, Whom, Victim);
+}
+
+state Ongoing
+{
+    
 }
 
 state GameEnded

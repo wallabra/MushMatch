@@ -143,7 +143,8 @@ simulated event ModifyPlayer(Pawn Other) {
         MPRL = FindPawnPRL(Other);
 
         if (MPRL == None) {
-            Error("Tried to call MushMatchMutator.ModifyPlayer on a Pawn"@ Other @"with no associated MushMatchPRL during a started match");
+            Warn("Tried to call MushMatchMutator.ModifyPlayer on a Pawn"@ Other @"with no associated MushMatchPRL during a started match");
+            return;
         }
 
         if (MPRL.bMush) {

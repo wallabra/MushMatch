@@ -78,10 +78,10 @@ function ProcessTouch(Actor Other, Vector HitLocation)
         OtherPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(mushed.PlayerReplicationInfo);
         
         if (OtherPRL == None) {
-            Error("Couldn't find MushMatchPRL for"@ mushed.PlayerReplicationInfo.PlayerName @"("$ mushed $") even though they are bIsPlayer; couldn't try mushing them!");
+            Warn("Couldn't find MushMatchPRL for"@ mushed.PlayerReplicationInfo.PlayerName @"("$ mushed $") even though they are bIsPlayer; couldn't try mushing them!");
         }
 
-        if (!OtherPRL.bMush) {
+        else if (!OtherPRL.bMush) {
             OtherPRL.TryToMush(Instigator);
         }
     }

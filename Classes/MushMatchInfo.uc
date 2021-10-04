@@ -390,7 +390,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     }
     
     if (Other == None || aBot == None || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
-        Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying");
+        //Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying");
         return 255;
     }
 
@@ -400,7 +400,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     }
     
     if (aBot.PlayerReplicationInfo == None || Other.PlayerReplicationInfo == None) {
-        Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no PlayerReplicationInfo");
+        //Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no PlayerReplicationInfo");
         return 2;
     }
 
@@ -426,6 +426,11 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     BotMPRL = MMI.FindPRL(BotPRI);
     OtherMPRL = MMI.FindPRL(OtherPRI);
 
+    if (BotMPRL == None || OtherMPRL == None) {
+        Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no MushMatchPRL!");
+        return 255;
+    }
+
     // check for Mush-specific behaviour
     if (BotMPRL.bMush)
     {
@@ -445,7 +450,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                     PPRL = MMI.FindPRL(P.PlayerReplicationInfo);
 
                     if (PPRL == None) {
-                        Error("Found a bIsPlayer Pawn with PlayerReplicationInfo but no MushMatchPRL:"@ P);
+                        Warn("Found a bIsPlayer Pawn with PlayerReplicationInfo but no MushMatchPRL:"@ P);
                         continue;
                     }
 
