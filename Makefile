@@ -94,7 +94,7 @@ $(DIR_TARG)/System/ucc-bin: | auto-download expect-cmd-tar expect-cmd-gunzip exp
 	ln -sf -T "$(shell realpath $(PACKAGE_ROOT))" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
 
-$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR_TARG)/System/ucc-bin Classes/*.uc | expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache 
+$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR_TARG)/System/ucc-bin Classes/*.uc $(PACKAGE_NAME).int | expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache 
 	echo $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip
 	echo '=== Starting build!' ;\
 	cd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
