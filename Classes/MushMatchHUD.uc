@@ -75,7 +75,7 @@ simulated event PostRender(Canvas Drawer)
         Drawer.DrawColor = HUDColor * 0.75;
         Drawer.SetPos(Drawer.SizeX * 0.475, 0);
 
-        if ( !PlayerPRL.bMush == 0 ) {
+        if (!PlayerPRL.bMush) {
             Drawer.DrawIcon(Texture'MMHUDHuman', FlatSize);
 
             if (PlayerPRL.ImmuneLevel < 1) {
