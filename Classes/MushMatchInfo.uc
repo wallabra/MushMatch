@@ -427,7 +427,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     OtherMPRL = MMI.FindPRL(OtherPRI);
 
     if (BotMPRL == None || OtherMPRL == None) {
-        Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no MushMatchPRL!");
+        //Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no MushMatchPRL!");
         return 255;
     }
 
