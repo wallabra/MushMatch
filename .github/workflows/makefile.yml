@@ -27,10 +27,6 @@ jobs:
     - name: Add Go bin to PATH
       run: echo 'export PATH="$HOME/go/bin:$PATH"'>>~/.bash_profile
 
-    - name: Check Mustache is installed
-      run: |
-        which "$HOME/go/bin/mustache"
-
     - name: Cache build environment downloads
       id: cache-downloads
       uses: actions/cache@v2
