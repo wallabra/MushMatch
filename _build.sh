@@ -4,27 +4,21 @@ source ./buildconfig.sh
 
 MUSTACHE="${MUSTACHE?-mustache}"
 
+TMP_YML="$(mktemp)"
+TMPINI="$(mktemp)"
+
 cleanup() {
-    pushd "$utdir">/dev/null
-    rm -r "$packagefull"
-    popd>/dev/null
+    ( cd "$utdir" && rm -r "$packagefull" )
 }
 
 ( # Subshell to preserve original working dir
     packagefull="$package"-"$build"
     packagedir="."
 
-    TMPINI="$(mktemp)"
     cat "$makeini">"$TMPINI"
     echo EditPackages="$packagefull">>"$TMPINI"
 
-    echo pre utdir
-    pwd
-    echo post utdir
-    pushd "$utdir">/dev/null
-    pwd
-
-    TMP_YML="$(mktemp)"
+    cd "$utdir"
 
     ( # Subshell to exit early on error, to go right into cleanup
         set -e
@@ -62,24 +56,24 @@ cleanup() {
         # Build .u
         echo pre system
         pwd
-        pushd System>/dev/null
-        #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
-        if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
-        echo "* Invoking ucc make in $(pwd)"
-        ( "$ucc" make -NoBind ini="$TMPINI" || exit 1 ) | tee "$packagedir/make.log"
 
-        # Ensure .u is built
-        if [[ ! -f "$packagefull.u" ]]; then
-            if [[ -f "$HOME/.utpg/System/$packagefull.u" ]]; then
-                mv "$HOME/.utpg/System/$packagefull.u" .
+        (
+            cd System
+            #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
+            if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
+            echo "* Invoking ucc make in $(pwd)"
+            ( "$ucc" make -NoBind ini="$TMPINI" || exit 1 ) | tee "$packagedir/make.log"
 
-            else
-                popd>/dev/null
-                exit 1
+            # Ensure .u is built
+            if [[ ! -f "$packagefull.u" ]]; then
+                if [[ -f "$HOME/.utpg/System/$packagefull.u" ]]; then
+                    mv "$HOME/.utpg/System/$packagefull.u" .
+
+                else
+                    exit 1
+                fi
             fi
-        fi
-        
-        popd>/dev/null
+        ) || exit $?
 
         # Format .int with Mustache
         echo "Formatting: System/$package.int"
@@ -106,13 +100,14 @@ cleanup() {
         cp "$dist/$package/$build/"* "$dist/$package/Latest"
     )
     code=$?
-
-    # Finish up
-    popd>/dev/null
-
-    rm "$TMP_YML"
-    cleanup
-
-    exit $code
+    exit $?
 )
-exit $?
+code=$?
+
+# Finish up
+
+rm "$TMP_YML"
+rm "$TMP_INI"
+cleanup
+
+exit $code
