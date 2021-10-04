@@ -21,8 +21,8 @@ var(MushMatch) config bool bMushUseOwnPronoun;
 var(MushMatch) config float SpawnChance_BeaconAmmo, SpawnChance_SporeAmmo;
 var(MushMatch) localized string RTeamNames[2];
 var(MUSHMATCH) config float InfectionScoreMultiplier;
-var(MUSHMATCH) config bool bPenalizeSameTeamKill;
-var(MushMatch) config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill;
+var(MUSHMATCH) config bool bPenalizeSameTeamKill, bPenalizeSuicide;
+var(MushMatch) config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
 
 var bool bMushSelected, bHumanVictory, bMatchEnd, bHasHate, bHasBeacon;
 var byte winTeam;
@@ -178,9 +178,12 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
     Super.ScoreKill(Killer, Other);
 
-	if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush && bPenalizeSameTeamKill) {
-	    // revert the score reward to a score penalty
-	    Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill + 1;
+    if (Killer == Other) {
+        if (bPenalizeSuicide) Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide + 1;
+    }
+
+	else if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
+	    if (bPenalizeSameTeamKill) Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill + 1;
 	}
 
 	else if (OPRL != None) {
@@ -946,7 +949,9 @@ defaultproperties
      bCoopWeaponMode=True
      InfectionScoreMultiplier=-0.5
      bPenalizeSameTeamKill=true
+     bPenalizeSuicide=true
      ScoreReward_Kill=10
      ScoreReward_Infect=25
      ScorePenalty_TeamKill=5
+     ScorePenalty_Suicide=15
 }
