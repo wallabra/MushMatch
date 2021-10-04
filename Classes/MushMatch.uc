@@ -183,8 +183,12 @@ function ScoreKill(Pawn Killer, Pawn Other)
 	    Killer.PlayerReplicationInfo.Score -= 2;
 	}
 
-	else {
+	else if (OPRL != None) {
 	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill - 1;
+	}
+
+	else {
+	    Killer.PlayerReplicationInfo.Score -= 1;
 	}
 }
 
@@ -930,6 +934,6 @@ defaultproperties
      bCoopWeaponMode=True
      InfectionScoreMultiplier=-0.5
      bPenalizeSameTeamKill=true
-     ScoreReward_Kill=25
+     ScoreReward_Kill=10
      ScoreReward_Infect=25
 }
