@@ -322,9 +322,7 @@ function GetAliveTeams(out int humans, out int mush) {
     }
         
     for (p = Level.PawnList; p != none; p = p.nextPawn) {
-        if (p.bIsPlayer && p.PlayerReplicationInfo != none && !p.IsInState('Dying')) {
-            // guarantee that the player is not dead and e.g. spectating
-
+        if (p.bIsPlayer && p.PlayerReplicationInfo != none) {
             PRL = MushMatchInfo(GameReplicationInfo).FindPRL(p.PlayerReplicationInfo);
 
             if (!PRL.bDead) {
@@ -798,7 +796,7 @@ function int MushCount()
         PRL = FindPawnPRL(p);
 
         if (PRL == None) continue;
-        if (PRL.bMush) continue;
+        if (!PRL.bMush) continue;
 
         i++;
     }
@@ -859,7 +857,7 @@ state GameStarted
                 }
             }
         }
-                    
+
         PRL.bMush = true;
         SafeGiveSporifier(Selected);
     }
