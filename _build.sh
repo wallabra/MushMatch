@@ -7,14 +7,14 @@ MUSTACHE="${MUSTACHE?-mustache}"
 TMP_YML="$(mktemp)"
 TMP_INI="$(mktemp)"
 
+packagefull="$package"-"$build"
+packagedir="."
+
 cleanup() {
-    ( cd "$utdir" && pwd && rm -r "$packagefull" )
+    ( cd "$utdir" && rm -r "$packagefull" )
 }
 
 ( # Subshell to preserve original working dir
-    packagefull="$package"-"$build"
-    packagedir="."
-
     cat "$makeini">"$TMP_INI"
     echo EditPackages="$packagefull">>"$TMP_INI"
 
