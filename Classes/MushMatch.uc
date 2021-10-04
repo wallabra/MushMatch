@@ -19,10 +19,10 @@ var(MushMatch) config class<Spectator> SpectatorClass;
 var(MushMatch) config class<LocalMessagePlus> MushDiedMessageType, MushSpottedMessageType, MushSuspectedMessageType, MushSelectedMessageType;
 var(MushMatch) config bool bMushUseOwnPronoun;
 var(MushMatch) config float SpawnChance_BeaconAmmo, SpawnChance_SporeAmmo;
-var(MushMatch) config int ScoreReward_Infect, ScoreReward_Kill;
 var(MushMatch) localized string RTeamNames[2];
 var(MUSHMATCH) config float InfectionScoreMultiplier;
 var(MUSHMATCH) config bool bPenalizeSameTeamKill;
+var(MushMatch) config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill;
 
 var bool bMushSelected, bHumanVictory, bMatchEnd, bHasHate, bHasBeacon;
 var byte winTeam;
@@ -180,15 +180,11 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
 	if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush && bPenalizeSameTeamKill) {
 	    // revert the score reward to a score penalty
-	    Killer.PlayerReplicationInfo.Score -= 2;
+	    Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill;
 	}
 
 	else if (OPRL != None) {
-	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill - 1;
-	}
-
-	else {
-	    Killer.PlayerReplicationInfo.Score -= 1;
+	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill;
 	}
 }
 
@@ -940,4 +936,5 @@ defaultproperties
      bPenalizeSameTeamKill=true
      ScoreReward_Kill=10
      ScoreReward_Infect=25
+     ScorePenalty_TeamKill=5
 }
