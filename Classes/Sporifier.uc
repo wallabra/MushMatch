@@ -134,9 +134,7 @@ simulated function FindMMI() {
 }
 
 simulated function Tick(float TimeDelta)
-{
-    local Pawn p;
-    
+{   
     Super.Tick(TimeDelta);
         
     if ( Owner == None || Owner.IsInState('Dying') || ( MushMatch(Level.Game) == none && Pawn(Owner).PlayerReplicationInfo != none && Pawn(Owner).PlayerReplicationInfo.Deaths > 0 ) )
@@ -182,6 +180,7 @@ simulated function Tick(float TimeDelta)
 
 function CheckSpotted() {
     local MushMatchPRL PPRL;
+    local Pawn p;
     
     for (p = Level.PawnList; p != none; p = p.nextPawn) {
         if (!p.bIsPlayer) continue;
