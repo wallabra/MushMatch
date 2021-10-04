@@ -52,5 +52,5 @@ jobs:
       name: Upload build artifacts
       with:
         name: mushmatch-distrib
-        path: build/Dist/Latest/*
+        path: build/dist/latest/*
         if-no-files-found: error
