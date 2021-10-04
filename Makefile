@@ -8,6 +8,7 @@ BUILD_LOG ?= ./build.log
 MUSTACHE ?= mustache
 DIR_DIST = $(MUSHMATCH_BUILD)/dist
 CAN_DOWNLOAD ?= 1
+DESTDIR ?= ..
 
 CMDS_EXPECTED = curl tar gzip bzip2 zip bash mustache
 
@@ -76,6 +77,7 @@ auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), download, cannot-download)
 
 "$(DIR_DEPS)/ut-server-linux-436.tar.gz" "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2": auto-download
 "$(DIR_TARG_PACKAGE)/_build.sh": configure
+"$(DIR_DIST)/$(PACKAGE_NAME)/latest/%.zip": build
 
 #-- Entrypoint rules
 
@@ -96,6 +98,12 @@ build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-b
 	else\
 		echo "Build errored: see $(BUILD_LOG)" 2>&1 ; exit 1 ;\
 	fi
+
+install: $(DIR_DIST)/$(PACKAGE_NAME)/latest/%.zip expect-cmd-unzip
+	echo '=== Installing to Unreal Tournament at $(DESTDIR)' ;\
+	cd "$(DESTDIR)" ;\
+	unzip $(DIR_DEST)/$(PACKAGE_NAME)/latest/*.zip ;\
+	echo Done.
 
 clean-downloads:
 	rm deps/*
