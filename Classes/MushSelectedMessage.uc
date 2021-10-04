@@ -9,7 +9,11 @@ static function string GetOwnString (
     optional int Switch,
     optional PlayerReplicationInfo OwnPRI
 ) {
-    if (OwnPRI.Team == 1)
+    local MushMatchPRL MPRL;
+
+    MPRL = MushMatchInfo(PlayerPawn(OwnPRI.Owner).GameReplicationInfo).FindPRL(OwnPRI);
+
+    if (MPRL.bMush)
         return Default.GreetStringMush;
 
     else

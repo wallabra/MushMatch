@@ -257,10 +257,6 @@ simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
                     return "Human";
                 }
             }
-            
-            else {
-                return "[WTF]";
-            }
         }
         
         if (CheckBeacon(PRI))
@@ -293,7 +289,7 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
     MPRL = FindPRL(PRI);
 
     if (MPRL == None) {
-        return None;
+        return "???";
     }
 
     if (CheckDead(PRI)) {
@@ -347,20 +343,28 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
 
 simulated event string TeamTextStatus(PlayerReplicationInfo PRI, PlayerPawn Other)
 {
+    local MushMatchPRL MPRL;
+
+    MPRL = FindPRL(PRI);
+
+    if (MPRL == None) {
+        return "???";
+    }
+
     if (CheckDead(PRI)) {
-        return "Dead";
+        return "[Dead]";
     }
 
     if (bMushSelected) {
-        if ( PRI.Team == 0 && CheckConfirmedHuman(PRI) ) {
+        if (!MPRl.bMush && CheckConfirmedHuman(PRI)) {
             return "Certified";
         }
 
-        if ( PRI.Team == 1 && CheckConfirmedMush(PRI) ) {
+        if ( MPRl.bMush && CheckConfirmedMush(PRI)) {
             return "Discovered";
         }
         
-        if ( CheckBeacon(PRI) ) {
+        if (CheckBeacon(PRI)) {
             return "Suspected";
         }
         
@@ -423,9 +427,9 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     OtherMPRL = MMI.FindPRL(OtherPRI);
 
     // check for Mush-specific behaviour
-    if (BotPRI.Team == 1)
+    if (BotMPRL.bMush)
     {
-        if (OtherPRI.Team == 0)
+        if (!OtherMPRL.bMush)
         {
             // if spotted mush, don't hold back
             if (BotMPRL.bKnownMush) {
@@ -478,7 +482,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     }
 
     // check for general behaviour (or maybe a façade thereof) towards humans
-    if (BotPRI.Team == 0 || OtherPRI.Team == 0)
+    if (!BotMPRL.bMush || !OtherMPRL.bMush)
     {
         if (
             Other.bIsPlayer
@@ -491,9 +495,9 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                 ||
                 (   // OR if we have a grudge on the other
                     MM.bHasHate
-                    && BotPRI.Team == 0
+                    && !BotMPRL.bMush
                     && MMI.CheckHate(OtherPRI, BotPRI)
-                    && !(OtherPRI.Team == 1 && BotPRI.Team == 1)
+                    && !(OtherMPRL.bMush && BotMPRL.bMush)
                     && FRand() < DecideChance_GrudgeAttack
                 )
                 ||
@@ -502,7 +506,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                     MM.bHasBeacon
                     && (
                         // if we're a human or scapegoating
-                        BotPRI.Team == 0
+                        !BotMPRL.bMush
                         || (
                             BotMPRL.bIsSuspected
                             && FRand() < DecideChance_Scapegoat

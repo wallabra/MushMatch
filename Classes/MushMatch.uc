@@ -881,7 +881,11 @@ Begin:
 }
 
 function BroadcastDeceased(PlayerReplicationInfo Who) {
-    BroadcastLocalizedMessage(MushDiedMessageType, int(bMushUseOwnPronoun), Who);
+    local MushMatchPRL MPRL;
+
+    MPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Who);
+
+    BroadcastLocalizedMessage(MushDiedMessageType, int(bMushUseOwnPronoun), Who,, MPRL);
 }
 
 function BroadcastSpotted(PlayerReplicationInfo By, PlayerReplicationInfo Whom) {

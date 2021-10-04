@@ -5,13 +5,13 @@ var(MushMessages) localized string MalePronoun, FemalePronoun, MushPronoun, Unkn
 var(MushMessages) localized string HumanAlignString, MushAlignString, UnknownAlignString;
 
 
-static function String ParseMessage(PlayerReplicationInfo PRI, bool bMushUseOwnPronoun) {
+static function String ParseMessage(PlayerReplicationInfo PRI, bool bMushUseOwnPronoun, MushMatchPRL MPRL) {
     local String Who, Pronoun, Alignment, Assembled;
 
     Who = GetNameFor(PRI);
 
-    // get pronou and alignment
-    if (PRI.Team == 0) {
+    // get pronoun and alignment
+    if (!MPRL.bMush) {
         Alignment = default.HumanAlignString;
 
         // humans have usual pronoun rules
@@ -25,7 +25,7 @@ static function String ParseMessage(PlayerReplicationInfo PRI, bool bMushUseOwnP
     }
 
     else {
-        if (PRI.Team == 1) {
+        if (MPRL.bMush) {
             Alignment = default.MushAlignString;
 
             // get mush pronoun
@@ -85,7 +85,7 @@ static function string GetString(
     if (RelatedPRI_1 == None)
         return "";
 
-    return ParseMessage(RelatedPRI_1, Switch == 1);
+    return ParseMessage(RelatedPRI_1, Switch == 1, MushMatchPRL(OptionalObject));
 }
 
 

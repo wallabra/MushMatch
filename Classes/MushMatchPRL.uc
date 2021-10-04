@@ -4,7 +4,7 @@ var             bool                    bIsSuspected;
 var             bool                    bMush;
 var             bool                    bKnownMush, bKnownHuman;
 var             bool                    bDead, bSpectator;
-var             byte                    InitialTeam;
+var             int                     InitialTeam;
 var             float                   ImmuneLevel;
 var             float                   ImmuneMomentum, ImmuneResistance;
 var             PlayerReplicationList   HatedBy;
@@ -86,7 +86,7 @@ function PostBeginPlay() {
         return;
     }
 
-    InitialTeam = PlayerReplicationInfo(Owner).Team;
+    InitialTeam = int(bMush);
 }
 
 simulated function ImmuneHit(float Amount) {
@@ -187,7 +187,7 @@ simulated event bool RemoveHate(PlayerReplicationInfo Other)
 }
 
 simulated event SetInitialTeam() {
-    InitialTeam = PlayerReplicationInfo(Owner).Team;
+    InitialTeam = int(bMush);
 }
 
 
