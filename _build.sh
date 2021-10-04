@@ -8,7 +8,7 @@ TMP_YML="$(mktemp)"
 TMP_INI="$(mktemp)"
 
 cleanup() {
-    ( cd "$utdir" && rm -r "$packagefull" )
+    ( cd "$utdir" && pwd && rm -r "$packagefull" )
 }
 
 ( # Subshell to preserve original working dir
