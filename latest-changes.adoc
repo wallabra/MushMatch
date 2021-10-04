@@ -13,3 +13,4 @@
  * Penalize for same-team kills, and, by default, multiply any infectee's score by -0.5 (negative of half) to represent reverse contribution to their new team
  * Allow showing score on match end by default
  * Don't notify killing sprees, which can incriminate killers
+ * Make the frag reward values for killing or infecting someone, respectively, configurable
