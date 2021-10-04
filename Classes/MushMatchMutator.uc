@@ -52,25 +52,25 @@ simulated function Tick(float TimeDelta) {
     }
 }
 
-simulated function bool FindLocalPlayer() {
+simulated function PlayerPawn FindLocalPlayer() {
     if (Level.NetMode == NM_DedicatedServer) {
-        return false; // server-side
+        return None; // server-side
     }
 
     if (PlayerOwner == None) {
         foreach AllActors(class'PlayerPawn', PlayerOwner) {
             if (Viewport(PlayerOwner.Player) != None) {
-                return true;
+                return PlayerOwner;
             }
         }
 
         PlayerOwner = None; // in fact other PlayerPawns were found but not our own... odd
 
         Warn("Local player not found for HUD logic of"@ self);
-        return false;
+        return None;
     }
 
-    return true;
+    return PlayerOwner;
 }
 
 function bool HandleEndGame()
@@ -118,16 +118,37 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
     }
 }
 
-simulated event ModifyPlayer(Pawn Other)
-{
+simulated function MushMatchPRL FindPawnPRL(Pawn Other) {
+    if (Other == None) return None;
+    if (Other.PlayerReplicationInfo == None) return None;
+
+    if (Role == ROLE_Authority) {
+        return MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
+    }
+
+    else {
+        return MushMatchInfo(FindLocalPlayer().GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
+    }
+}
+
+simulated event ModifyPlayer(Pawn Other) {
     local Weapon w;
+    local MushMatchPRL MPRL;
 
     w = Other.Weapon;
     Other.Spawn(class'MushBeacon').GiveTo(Other);
 
     // Give a Sporifier IF the match has already started and the player added is in the mush team
-    if (Other.PlayerReplicationInfo.Team == 1 && MushMatch(Level.Game).bMushSelected) {
-        Other.Spawn(class'Sporifier').GiveTo(Other);
+    if (Role == ROLE_Authority && MushMatch(Level.Game).bMushSelected) {
+        MPRL = FindPawnPRL(Other);
+
+        if (MPRL == None) {
+            Error("Tried to call MushMatchMutator.ModifyPlayer on a Pawn"@ Other @"with no associated MushMatchPRL during a started match");
+        }
+
+        if (MPRL.bMush) {
+            Other.Spawn(class'Sporifier').GiveTo(Other);
+        }
     }
 
     if (w != None) {
@@ -140,7 +161,7 @@ simulated event ModifyPlayer(Pawn Other)
 }
 
 function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
-    local MushMatchPRL WitPRL;
+    local MushMatchPRL WitPRL, VictPRL, InstigPRL;
 
     // sanity checks
 
@@ -165,13 +186,31 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
         return false;
     }
 
-    WitPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Witness.PlayerReplicationInfo);
+    WitPRL = FindPawnPRL(Victim);
+    InstigPRL = FindPawnPRL(InstigatedBy);
+    VictPRL = FindPawnPRL(Witness);
+
+    if (WitPRL == None || InstigPRL == None || VictPRL == None) {
+        return false;
+    }
 
     if (WitPRL.bDead) {
         return false;
     }
 
     // now the interesting checks
+
+    if (WitPRL.bMush && VictPRL.bMush) {
+        return false;
+    }
+
+    if (VictPRL.bKnownHuman) {
+         return false;
+    }
+
+    if (WitPRL.bKnownMush) {
+        return false;
+    }
 
     if (!Witness.LineOfSightTo(Victim)) {
         return false;
@@ -197,20 +236,19 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
 
     // make sure this suspicion does not already exist
 
-    if (MushMatch(Level.Game).bHasHate && MushMatchInfo(Level.Game.GameReplicationInfo).CheckHate(InstigatedBy.PlayerReplicationInfo, Witness.PlayerReplicationInfo)) {
+    if (MushMatch(Level.Game).bHasHate && !MushMatchInfo(Level.Game.GameReplicationInfo).CheckHate(InstigatedBy.PlayerReplicationInfo, Witness.PlayerReplicationInfo)) {
         return false;
     }
 
     // raise an eyebrow!
-
     return true;
 }
 
 function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
 {
     local Pawn P;
-    local bool bEligible;
     local MushMatchInfo MMI;
+    local MushMatchPRL VictimPRL, InstigatorPRL;
 
     if (InstigatedBy.PlayerReplicationInfo == None)
         return;
@@ -220,38 +258,29 @@ function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
 
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
-    if (MMI == None)
-        return;
-
-    if ( MushMatchPRL(MMI.PRL.FindPlayer(InstigatedBy.PlayerReplicationInfo)) == None ) {
+    if (MMI == None) {
         return;
     }
 
-    bEligible = (Victim.PlayerReplicationInfo.Team == 0 && !MMI.CheckConfirmedHuman(InstigatedBy.PlayerReplicationInfo));
+    VictimPRL = FindPawnPRL(Victim);
+    InstigatorPRL = FindPawnPRL(InstigatedBy);
 
-    if ( /* suspicion */ bEligible || /* subversion */ Victim.PlayerReplicationInfo.Team == 1 )
+    if (VictimPRL == None || InstigatorPRL == None) {
+        return;
+    }
+
+    if (VictimPRL.bMush != InstigatorPRL.bMush && !InstigatorPRL.bKnownHuman)
     {
-        for ( P = Level.PawnList; P != None; P = P.NextPawn )
-            if (WitnessSuspect(Victim, InstigatedBy, P)) {
-                // Log(p.PlayerReplicationInfo.PlayerName@"suspects"@InstigatedBy.PlayerReplicationInfo.PlayerName);
-
-                // complete bEligible for P
-                if (!(/* suspicion */  (P.PlayerReplicationInfo.Team == 0 && !MMI.CheckConfirmedHuman(InstigatedBy.PlayerReplicationInfo)) ||
-                      /* subversion */ (P.PlayerReplicationInfo.Team == 1 && InstigatedBy.PlayerReplicationInfo.Team == 0))) {
-                    return;
-                }
-
-                MushMatch(Level.Game).RegisterHate(P, InstigatedBy);
+        for (P = Level.PawnList; P != None; P = P.NextPawn) {
+            if (!WitnessSuspect(Victim, InstigatedBy, P)) {
+                continue;
             }
+
+            MushMatch(Level.Game).RegisterHate(P, InstigatedBy);
+        }
 
         if (WitnessSuspect(Victim, InstigatedBy, Victim)) {
             // Log(Victim.PlayerReplicationInfo.PlayerName@"suspects"@InstigatedBy.PlayerReplicationInfo.PlayerName);
-
-            // complete bEligible for Victim
-            if (!(/* suspicion */ (Victim.PlayerReplicationInfo.Team == 0 && !MMI.CheckConfirmedHuman(InstigatedBy.PlayerReplicationInfo)) ||
-                  /* subversion */ Victim.PlayerReplicationInfo.Team == 1 && InstigatedBy.PlayerReplicationInfo.Team == 0)) {
-                return;
-            }
 
             MushMatch(Level.Game).RegisterHate(Victim, InstigatedBy);
         }
@@ -313,7 +342,7 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
     local bool bNameCleared;
     local Pawn P;
     local MushMatchInfo MMI;
-    local MushMatchPRL KPRL;
+    local MushMatchPRL OPRL, KPRL, PPRL;
     local float IgnoreChance;
 
     if (Role != ROLE_Authority) {
@@ -328,12 +357,13 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
     if (Killer == None)
         return;
 
-    KPRL = MushMatchPRL(MushMatchInfo(Level.Game.GameReplicationInfo).PRL.FindPlayer(Killer.PlayerReplicationInfo));
+    KPRL = FindPawnPRL(Killer);
+    OPRL = FindPawnPRL(Other);
 
-    if (KPRL == None || KPRL.bDead)
+    if (OPRL == None || KPRL == None || KPRL.bDead)
         return;
 
-    if (Other.PlayerReplicationInfo.Team == 1 && !MMI.CheckConfirmedMush(Killer.PlayerReplicationInfo) && MMI.CheckBeacon(Killer.PlayerReplicationInfo)) {
+    if (OPRL.bMush && !MMI.CheckConfirmedMush(Killer.PlayerReplicationInfo) && MMI.CheckBeacon(Killer.PlayerReplicationInfo)) {
         for (P = Level.PawnList; P != None; P = P.NextPawn) {
             // Ensure they're not the killer themself
             if (P == Killer) continue;
@@ -343,20 +373,27 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
                 continue;
             }
 
+            // Ensure they have a MushMatchPRL
+            PPRL = FindPawnPRL(P);
+
+            if (PPRL == None) {
+                continue;
+            }
+
             // Ensure they could see what happened
             if (!P.CanSee(Killer)) {
                 continue;
             }
 
-            // Ensure they have a clean record (irrespective of whether they really are a mush)
-            if (MMI.CheckBeacon(P.PlayerReplicationInfo) || MMI.CheckConfirmedMush(P.PlayerReplicationInfo)) {
+            // Ensure they have a clean record (irrespective of whether they are a mush in reality)
+            if (PPRL.bIsSuspected || PPRL.bKnownMush) {
                 continue;
             }
 
-            // They may not have bothered to
-            // (more likely if both are Mush as they're working together to clean each other's names)
+            // They may not have bothered to unsuspect
+            // (though they're likely to if both are Mush as they're working together to clean each other's names)
 
-            if (P.PlayerReplicationInfo.Team == 1 && Killer.PlayerReplicationInfo.Team == 1) {
+            if (PPRL.bMush && KPRL.bMush) {
                 IgnoreChance = NameClearChanceBothMush;
             }
 
@@ -395,7 +432,7 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
         return;
     }
 
-    if (Other.PlayerReplicationInfo.Team == 1) {
+    if (OPRL.bMush) {
         return;
     }
 
@@ -499,7 +536,7 @@ simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
         return;
     }
 
-    PlayerPRL = MushMatchInfo(PlayerOwner.GameReplicationInfo).FindPRL(PlayerOwner.PlayerReplicationInfo);
+    PlayerPRL = FindPawnPRL(PlayerOwner);
 
     if ( MushMatchInfo(PlayerOwner.GameReplicationInfo).bMushSelected && !PlayerPRL.bDead )
     {
@@ -509,7 +546,7 @@ simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
         Drawer.DrawColor = BaseHUD.HUDColor * 0.75;
         Drawer.SetPos(Drawer.SizeX * 0.475, 0);
 
-        if ( PlayerOwner.PlayerReplicationInfo.Team == 0 ) {
+        if (!PlayerPRL.bMush) {
             Drawer.SetPos(Drawer.SizeX * 0.475, 0);
 
             if (PlayerPRL.ImmuneLevel < 1) {
@@ -521,7 +558,7 @@ simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
                     ImmuneShow = FlatSize - 8;
                 }
 
-                Log("ImmuneShow is "$ImmuneShow$" and FlatSize is "$FlatSize);
+                // Log("ImmuneShow is "$ImmuneShow$" and FlatSize is "$FlatSize);
                 Drawer.SetPos(Drawer.CurX + 4, Drawer.CurY + 4);
                 Drawer.DrawTile(Texture'MMHUDHumanNoimmune', FlatSize - 4, ImmuneShow, 0, 0, FlatSize * 2, ImmuneShow * 2);
                 Drawer.SetPos(Drawer.CurX - 4, Drawer.CurY - 4);
@@ -537,8 +574,9 @@ simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
             }
         }
 
-        else
+        else {
             Drawer.DrawIcon(Texture'MMHUDMush', FlatScale);
+        }
 
         Drawer.SetPos(Drawer.SizeX * 0.475, Drawer.SizeX * 0.05);
 
@@ -572,6 +610,11 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
     }
     */
 
+    if (Level.NetMode == NM_Dedicated) {
+        // Serverside HUD? whut?
+        return false;
+    }
+
     BaseHUD.HUDSetup(Drawer);
 
     // Skip usual circumstances where identity info is not drawn
@@ -586,7 +629,7 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
         return false;
     }
 
-    myPRL = MushMatchInfo(PlayerOwner.GameReplicationInfo).FindPRL(PlayerOwner.PlayerReplicationInfo);
+    myPRL = FindPawnPRL(PlayerOwner);
 
     if (myPRL == None) {
         Warn("No PRL found for player: "@ PlayerOwner @ PlayerOwner.PlayerReplicationInfo.PlayerName @ MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL);
@@ -608,7 +651,7 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
             BaseHUD.DrawTwoColorID(Drawer, "Alignment", TeamTextAlignment(IdentifyTarget), Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale);
             Linefeed += 24;
 
-            if (PlayerOwner.PlayerReplicationInfo.Team == 1 && IdentifyTarget.Team == 0) {
+            if (myPRL.bMush && !otherPRL.bMush) {
                 if (OtherPRL.ImmuneLevel <= OtherPRL.ImmuneDangerLevel) {
                     Drawer.DrawColor = BaseHUD.RedColor;
                 }
@@ -637,7 +680,7 @@ defaultproperties
     RemoteRole=ROLE_SimulatedProxy
     bAlwaysRelevant=True
     bNetTemporary=True
-    NameClearChanceNormal=0.3
+    NameClearChanceNormal=0.6
     NameClearChanceBothMush=0.9
     MinGuaranteeSuspectDamage=40
     VictimSuspectChance=0.7
