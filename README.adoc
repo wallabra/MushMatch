@@ -1,4 +1,4 @@
-\Mush Match
+Mush Match
 ==========
 Mush Match development team
 :homepage: https://ut99.org/viewtopic.php?f=4&t=14820
