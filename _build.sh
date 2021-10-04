@@ -71,7 +71,7 @@ cleanup() {
                 fi
             fi
         )
-        code=$?; echo $code; [[ $code == 0 ]] && exit $codef
+        code=$?; [[ $code == 0 ]] || exit $code
 
         # Format .int with Mustache
         echo "Formatting: System/$package.int"
