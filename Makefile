@@ -92,7 +92,7 @@ build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-b
 	echo '=== Starting build!' ;\
 	cd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
 	if MUSTACHE="$(MUSTACHE)" bash ./_build.sh 2>&1; then\
-		echo "Build finished: see $(DIR_DIST)" 2>&1 ; code=0 ;\
+		echo "Build finished: see $(DIR_DIST)/$(PACKAGE_NAME)/latest" 2>&1 ; code=0 ;\
 	else\
 		echo "Build errored: see $(BUILD_LOG)" 2>&1 ; code=1 ;\
 	fi | tee $(BUILD_LOG) ;\
