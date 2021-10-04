@@ -213,6 +213,10 @@ simulated function bool CheckDead(PlayerReplicationInfo Other)
 
 simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
 {
+    local MushMatchPRL OtherPRL;
+
+    OtherPRL = FindPRL(Other.PlayerReplicationInfo);
+
     if (CheckDead(PRI)) {
         if ( PRI.Team == 1 )
             return "Mush (dead)";
@@ -222,7 +226,7 @@ simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
     }
 
     if (bMushSelected) {
-        if ( Other.PlayerReplicationInfo == PRI || Other.PlayerReplicationInfo.Team == 1 || bMatchEnd || CheckDead(Other.PlayerReplicationInfo) ) {
+        if (Other.PlayerReplicationInfo == PRI || (OtherPRL != None && OtherPRL.bMush) || bMatchEnd || CheckDead(Other.PlayerReplicationInfo)) {
             if ( PRI.Team == 1 ) {
                 if ( CheckBeacon(PRI) )
                     return "Mush (susp.)";
@@ -267,6 +271,9 @@ simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
 simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn Other)
 {
     local MushMatchPRL MPRL;
+    local MushMatchPRL OtherPRL;
+    
+    OtherPRL = FindPRL(Other.PlayerReplicationInfo);
 
     if (CheckDead(PRI)) {
         if (PRI.Team == 1) {
@@ -286,7 +293,7 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
     }
 
     if (bMushSelected) {
-        if (Other.PlayerReplicationInfo == PRI || Other.PlayerReplicationInfo.Team == 1 || bMatchEnd || CheckDead(Other.PlayerReplicationInfo)) {
+        if (Other.PlayerReplicationInfo == PRI || (OtherPRL != None && OtherPRL.bMush) || bMatchEnd || CheckDead(Other.PlayerReplicationInfo)) {
             if (PRI.Team == 1) {
                 MPRL = FindPRL(PRI);
             
@@ -352,7 +359,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     local MushMatchInfo MMI;
     local bool bNoSneaking;
     local PlayerReplicationInfo BotPRI, OtherPRI;
-    local MushMatchPRL BotMPRL, OtherMPRL;
+    local MushMatchPRL BotMPRL, OtherMPRL, PPRL;
     local Sporifier sporer;
     local MushMatch MM;
 
@@ -407,7 +414,19 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
             // maybe try to infect, if you can be sneaky!
             if (!Other.CanSee(aBot) && aBot.FindInventoryType(class'Sporifier') != None && FRand() < DecideChance_Infect && !aBot.IsInState('attacking')) {
                 for (P = Level.PawnList; P != None; P = P.NextPawn) {
-                    if (P.bIsPlayer && P.PlayerReplicationInfo != None && P.PlayerReplicationInfo.Team == 0 && P.LineOfSightTo(aBot) && P != Other) {
+                    if (!P.bIsPlayer) continue;
+                    if (P.PlayerReplicationInfo == None) continue;
+                
+                    PPRL = MMI.FindPRL(P.PlayerReplicationInfo);
+
+                    if (PPRL == None) {
+                        Error("Found a bIsPlayer Pawn with PlayerReplicationInfo but no MushMatchPRL:"@ P);
+                        continue;
+                    }
+
+                    if (PPRL.bMush) continue;
+                
+                    if (P.LineOfSightTo(aBot) && P != Other) {
                         bNoSneaking = true;
                     }
                 }

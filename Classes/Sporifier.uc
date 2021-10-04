@@ -36,6 +36,8 @@ class Sporifier extends TournamentWeapon;
 
 var float SafeTime;
 var bool bDesired;
+var MushMatchInfo MMI;
+var MushMatchPRL PRL;
 
 var(MushMatch) config float SporifierFirerate, SporifierAIMaxSafeTime;
 
@@ -105,11 +107,34 @@ simulated function PlayIdle()
     PlayAnim('Still', 0.35, 0.5);
 }
 
+simulated function FindOwnPRL() {
+    FindMMI();
+
+    if (PRL != None && PRL.Owner == Pawn(Owner).PlayerReplicationInfo) {
+        return;
+    }
+
+    PRL = MMI.FindPRL(Pawn(Owner).PlayerReplicationInfo);
+
+    return;
+}
+
+simulated function FindMMI() {
+    if (MMI != None) {
+        return;
+    }
+
+    if (Role == ROLE_Authority) {
+        MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
+    }
+
+    else {
+        MMI = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo);
+    }
+}
+
 simulated function Tick(float TimeDelta)
-{
-    local Pawn p;
-    local MushMatchPRL PRL;
-    
+{   
     Super.Tick(TimeDelta);
         
     if ( Owner == None || Owner.IsInState('Dying') || ( MushMatch(Level.Game) == none && Pawn(Owner).PlayerReplicationInfo != none && Pawn(Owner).PlayerReplicationInfo.Deaths > 0 ) )
@@ -123,27 +148,24 @@ simulated function Tick(float TimeDelta)
         return;
     }
     
-    if (Pawn(Owner).Weapon != self) {
+    if (Pawn(Owner).Weapon != Self) {
         return;
     }
 
-    if (Role == ROLE_Authority) {    
-        for ( p = Level.PawnList; p != none; p = p.nextPawn ) {
-            if ( p.bIsPlayer && p != Owner && p.PlayerReplicationInfo != none && p.PlayerReplicationInfo.Deaths <= 0 && p.CanSee(Owner) && Pawn(Owner).PlayerReplicationInfo.Team == 1  && p.PlayerReplicationInfo.Team == 0 ) {
-                MushMatch(Level.Game).SpotMush(Pawn(Owner), p);
-                break;
-            }
-        }
-    }
-
-    PRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Pawn(Owner).PlayerReplicationInfo);
-
+    FindOwnPRL();
+    
     if (PRL == None) {
         return;
     }
 
     if (PRL.bKnownMush) {
         return;
+    }
+
+    if (Role == ROLE_Authority) {    
+        if (!IsInState('BringUp') && AnimSequence != 'Select') {
+            CheckSpotted();
+        }
     }
 
     SafeTime += TimeDelta;
@@ -153,6 +175,28 @@ simulated function Tick(float TimeDelta)
             bDesired = false; // just in case we don't get put down
             Pawn(Owner).SwitchToBestWeapon();
         }
+    }
+}
+
+function CheckSpotted() {
+    local MushMatchPRL PPRL;
+    local Pawn p;
+    
+    for (p = Level.PawnList; p != none; p = p.nextPawn) {
+        if (!p.bIsPlayer) continue;
+        if (p == Owner) continue;
+        if (p.PlayerReplicationInfo == none) continue;
+
+        PPRL = MMI.FindPRL(P.PlayerReplicationInfo);
+
+        if (PPRL == None) continue;
+        if (PPRL.bDead) continue;
+        if (PPRL.bMush) continue;
+
+        if (!p.CanSee(Owner)) continue;
+
+        MushMatch(Level.Game).SpotMush(Pawn(Owner), p);
+        break;
     }
 }
 
