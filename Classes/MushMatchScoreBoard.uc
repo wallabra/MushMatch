@@ -27,7 +27,7 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
 
     Status = MMI.TeamTextStatus(PRI, PlayerPawn(Owner));
     Team = MMI.TeamTextAlignment(PRI, PlayerPawn(Owner));
-    ScoreNum = String(PRI.Score);
+    ScoreNum = String(Int(PRI.Score));
     
     PPRL = MMI.FindPRL(PRI);
 
