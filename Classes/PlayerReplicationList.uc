@@ -28,7 +28,9 @@ simulated function PlayerReplicationList FindPlayer(PlayerReplicationInfo other)
 {
     local PlayerReplicationList prl;
 
-    for ( prl = self; prl != None; prl = prl.Next ) if ( prl.owner == other ) return prl;
+    for ( prl = self; prl != None; prl = prl.Next ) {
+        if ( prl.owner == other ) return prl;
+    }
     
     return None;
 }
@@ -59,8 +61,10 @@ simulated function bool RemovePlayer(PlayerReplicationInfo other, out PlayerRepl
     
     if (newRoot == prl)
         newRoot = prl.Next;
-        
-    prev.Next = prl.Next;
+
+    else
+        prev.Next = prl.Next;
+
     prl.Destroy();
     
     return True;

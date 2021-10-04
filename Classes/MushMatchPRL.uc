@@ -168,6 +168,7 @@ simulated event AddHate(PlayerReplicationInfo Other)
 {
     if ( HatedBy == None ) {
         HatedBy = Other.Spawn(class'PlayerReplicationList', Other);
+        HatedBy.Root = HatedBy;
     }
 
     else {
