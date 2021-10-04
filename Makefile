@@ -96,7 +96,7 @@ build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-b
 	else\
 		echo "Build errored: see $(BUILD_LOG)" 2>&1 ; code=1 ;\
 	fi | tee $(BUILD_LOG) ;\
-	exit $code
+	exit \${code}
 
 clean-downloads:
 	rm deps/*
