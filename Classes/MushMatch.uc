@@ -117,11 +117,13 @@ function NotifySpree(Pawn Other, int num)
     // Don't notify sprees in the middle of the match.
 
     if (!bMushSelected) {
-        return Super.NotifySpree(Other, num);
+        Super.NotifySpree(Other, num);
+        return;
     }
 
     if (bMatchEnd) {
-        return Super.NotifySpree(Other, num);
+        Super.NotifySpree(Other, num);
+        return;
     }
 }
 
