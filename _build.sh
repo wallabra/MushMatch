@@ -95,7 +95,7 @@ cleanup() {
         # Update dist/latest
         echo Organizing dist directory...
         mkdir -p "$dist/$package/latest"
-        rm -f "$dist/$package/latest/*"
+        rm -f "$dist/$package/latest/"*
         cp "$dist/$package/$build/"* "$dist/$package/latest"
     )
     exit $?
