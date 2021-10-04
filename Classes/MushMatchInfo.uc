@@ -369,8 +369,13 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
         return 255;
     }
     
-    if (Other == None || aBot == None || !Other.bIsPlayer || !aBot.bIsPlayer || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
-        Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying or not player");
+    if (Other == None || aBot == None || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
+        Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying");
+        return 255;
+    }
+
+    if (!Other.bIsPlayer || !aBot.bIsPlayer) {
+        // Default AssessBotAttitude - probably involves a monster or smsth
         return 255;
     }
     
