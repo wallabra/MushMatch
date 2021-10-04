@@ -12,10 +12,12 @@ DESTDIR ?= ..
 
 CMDS_EXPECTED = curl tar gzip bzip2 zip bash mustache
 
+BUILD_NUM := $(shell source ./buildconfig.sh; echo $$build)
+
 all: build
 
 expect-cmd-%:
-	if ! which "${*}" >/dev/null; then \
+	if ! which "${*}" 2>&1 >/dev/null; then \
 	echo "----.">&2; \
 	echo "   Command '${*}' not found! It is required for build!">&2; \
 	echo >&2; \
@@ -42,15 +44,19 @@ expect-mustache:
 	echo "----'">&2; \
 	exit 2; fi
 
-download:
+$(DIR_DEPS)/ut-server-linux-436.tar.gz: | expect-cmd-curl
 	mkdir -p "$(DIR_DEPS)" ;\
 	echo '=== Downloading UT Linux v436 bare server...' ;\
-	curl 'http://ut-files.com/index.php?dir=Entire_Server_Download/&file=ut-server-linux-436.tar.gz' -LC- -o"$(DIR_DEPS)/ut-server-linux-436.tar.gz" ;\
+	curl 'http://ut-files.com/index.php?dir=Entire_Server_Download/&file=ut-server-linux-436.tar.gz' -LC- -o"$(DIR_DEPS)/ut-server-linux-436.tar.gz"
+	
+$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2: | expect-cmd-curl
+	mkdir -p "$(DIR_DEPS)" ;\
 	echo '=== Downloading UT Linux v469 patch...' ;\
-	curl 'https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469b/OldUnreal-UTPatch469b-Linux.tar.bz2' -LC- -o"$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" ;\
-	echo Done. ;\
+	curl 'https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469b/OldUnreal-UTPatch469b-Linux.tar.bz2' -LC- -o"$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2"
 
 cannot-download:
+ifeq ($(filter 1 true,$(CAN_DOWNLOAD)),)
+ifneq ($(wildcard $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2)_$(wildcard $(DIR_DEPS)/ut-server-linux-436.tar.gz),$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2_$(DIR_DEPS)/ut-server-linux-436.tar.gz)
 	echo "----.">&2; \
 	echo "    Building this mod requires downloading some files that are">&2; \
 	echo "    used to setup a build environment. Those files can be downloaded">&2; \
@@ -72,25 +78,24 @@ cannot-download:
 	echo >&2; \
 	echo "----'">&2; \
 	exit 1
+else
+endif
+else
+endif
 
-auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), download, cannot-download)
+auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2, cannot-download)
 
-"$(DIR_DEPS)/ut-server-linux-436.tar.gz" "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2": auto-download
-"$(DIR_TARG_PACKAGE)/_build.sh": configure
-"$(DIR_DIST)/$(PACKAGE_NAME)/latest/%.zip": build
-
-#-- Entrypoint rules
-
-configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2 expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
+$(DIR_TARG)/System/ucc-bin: | auto-download expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
 	echo '=== Extracting and setting up...' ;\
 	[[ -d "$(DIR_TARG)" ]] && rm -rv "$(DIR_TARG)" ;\
 	mkdir -p "$(DIR_TARG)" ;\
-	tar xzvf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" --overwrite -C "$(MUSHMATCH_BUILD)" ;\
-	tar xjpvf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
+	tar xzmvf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" --overwrite -C "$(MUSHMATCH_BUILD)" ;\
+	tar xjpmvf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
 	ln -sf -T "$(shell realpath $(PACKAGE_ROOT))" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
 
-build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
+$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR_TARG)/System/ucc-bin | expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache 
+	echo $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip
 	echo '=== Starting build!' ;\
 	cd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
 	if MUSTACHE="$(MUSTACHE)" bash ./_build.sh 2>&1; then\
@@ -99,11 +104,20 @@ build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-b
 		echo "Build errored: see $(BUILD_LOG)" 2>&1 ; exit 1 ;\
 	fi
 
-install: $(DIR_DIST)/$(PACKAGE_NAME)/latest/%.zip expect-cmd-unzip
-	echo '=== Installing to Unreal Tournament at $(DESTDIR)' ;\
-	cd "$(DESTDIR)" ;\
-	unzip $(DIR_DEST)/$(PACKAGE_NAME)/latest/*.zip ;\
+$(DESTDIR)/System/$(PACKAGE_NAME)-$(BUILD_NUM).u: $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip | expect-cmd-unzip
+	echo '=== Installing to Unreal Tournament at $(shell realpath $(DESTDIR))' ;\
+	unzip "$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip" -d "$(DESTDIR)" &&\
 	echo Done.
+
+#-- Entrypoint rules
+
+download: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2
+
+configure: $(DIR_TARG)/System/ucc-bin
+
+build: $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip
+
+install: $(DESTDIR)/System/$(PACKAGE_NAME)-$(BUILD_NUM).u
 
 clean-downloads:
 	rm deps/*
@@ -113,6 +127,5 @@ clean-tree:
 
 clean: clean-downloads clean-tree
 
-.PHONY: download configure build expect-cmd-% expect-mustache clean clean-downloads clean-tree \
-		.ut-server-linux-436.tar.gz .OldUnreal-UTPatch469b-Linux.tar.bz2
+.PHONY: configure build download install auto-download cannot-download expect-cmd-% expect-mustache clean clean-downloads clean-tree
 .SILENT:
