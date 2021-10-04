@@ -180,11 +180,15 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
 	if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush && bPenalizeSameTeamKill) {
 	    // revert the score reward to a score penalty
-	    Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill;
+	    Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill + 1;
 	}
 
 	else if (OPRL != None) {
-	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill;
+	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill - 1;
+	}
+
+	else {
+	    Killer.PlayerReplicationInfo.Score -= 1;
 	}
 }
 
