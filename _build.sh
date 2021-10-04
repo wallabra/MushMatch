@@ -5,7 +5,7 @@ source ./buildconfig.sh
 MUSTACHE="${MUSTACHE?-mustache}"
 
 TMP_YML="$(mktemp)"
-TMPINI="$(mktemp)"
+TMP_INI="$(mktemp)"
 
 cleanup() {
     ( cd "$utdir" && rm -r "$packagefull" )
@@ -15,8 +15,8 @@ cleanup() {
     packagefull="$package"-"$build"
     packagedir="."
 
-    cat "$makeini">"$TMPINI"
-    echo EditPackages="$packagefull">>"$TMPINI"
+    cat "$makeini">"$TMP_INI"
+    echo EditPackages="$packagefull">>"$TMP_INI"
 
     cd "$utdir"
 
@@ -54,15 +54,12 @@ cleanup() {
         done
 
         # Build .u
-        echo pre system
-        pwd
-
         (
             cd System
             #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
             if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
             echo "* Invoking ucc make in $(pwd)"
-            ( "$ucc" make -NoBind ini="$TMPINI" || exit 1 ) | tee "$packagedir/make.log"
+            ( "$ucc" make -NoBind ini="$TMP_INI" || exit 1 ) | tee "$packagedir/make.log"
 
             # Ensure .u is built
             if [[ ! -f "$packagefull.u" ]]; then
