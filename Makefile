@@ -80,24 +80,23 @@ auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), download, cannot-download)
 #-- Entrypoint rules
 
 configure: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2 expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
-	mkdir -p "$(DIR_DEPS)" ;\
 	echo '=== Extracting and setting up...' ;\
-	rm -rv "$(DIR_TARG)" ;\
-	tar xzf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" --overwrite -C "$(MUSHMATCH_BUILD)" ;\
-	tar xjpf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
+	[[ -d "$(DIR_TARG)" ]] && rm -rv "$(DIR_TARG)" ;\
+	mkdir -p "$(DIR_TARG)" ;\
+	tar xzvf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" --overwrite -C "$(MUSHMATCH_BUILD)" ;\
+	tar xjpvf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
 	ln -sf -T "$(shell realpath $(PACKAGE_ROOT))" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
 
 build: $(DIR_TARG_PACKAGE)/_build.sh expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache
 	echo '=== Starting build!' ;\
-	pushd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
+	cd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
 	if MUSTACHE="$(MUSTACHE)" bash ./_build.sh 2>&1; then\
-		echo "Build finished: see $(DIR_DIST)" 2>&1 ; code=0 ;\
+		echo "Build finished: see $(DIR_DIST)/$(PACKAGE_NAME)/latest" 2>&1 ; code=0 ;\
 	else\
 		echo "Build errored: see $(BUILD_LOG)" 2>&1 ; code=1 ;\
 	fi | tee $(BUILD_LOG) ;\
-	popd >/dev/null ;\
-	exit $code
+	exit $$code
 
 clean-downloads:
 	rm deps/*

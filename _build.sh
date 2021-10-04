@@ -5,18 +5,18 @@ source ./buildconfig.sh
 MUSTACHE="${MUSTACHE?-mustache}"
 
 TMP_YML="$(mktemp)"
-TMPINI="$(mktemp)"
+TMP_INI="$(mktemp)"
+
+packagefull="$package"-"$build"
+packagedir="."
 
 cleanup() {
     ( cd "$utdir" && rm -r "$packagefull" )
 }
 
 ( # Subshell to preserve original working dir
-    packagefull="$package"-"$build"
-    packagedir="."
-
-    cat "$makeini">"$TMPINI"
-    echo EditPackages="$packagefull">>"$TMPINI"
+    cat "$makeini">"$TMP_INI"
+    echo EditPackages="$packagefull">>"$TMP_INI"
 
     cd "$utdir"
 
@@ -54,15 +54,12 @@ cleanup() {
         done
 
         # Build .u
-        echo pre system
-        pwd
-
         (
             cd System
             #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
             if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
             echo "* Invoking ucc make in $(pwd)"
-            ( "$ucc" make -NoBind ini="$TMPINI" || exit 1 ) | tee "$packagedir/make.log"
+            ( "$ucc" make -NoBind ini="$TMP_INI" || exit 1 ) | tee "$packagedir/make.log"
 
             # Ensure .u is built
             if [[ ! -f "$packagefull.u" ]]; then
@@ -94,10 +91,11 @@ cleanup() {
         mkdir -pv "$dist/$package/$build"
         mv "$packagefull."{tar.*,zip} "$dist/$package/$build"
 
-        # Update Dist/Latest
-        mkdir -pv "$dist/$package/Latest"
-        rm -f "$dist/$package/Latest/*"
-        cp "$dist/$package/$build/"* "$dist/$package/Latest"
+        # Update dist/latest
+        echo Organizing dist directory...
+        mkdir -pv "$dist/$package/latest"
+        rm -f "$dist/$package/latest/*"
+        cp "$dist/$package/$build/"* "$dist/$package/latest"
     )
     code=$?
     exit $?
@@ -108,6 +106,8 @@ code=$?
 
 rm "$TMP_YML"
 rm "$TMP_INI"
+
+echo Cleaning up...
 cleanup
 
 exit $code

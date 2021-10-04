@@ -18,7 +18,6 @@ var(MushMatch) config float MushScarceRatio;
 var(MushMatch) config class<Spectator> SpectatorClass;
 var(MushMatch) config class<LocalMessagePlus> MushDiedMessageType, MushSpottedMessageType, MushSuspectedMessageType, MushSelectedMessageType;
 var(MushMatch) config bool bMushUseOwnPronoun;
-var(MushMatch) config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack, DecideChance_TeamUp, DecideChance_MushHelpMush, DecideChance_Scapegoat;
 var(MushMatch) config float SpawnChance_BeaconAmmo, SpawnChance_SporeAmmo;
 var(MushMatch) localized string RTeamNames[2];
 var(MUSHMATCH) config float InfectionScoreMultiplier;
@@ -118,11 +117,13 @@ function NotifySpree(Pawn Other, int num)
     // Don't notify sprees in the middle of the match.
 
     if (!bMushSelected) {
-        return Super.NotifySpree(Other, num);
+        Super.NotifySpree(Other, num);
+        return;
     }
 
     if (bMatchEnd) {
-        return Super.NotifySpree(Other, num);
+        Super.NotifySpree(Other, num);
+        return;
     }
 }
 
@@ -921,12 +922,6 @@ defaultproperties
      MushSuspectedMessageType=Class'MushSuspectedMessage'
      MushSelectedMessageType=Class'MushSelectedMessage'
      bMushUseOwnPronoun=True
-     DecideChance_Infect=0.75
-     DecideChance_SuspectAttack=0.5
-     DecideChance_GrudgeAttack=0.8
-     DecideChance_TeamUp=0.35
-     DecideChance_MushHelpMush=0.9
-     DecideChance_Scapegoat=0.4
      SpawnChance_BeaconAmmo=0.04
      SpawnChance_SporeAmmo=0.025
      bCoopWeaponMode=True

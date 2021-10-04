@@ -52,5 +52,5 @@ jobs:
       name: Upload build artifacts
       with:
         name: mushmatch-distrib
-        path: build/ut-server/Dist/Latest/*
+        path: build/dist/MushMatch/latest/*
         if-no-files-found: error
