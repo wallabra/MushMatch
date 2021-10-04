@@ -47,7 +47,7 @@ simulated function Tick(float TimeDelta)
 function ProcessTouch(Actor Other, Vector HitLocation)
 {
     local Pawn mushed;
-    local MushMatchPRL OtherPRL;
+    local MushMatchPRL InstigPRL, OtherPRL;
 
     // Pass through instigator
 
@@ -68,26 +68,25 @@ function ProcessTouch(Actor Other, Vector HitLocation)
         return;
     }
 
-    if (Pawn(Other) != None && Pawn(Other).bIsPlayer && Pawn(Other).PlayerReplicationInfo != None && Instigator.PlayerReplicationInfo != None && Instigator.PlayerReplicationInfo.Team == 1) {
+    if (Instigator.PlayerReplicationInfo != None) {
+        InstigPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Instigator.PlayerReplicationInfo);
+    }
+
+    if (Pawn(Other) != None && Pawn(Other).bIsPlayer && Pawn(Other).PlayerReplicationInfo != None && InstigPRL != None && InstigPRL.bMush) {
         mushed = Pawn(Other);
 
-        if (mushed.PlayerReplicationInfo.Team == 0) {
-            OtherPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(mushed.PlayerReplicationInfo);
-
-            if (OtherPRL == None) {
-                Warn("Couldn't find MushMatchPRL for"@ mushed.PlayerReplicationInfo.PlayerName @"("$ mushed $"); couldn't try mushing them!");
-                return;
-            }
-
-            OtherPRL.TryToMush(Instigator);
+        OtherPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(mushed.PlayerReplicationInfo);
+        
+        if (OtherPRL == None) {
+            Error("Couldn't find MushMatchPRL for"@ mushed.PlayerReplicationInfo.PlayerName @"("$ mushed $") even though they are bIsPlayer; couldn't try mushing them!");
         }
 
-        Destroy();
+        if (!OtherPRL.bMush) {
+            OtherPRL.TryToMush(Instigator);
+        }
     }
 
-    else {
-        Super.ProcessTouch(Other, HitLocation);
-    }
+    Super.ProcessTouch(Other, HitLocation);
 }
 
 defaultproperties
