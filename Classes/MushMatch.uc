@@ -530,9 +530,9 @@ function MushMatchPRL FindPawnPRL(Pawn Other) {
 }
 
 function MakeMush(Pawn Other, Pawn Instigator) {
-    local MushMatchPRL MRPL;
+    local MushMatchPRL MPRL;
 
-    MRPL = FindPawnPRL(Other);
+    MPRL = FindPawnPRL(Other);
 
     if (MPRL == None) {
         Warn("MakeMush could not find MushMatchPRL for"@ Other);
