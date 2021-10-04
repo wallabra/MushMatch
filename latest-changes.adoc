@@ -14,3 +14,4 @@
  * Allow showing score on match end by default
  * Don't notify killing sprees, which can incriminate killers
  * Make the frag reward values for killing or infecting someone, respectively, configurable
+ * Make every player's underlying team value zero to avoid giving away the team via things like the shield belt energyfield colour or translocator disk light colour
