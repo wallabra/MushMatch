@@ -765,7 +765,8 @@ function bool ChangeTeam(Pawn Other, int N)
         return true;
     }
 
-    return false;
+    Other.PlayerReplicationInfo.Team = 0; // sike!
+    return true;
 }
 
 function int CountPlayers()
