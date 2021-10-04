@@ -28,7 +28,8 @@ section link:#building-from-source[*Building from Source*] below.
 
 == Rules
 
-Every person has only one life, and their team is identified on death.
+Every person has only one life, and their team is only identified to others
+(in the Human team at least) when they die.
 
 In the beginning of the match, "warm-up" begins, where everyone is in the human 
 team and cannot be damaged (only killed, by single-time damages capable of 
