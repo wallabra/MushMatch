@@ -27,7 +27,7 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
 
     Status = MMI.TeamTextStatus(PRI, PlayerPawn(Owner));
     Team = MMI.TeamTextAlignment(PRI, PlayerPawn(Owner));
-    ScoreNum = ""$ PRI.Score;
+    ScoreNum = String(PRI.Score);
     
     PPRL = MMI.FindPRL(PRI);
 
@@ -136,6 +136,9 @@ function ShowScores( canvas Canvas )
     local float XL, YL;
     local float YOffset, YStart;
     local font CanvasFont;
+    local MushMatchInfo MMI;
+    
+    MMI = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo);
 
     Canvas.Style = ERenderStyle.STY_Normal;
 
@@ -162,9 +165,10 @@ function ShowScores( canvas Canvas )
         }
     }
 
-    // -- don't sort, that would be potentially incriminating -- {
-    // SortScores(PlayerCount);
-    // }
+    // Don't always sort, that would be potentially incriminating
+    if (bDrawScoreOnMatchEnd && MMI.bMatchEnd) {
+        SortScores(PlayerCount);
+    }
 
     CanvasFont = Canvas.Font;
     Canvas.Font = MyFonts.GetBigFont(Canvas.ClipX);
