@@ -111,12 +111,12 @@ simulated function FindOwnPRL() {
     FindMMI();
 
     if (PRL != None && PRL.Owner == Pawn(Owner).PlayerReplicationInfo) {
-        return PRL;
+        return;
     }
 
     PRL = MMI.FindPRL(Pawn(Owner).PlayerReplicationInfo);
 
-    return PRL;
+    return;
 }
 
 simulated function FindMMI() {
