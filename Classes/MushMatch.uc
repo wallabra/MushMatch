@@ -830,7 +830,7 @@ state GameStarted
 {
     function SelectTraitor() {
         local Pawn Selected, Curr;
-        local MushMatchPRL PRL;
+        local MushMatchPRL PRL, CurrPRL;
         local int NumChoices;
 
         NumChoices = CountPlayers() - MushCount();
@@ -843,13 +843,14 @@ state GameStarted
             for (Curr = Level.PawnList; Curr != none; Curr = Curr.nextPawn) {
                 if (!Curr.bIsPlayer) continue;
 
-                PRL = FindPawnPRL(Curr);
+                CurrPRL = FindPawnPRL(Curr);
 
                 if (PRL == None) continue;
                 if (PRL.bMush) continue;
             
                 if (FRand() * NumChoices < 1.0) {
                     Selected = Curr;
+                    PRL = CurrPRL;
                 }
             }
         }
