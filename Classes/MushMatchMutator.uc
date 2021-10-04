@@ -610,7 +610,7 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
     }
     */
 
-    if (Level.NetMode == NM_Dedicated) {
+    if (Level.NetMode == NM_DedicatedServer) {
         // Serverside HUD? whut?
         return false;
     }
