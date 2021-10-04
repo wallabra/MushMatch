@@ -41,7 +41,7 @@ simulated function Tick(float TimeDelta) {
     if (!bHUDMutator && Level.NetMode != NM_DedicatedServer) {
         Log("Consider registering MushMatchMutator as HUD in the clientside");
 
-        if (FindLocalPlayer()) {
+        if (FindLocalPlayer() != None) {
             Log("Local player found, register MushMatchMutator as HUD mutator");
             RegisterHUDMutator();
         }
