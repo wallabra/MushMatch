@@ -846,8 +846,6 @@ state GameStarted
 
                 if (PRL == None) continue;
                 if (PRL.bMush) continue;
-
-                b = true;
             
                 if (FRand() * NumChoices < 1.0) {
                     Selected = Curr;
