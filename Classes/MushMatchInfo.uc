@@ -459,7 +459,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                 ||
                 (
                     // OR if the other has a suspicion beacon
-                    MM..bHasBeacon
+                    MM.bHasBeacon
                     && (
                         // if we're a human or scapegoating
                         BotPRI.Team == 0
