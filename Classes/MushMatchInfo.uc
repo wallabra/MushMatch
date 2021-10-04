@@ -450,7 +450,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                 OtherMPRL.bKnownMush
                 ||
                 (   // OR if we have a grudge on the other
-                    bHasHate
+                    MM.bHasHate
                     && BotPRI.Team == 0
                     && MMI.CheckHate(OtherPRI, BotPRI)
                     && !(OtherPRI.Team == 1 && BotPRI.Team == 1)
@@ -459,7 +459,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                 ||
                 (
                     // OR if the other has a suspicion beacon
-                    bHasBeacon
+                    MM..bHasBeacon
                     && (
                         // if we're a human or scapegoating
                         BotPRI.Team == 0
@@ -500,4 +500,3 @@ defaultproperties {
     DecideChance_TeamUp=0.35
     DecideChance_MushHelpMush=0.9
     DecideChance_Scapegoat=0.4
-}
