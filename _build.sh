@@ -1,6 +1,5 @@
 #!/bin/bash
 
-sha256sum _build.sh
 source ./buildconfig.sh
 
 MUSTACHE="${MUSTACHE?-mustache}"
