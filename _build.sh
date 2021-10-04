@@ -92,6 +92,7 @@ cleanup() {
         mv "$packagefull."{tar.*,zip} "$dist/$package/$build"
 
         # Update Dist/Latest
+        echo Organizing dist directory...
         mkdir -pv "$dist/$package/Latest"
         rm -f "$dist/$package/Latest/*"
         cp "$dist/$package/$build/"* "$dist/$package/Latest"
@@ -105,6 +106,8 @@ code=$?
 
 rm "$TMP_YML"
 rm "$TMP_INI"
+
+echo Cleaning up...
 cleanup
 
 exit $code
