@@ -41,8 +41,8 @@ replication
 
         SetInitialTeam;
 
-    // Immune level realtime updates should only be reliable for the player owner, and even then,
-    // only momentum, unless an update is forced via ClientUpdateImmune.
+    // Immune level realtime updates should only be reliable for the player owner,
+    // except for momentum, unless an update is forced via ClientUpdateImmune.
 
     reliable if (Role == ROLE_Authority)
         ClientUpdateImmune;
@@ -50,8 +50,8 @@ replication
     reliable if (Role == ROLE_Authority && PlayerPawn(Owner.Owner) != None)
         ImmuneResistance, ImmuneThrust;
 
-    unreliable if (Role == ROLE_Authority && PlayerPawn(Owner.Owner) == None)
-        ImmuneThrust, ImmuneResistance, ImmuneMomentum;
+    unreliable if (Role == ROLE_Authority)
+        ImmuneMomentum, ImmuneLevel;
 }
 
 
