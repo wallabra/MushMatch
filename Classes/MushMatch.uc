@@ -954,4 +954,5 @@ defaultproperties
      ScoreReward_Infect=25
      ScorePenalty_TeamKill=5
      ScorePenalty_Suicide=15
+     FragLimit=0
 }
