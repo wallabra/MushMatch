@@ -41,27 +41,15 @@ replication
 
         SetInitialTeam;
 
-    // Immune level realtime updates should only be reliable for the player owner,
-    // except for momentum, unless an update is forced via ClientUpdateImmune.
-
-    reliable if (Role == ROLE_Authority)
-        ClientUpdateImmune;
+    // Immune level realtime updates should be cautious.
 
     reliable if (Role == ROLE_Authority && PlayerPawn(Owner.Owner) != None)
-        ImmuneResistance, ImmuneThrust;
+        ImmuneThrust;
 
     unreliable if (Role == ROLE_Authority)
-        ImmuneMomentum, ImmuneLevel;
+        ImmuneLevel, ImmuneResistance, ImmuneMomentum;
 }
 
-
-simulated event ClientUpdateImmune(float NewImmune) {
-    if (Role == ROLE_Authority) {
-        return;
-    }
-
-    ImmuneLevel = NewImmune;
-}
 
 simulated event Tick(float TimeDelta) {
     ImmuneMomentum = ImmuneThrust;
@@ -123,7 +111,6 @@ simulated function ImmuneHit(float Amount) {
 
 function UpdateImmune(float Immune) {
     ImmuneLevel = Immune;
-    ClientUpdateImmune(Immune);
 }
 
 function TryToMush(Pawn Instigator) {
