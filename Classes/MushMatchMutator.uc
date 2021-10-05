@@ -270,18 +270,20 @@ function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
         return;
     }
 
-    if (VictimPRL.bMush != InstigatorPRL.bMush && !InstigatorPRL.bKnownHuman)
+    if (!(VictimPRL.bMush && InstigatorPRL.bMush) && !InstigatorPRL.bKnownHuman)
     {
         for (P = Level.PawnList; P != None; P = P.NextPawn) {
             if (!WitnessSuspect(Victim, InstigatedBy, P)) {
                 continue;
             }
 
+            //  Log(P.PlayerReplicationInfo.PlayerName@"suspects"@InstigatedBy.PlayerReplicationInfo.PlayerName@"over"@Victim.PlayerReplicationInfo.PlayerName);
+
             MushMatch(Level.Game).RegisterHate(P, InstigatedBy);
         }
 
         if (WitnessSuspect(Victim, InstigatedBy, Victim)) {
-            // Log(Victim.PlayerReplicationInfo.PlayerName@"suspects"@InstigatedBy.PlayerReplicationInfo.PlayerName);
+            //  Log(Victim.PlayerReplicationInfo.PlayerName@"suspects"@InstigatedBy.PlayerReplicationInfo.PlayerName);
 
             MushMatch(Level.Game).RegisterHate(Victim, InstigatedBy);
         }
