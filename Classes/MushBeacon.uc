@@ -164,8 +164,11 @@ function float RateSelf(out int bUseAltMode)
                 Score += ThisScore;
             }
             
-    if ( BestPawn != None && Bot(Owner) != None )
-        Bot(Owner).SetEnemy(BestPawn);
+    if (BestPawn != None && PlayerPawn(Owner) == None) {
+        if (Bot(Owner) != None) {
+            Bot(Owner).SetEnemy(BestPawn);
+        }
+    }
         
     bRating = false;
     

@@ -684,7 +684,7 @@ function bool RestartPlayer(Pawn aPlayer)
     if (APRL != None) {
         if (APRL.bDead && bMushSelected)
         {
-            if (aPlayer.IsA('Bot')) {
+            if (PlayerPawn(aPlayer) == None) {
                 // bots don't respawn when ghosts
                 aPlayer.PlayerReplicationInfo.bIsSpectator = true;
                 aPlayer.PlayerReplicationInfo.bWaitingPlayer = true;
