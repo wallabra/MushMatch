@@ -447,7 +447,7 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
 
     SuspectOverlookChance = SuspectHuntOverlookKillChance;
 
-    if (MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
+    if (MMI.CheckBeacon(Other.PlayerReplicationInfo)) {
         // Killing someone who is suspected is less bad!..?
         SuspectOverlookChance += (1.0 - SuspectOverlookChance) * OverlookChanceFactorTargetIsSuspect;
     }
