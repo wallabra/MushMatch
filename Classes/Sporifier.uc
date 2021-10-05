@@ -162,13 +162,9 @@ simulated function Tick(float TimeDelta)
         return;
     }
 
-    if (Role == ROLE_Authority) {    
-        local MushMatchPRL OwnerPRL;
-
-        OwnerPRL = MMI.FindPRL(Pawn(Owner).PlayerReplicationInfo);
-
-        if (OwnerPRL == None || !OwnerPRL.bMush) {
-            Warn("Sporifier"@ self @"had a non-Mush or non-match-participant owner,"@ Owner);
+    if (Role == ROLE_Authority) {
+        if (PRL != None && !PRL.bMush) {
+            Warn("Sporifier"@ self @"had a non-Mush owner,"@ Owner);
         
             Pawn(Owner).TossWeapon();
             Destroy();
