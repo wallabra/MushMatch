@@ -6,7 +6,7 @@ var             bool                    bKnownMush, bKnownHuman;
 var             bool                    bDead, bSpectator;
 var             int                     InitialTeam;
 var             float                   ImmuneLevel;
-var             float                   ImmuneMomentum, ImmuneResistance;
+var             float                   ImmuneMomentum, ImmuneThrust, ImmuneResistance;
 var             PlayerReplicationList   HatedBy;
 var(MushMatch)  config float            ImmuneMomentumDrag,
                                             ImmuneMomentumThreshold,
@@ -29,8 +29,8 @@ replication
     reliable if (Role == ROLE_Authority)
         bIsSuspected, bMush, bKnownHuman, bKnownMush, bDead, InitialTeam, HatedBy,
 
-        // immune level and its parameters
-        ImmuneLevel, ImmuneResistance, ImmuneMomentum, ImmuneMomentumThreshold, ImmuneMomentumDrag,
+        // immune level parameters
+        ImmuneMomentumThreshold, ImmuneMomentumDrag,
         ImmuneNaturalRegen, ImmuneNaturalFallback, ImmuneNaturalSnapThreshold, ImmuneHitAmount,
         InstantImmuneHitFactor, ImmuneDangerLevel,
 
@@ -40,10 +40,33 @@ replication
         bImmuneInstantHit,
 
         SetInitialTeam;
+
+    // Immune level realtime updates should only be reliable for the player owner, and even then,
+    // only momentum, unless an update is forced via ClientUpdateImmune.
+
+    reliable if (Role == ROLE_Authority)
+        ClientUpdateImmune;
+
+    reliable if (Role == ROLE_Authority && PlayerPawn(Owner.Owner) != None)
+        ImmuneResistance, ImmuneThrust;
+
+    unreliable if (Role == ROLE_Authority && PlayerPawn(Owner.Owner) == None)
+        ImmuneThrust, ImmuneResistance, ImmuneMomentum;
 }
 
 
+simulated event ClientUpdateImmune(float NewImmune) {
+    if (Role == ROLE_Authority) {
+        return;
+    }
+
+    ImmuneLevel = NewImmune;
+}
+
 simulated event Tick(float TimeDelta) {
+    ImmuneMomentum = ImmuneThrust;
+    ImmuneThrust = 0.0;
+
     if (Abs(ImmuneMomentum) >= ImmuneMomentumThreshold) {
         ImmuneLevel += ImmuneMomentum * TimeDelta;
 
@@ -90,12 +113,17 @@ function PostBeginPlay() {
 }
 
 simulated function ImmuneHit(float Amount) {
-    ImmuneMomentum -= Amount / ImmuneResistance;
+    ImmuneThrust -= Amount / ImmuneResistance;
 
     // Also decrease immune-resistance a little
     if (ImmuneResistance > 1.0) {
         ImmuneResistance /= Sqrt(Amount / (ImmuneResistance + 1.0));
     }
+}
+
+function UpdateImmune(float Immune) {
+    ImmuneLevel = Immune;
+    ClientUpdateImmune(Immune);
 }
 
 function TryToMush(Pawn Instigator) {
@@ -114,11 +142,13 @@ function TryToMush(Pawn Instigator) {
         return;
     }
 
-    // Check if immune level low enough for mushing
+    // Check if immune is to be lowered instantly
 
     if (bImmuneInstantHit) {
-        ImmuneLevel -= ImmuneHitAmount * InstantImmuneHitFactor;
+        UpdateImmune(ImmuneLevel - ImmuneHitAmount * InstantImmuneHitFactor);
     }
+
+    // Check if immune level low enough for mushing
 
     if (ImmuneLevel <= ImmuneDangerLevel) {
         MushMatch(Level.Game).MakeMush(mushed, Instigator);
