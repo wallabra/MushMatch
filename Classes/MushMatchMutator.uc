@@ -1,7 +1,7 @@
 class MushMatchMutator extends DMMutator;
 
 
-var(MushMatch) config float ScreamRadius, DirectionBlameRadius, MinGuaranteeSuspectDamage, VictimSuspectChance, ScreamSuspectChance, NameClearChanceNormal, NameClearChanceBothMush, SuspectHuntOverlookKillChance, SuspectHuntOverlookDamageChance;
+var(MushMatch) config float ScreamRadius, DirectionBlameRadius, MinGuaranteeSuspectDamage, VictimSuspectChance, ScreamSuspectChance, NameClearChanceNormal, NameClearChanceBothMush, SuspectHuntOverlookKillChance, SuspectHuntOverlookDamageChance, OverlookChanceFactorTargetIsSuspect;
 
 var PlayerPawn PlayerOwner;
 
@@ -81,6 +81,7 @@ function bool HandleEndGame()
 simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn InstigatedBy, out Vector HitLocation, out Vector Momentum, name DamageType)
 {
     local MushMatchInfo MMI;
+    local float OverlookChance;
 
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
@@ -94,6 +95,8 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
     }
 
     if (Role == ROLE_Authority && MushMatch(Level.Game).bMushSelected) {
+        OverlookChance = SuspectHuntOverlookDamageChance;
+
         // If already has suspicion beacon, skip; otherwise it would be redundant
         if ( MushMatchInfo(Level.Game.GameReplicationInfo).CheckBeacon(Victim.PlayerReplicationInfo) ) {
             return;
@@ -104,8 +107,13 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
             return;
         }
 
-        // Damaging someone who is suspected is perfectly fine!
-        if (FRand() < SuspectHuntOverlookDamageChance && MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
+        // Add chance.
+        if (MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
+            // Damaging someone who is suspected is less bad!
+            OverlookChance += (1.0 - OverlookChance) * OverlookChanceFactorTargetIsSuspect;
+        }
+
+        if (FRand() < OverlookChance && MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
             return;
         }
         
@@ -205,10 +213,6 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
         return false;
     }
 
-    if (VictPRL.bKnownHuman) {
-         return false;
-    }
-
     if (WitPRL.bKnownMush) {
         return false;
     }
@@ -251,11 +255,13 @@ function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
     local MushMatchInfo MMI;
     local MushMatchPRL VictimPRL, InstigatorPRL;
 
-    if (InstigatedBy.PlayerReplicationInfo == None)
+    if (InstigatedBy.PlayerReplicationInfo == None) {
         return;
+    }
 
-    if (Victim.PlayerReplicationInfo == None)
+    if (Victim.PlayerReplicationInfo == None) {
         return;
+    }
 
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
@@ -270,23 +276,35 @@ function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
         return;
     }
 
-    if (!(VictimPRL.bMush && InstigatorPRL.bMush) && !InstigatorPRL.bKnownHuman)
-    {
-        for (P = Level.PawnList; P != None; P = P.NextPawn) {
-            if (!WitnessSuspect(Victim, InstigatedBy, P)) {
-                continue;
-            }
+    if (VictimPRL.bMush && InstigatorPRL.bMush) {
+        return;
+    }
 
-            //  Log(P.PlayerReplicationInfo.PlayerName@"suspects"@InstigatedBy.PlayerReplicationInfo.PlayerName@"over"@Victim.PlayerReplicationInfo.PlayerName);
+    if (VictimPRL.bKnownMush) {
+        return;
+    }
 
-            MushMatch(Level.Game).RegisterHate(P, InstigatedBy);
+    if (InstigatorPRL.bKnownMush) {
+        return;
+    }
+
+    if (InstigatorPRL.bKnownHuman) {
+        // can't suspect, only spot!
+        return;
+    }
+
+    // Check for witnesses and suspicions.
+
+    for (P = Level.PawnList; P != None; P = P.NextPawn) {
+        if (!WitnessSuspect(Victim, InstigatedBy, P)) {
+            continue;
         }
 
-        if (WitnessSuspect(Victim, InstigatedBy, Victim)) {
-            //  Log(Victim.PlayerReplicationInfo.PlayerName@"suspects"@InstigatedBy.PlayerReplicationInfo.PlayerName);
+        MushMatch(Level.Game).RegisterHate(P, InstigatedBy);
+    }
 
-            MushMatch(Level.Game).RegisterHate(Victim, InstigatedBy);
-        }
+    if (WitnessSuspect(Victim, InstigatedBy, Victim)) {
+        MushMatch(Level.Game).RegisterHate(Victim, InstigatedBy);
     }
 }
 
@@ -346,7 +364,7 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
     local Pawn P;
     local MushMatchInfo MMI;
     local MushMatchPRL OPRL, KPRL, PPRL;
-    local float IgnoreChance;
+    local float NameClearIgnoreChance, SuspectOverlookChance;
 
     if (Role != ROLE_Authority) {
         return;
@@ -397,14 +415,14 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
             // (though they're likely to if both are Mush as they're working together to clean each other's names)
 
             if (PPRL.bMush && KPRL.bMush) {
-                IgnoreChance = NameClearChanceBothMush;
+                NameClearIgnoreChance = NameClearChanceBothMush;
             }
 
             else {
-                IgnoreChance = NameClearChanceNormal;
+                NameClearIgnoreChance = NameClearChanceNormal;
             }
 
-            if (FRand() > IgnoreChance) {
+            if (FRand() > NameClearIgnoreChance) {
                 continue;
             }
 
@@ -427,7 +445,14 @@ simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell
         return;
     }
 
-    if (FRand() < SuspectHuntOverlookKillChance && MMI.CheckBeacon(Other.PlayerReplicationInfo)) {
+    SuspectOverlookChance = SuspectHuntOverlookKillChance;
+
+    if (MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
+        // Killing someone who is suspected is less bad!..?
+        SuspectOverlookChance += (1.0 - SuspectOverlookChance) * OverlookChanceFactorTargetIsSuspect;
+    }
+
+    if (FRand() < SuspectOverlookChance && MMI.CheckBeacon(Other.PlayerReplicationInfo)) {
         return;
     }
 
@@ -688,6 +713,7 @@ defaultproperties
     MinGuaranteeSuspectDamage=40
     VictimSuspectChance=0.7
     ScreamSuspectChance=0.25
-    SuspectHuntOverlookKillChance=0.8
-    SuspectHuntOverlookDamageChance=0.9
+    SuspectHuntOverlookKillChance=0.4
+    SuspectHuntOverlookDamageChance=0.7
+    OverlookChanceFactorTargetIsSuspect=0.6
 }
