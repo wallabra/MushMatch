@@ -52,7 +52,7 @@ replication
 
 
 simulated event Tick(float TimeDelta) {
-    ImmuneMomentum = ImmuneThrust;
+    ImmuneMomentum += ImmuneThrust;
     ImmuneThrust = 0.0;
 
     if (Abs(ImmuneMomentum) >= ImmuneMomentumThreshold) {
