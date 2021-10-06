@@ -929,7 +929,6 @@ defaultproperties
      StartUpMessage="Kill any suspiciously mush players to win the match! Don't trust team colors."
      GameEndedMessage="win the match!"
      MaxCommanders=0
-     bCoopWeaponMode=True
      ScoreBoardType=Class'MushMatchScoreBoard'
      //HUDType=Class'MushMatchHUD'
      BeaconName="MUSH"
@@ -946,7 +945,6 @@ defaultproperties
      bMushUseOwnPronoun=True
      SpawnChance_BeaconAmmo=0.04
      SpawnChance_SporeAmmo=0.025
-     bCoopWeaponMode=True
      InfectionScoreMultiplier=-0.5
      bPenalizeSameTeamKill=true
      bPenalizeSuicide=true
@@ -955,4 +953,5 @@ defaultproperties
      ScorePenalty_TeamKill=5
      ScorePenalty_Suicide=15
      FragLimit=0
+     MapListType=class'MushMatchMapList'
 }
