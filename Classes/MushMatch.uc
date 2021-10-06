@@ -176,23 +176,37 @@ function ScoreKill(Pawn Killer, Pawn Other)
         return;
     }
 
-    Super.ScoreKill(Killer, Other);
+    Other.DieCount++;
 
-    if (Killer == Other) {
-        if (bPenalizeSuicide) Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide + 1;
+    if (Killer == None || Killer == Other) {
+        if (bPenalizeSuicide) {
+            Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide + 1;
+        }
+
+        if (Killer == None) {
+            return;
+        }
     }
 
-	else if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
-	    if (bPenalizeSameTeamKill) Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill + 1;
-	}
-
-	else if (OPRL != None) {
-	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill - 1;
-	}
-
 	else {
-	    Killer.PlayerReplicationInfo.Score -= 1;
+        Killer.KillCount++;
+
+	    if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
+    	    if (bPenalizeSameTeamKill) {
+    	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill + 1;
+            }
+    	}
+
+    	else if (OPRL != None) {
+    	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill - 1;
+    	}
+
+    	else {
+    	    Killer.PlayerReplicationInfo.Score -= 1;
+    	}
 	}
+
+	BaseMutator.ScoreKill(Killer, Other);
 }
 
 function Killed(Pawn Killer, Pawn Other, name DamageType)
@@ -267,24 +281,26 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     if (Killer == None || Killer == Other) {
         Super.Killed(Killer, Other, DamageType);
     
-        if ( bMushSelected )
-        {
-            MushMatchMutator(BaseMutator).MutatorScoreKill(None, Other);
-
+        if (bMushSelected) {
+            MushMatchMutator(BaseMutator).MushMatchCheckKill(None, Other);
             CheckEnd();
         }
         
         return;
     }
-    
+
     if (!Killer.bIsPlayer || !Other.bIsPlayer) {
         Super.Killed(Killer, Other, DamageType);
         
         return;
     }
 
-    MushMatchMutator(BaseMutator).MutatorScoreKill(Killer, Other);
     Super.Killed(Killer, Other, DamageType);
+
+    if (bMushSelected) {
+        MushMatchMutator(BaseMutator).MushMatchCheckKill(None, Other);
+        CheckEnd();
+    }
     
     if (bMatchEnd) {
         return;

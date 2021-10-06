@@ -358,7 +358,7 @@ function TellTeam(byte PTeam, string PName, string Pronoun, string PronounCaps)
     }
 */
 
-simulated function MutatorScoreKill(Pawn Killer, Pawn Other, optional bool bTell)
+simulated function CheckKill(Pawn Killer, Pawn Other, optional bool bTell)
 {
     local bool bNameCleared;
     local Pawn P;
