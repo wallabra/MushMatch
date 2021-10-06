@@ -58,27 +58,21 @@ good luck spotting them, before they spot _you_!
 
 == FAQ
 
-_Mush Match appears twice on my gameplay selection screen! What do I do?_::
-    If you have any instance of GusPackII.u or GusPackII.int in your System 
+_Mush Match appears several times on my gameplay selection screen! What do I do?_::
+    If you have older versions of MushMatch, they will appear unless you remove their
+    .int files.
+
+    Save that, if you have any instance of GusPackII.u or GusPackII.int in your System 
     folder, try removing any lines referencing MushMatch or ArenaMush from 
     GusPackII.int. That is an outdated version, and GusPackII has never seen a 
     full release (and may never see) anyway.
 
 _I found this bug offline, or that glitch online, or this crazy crash, or some lag-spike weedy-de-doo! What do?_::
-    Report it! Preferably, in the issues tracker - see the links at the top of 
-    the post.
+    Report it! Preferably, in the issues tracker.
 
 _Why the name? Why 'Mush'? Why is 'Mush' an uncountable noun if it is a team that can have multiple people?_::
     Because of Mush Match's inspiration; see About near the top. Also, the noun 
     is uncountable because lore lore lore. See the Lore section below!
-
-_This does not work with FerBotz! They just kill each other and can tell each other's teams! Cheaty cheaty! What do I do?_::
-    Ask Higor, I suppose! I do not know what I can do, as the bot behaviour 
-    respecting the rules and their supposed circumstances hangs almost entirely 
-    from the bots respecting the AssessBotAttitude method in the GameType class.  
-    Keep in mind this isn't really Higor's fault, the FerBotz just weren't ever 
-    made with social deduction in mind, and it's not like you're supposed to expect
-    anywhere clcose to that from a retro FPS bot :)
 
 == Building from Source
 
