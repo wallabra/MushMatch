@@ -178,7 +178,7 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
     Other.DieCount++;
 
-    if (Killer == None || Killer == Other) {}
+    if (Killer == None || Killer == Other) {
         if (Killer == None) {
             return;
         }
