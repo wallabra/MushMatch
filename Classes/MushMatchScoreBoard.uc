@@ -57,7 +57,7 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
         if (bCanDrawScoresNow) {
             // Draw Score
             Canvas.StrLen(ScoreNum, XL2, YL);
-            Canvas.SetPos(Canvas.ClipX * 0.55 + XL * 0.5 - XL2, YOffset);
+            Canvas.SetPos(Canvas.ClipX * 0.525 + XL * 0.5 - XL2, YOffset);
             Canvas.DrawText(ScoreNum, false);
         }
         
@@ -113,7 +113,7 @@ function DrawCategoryHeaders(Canvas Canvas)
 
     if (bDrawScoreOnMatchEnd && MMI.bMatchEnd) {
         Canvas.StrLen(FragsString, XL, YL);
-        Canvas.SetPos((Canvas.ClipX / 8)*4.4 - XL/2, Offset);
+        Canvas.SetPos((Canvas.ClipX / 8)*4.2 - XL/2, Offset);
         Canvas.DrawText(FragsString);
     }
 
