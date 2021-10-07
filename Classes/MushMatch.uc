@@ -227,20 +227,6 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     }
 
     OPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
-
-    if (Other.PlayerReplicationInfo == None || (Killer != None && Killer.PlayerReplicationInfo == None)) {
-        Super.Killed(Killer, Other, DamageType);
-
-        if (!bMushSelected) {
-            Other.PlayerReplicationInfo.Deaths = 0;
-            Other.PlayerReplicationInfo.Score = 0;
-            
-            if (Killer != None)
-                Killer.PlayerReplicationInfo.Score = 0;
-        }
-
-        return;
-    }
     
     if (bMushSelected && Other.bIsPlayer) {
         if (Other.PlayerReplicationInfo != None) {
@@ -268,12 +254,17 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
         
     if (!bMushSelected) {
         Super.Killed(Killer, Other, DamageType);
+
+        Other.KillCount = 0;
+        Other.DieCount  = 0;
         
         Other.PlayerReplicationInfo.Deaths = 0;
         Other.PlayerReplicationInfo.Score = 0;
         
-        if (Killer != None)
+        if (Killer != None) {
+            Killer.KillCount = 0;
             Killer.PlayerReplicationInfo.Score = 0;
+        }
         
         return;
     }
@@ -304,10 +295,6 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     
     if (bMatchEnd) {
         return;
-    }
-
-    if (Other.bIsPlayer) {
-        Other.PlayerReplicationInfo.Deaths += 1;
     }
 
     CheckEnd();
