@@ -228,28 +228,28 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
         LastTauntTime   = Level.TimeSeconds + 6; // auto-taunts also make it easy to spot killers, disable momentarily
     }
 
-    OPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
+    if (Other.PlayerReplicationInfo != None) {
+        OPRL = MushMatchInfo(GameReplicationInfo).FindPRL(Other.PlayerReplicationInfo);
+    }
     
     if (bMushSelected && Other.bIsPlayer) {
         if (Other.PlayerReplicationInfo != None) {
             BroadcastDeceased(Other.PlayerReplicationInfo);
         }
 
-        if (Killer != None && Killer.bIsPlayer) {
-            if (OPRL != None) {
-                OPRL.bDead = true;
-                TotalKills += 1;
-            }
+        if (OPRL != None) {
+            OPRL.bDead = true;
+            TotalKills += 1;
+        }
 
-            else {
-                // Really bad stuff! Debugging is important!
-            
-                Warn("MushMatch replication list entry for"@ Other.PlayerReplicationInfo.PlayerName @"not found!");
-                Log("Found:");
+        else {
+            // Really bad stuff! Debugging is important!
+        
+            Warn("MushMatch replication list entry for"@ Other.PlayerReplicationInfo.PlayerName @"not found!");
+            Log("Found:");
 
-                for (OPRL = MushMatchInfo(GameReplicationInfo).PRL; OPRL != None; OPRL = MushMatchPRL(OPRL.next)) {
-                    Log(" * "@ PlayerReplicationInfo(OPRL.Owner).PlayerName @"("$ OPRL @ OPRL.Owner $ ") - next:"@ OPRL.next);
-                }
+            for (OPRL = MushMatchInfo(GameReplicationInfo).PRL; OPRL != None; OPRL = MushMatchPRL(OPRL.next)) {
+                Log(" * "@ PlayerReplicationInfo(OPRL.Owner).PlayerName @"("$ OPRL @ OPRL.Owner $ ") - next:"@ OPRL.next);
             }
         }
     }
@@ -291,7 +291,7 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     Super.Killed(Killer, Other, DamageType);
 
     if (bMushSelected) {
-        MushMatchMutator(BaseMutator).MushMatchCheckKill(None, Other);
+        MushMatchMutator(BaseMutator).MushMatchCheckKill(Killer, Other);
         CheckEnd();
     }
     
@@ -704,8 +704,7 @@ function bool RestartPlayer(Pawn aPlayer)
     }
 
     if (APRL != None) {
-        if (bMushSelected)
-        {
+        if (bMushSelected) {
             if (APRL.bDead) {
                 // This guy is a ghost. Add a visual effect.
                 if ( bHighDetailGhosts )
