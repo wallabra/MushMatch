@@ -178,13 +178,15 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
     Other.DieCount++;
 
-    if (Killer == None || Killer == Other) {
-        if (bPenalizeSuicide) {
-            Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide + 1;
-        }
-
+    if (Killer == None || Killer == Other) {}
         if (Killer == None) {
             return;
+        }
+
+        else {
+            if (bPenalizeSuicide) {
+                Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide + 1;
+            }
         }
     }
 
