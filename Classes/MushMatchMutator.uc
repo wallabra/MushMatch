@@ -231,7 +231,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
         }
 
         // victim's own check
-        if (Witness == Victim) {
+        else {
             // know direction of your own hit, use to blame
             if (VSize(InstigatedBy.Location - Victim.Location) > DirectionBlameRadius || FRand() < VictimSuspectChance) {
                 return false;
@@ -711,8 +711,8 @@ defaultproperties
     NameClearChanceNormal=0.6
     NameClearChanceBothMush=0.9
     MinGuaranteeSuspectDamage=40
-    VictimSuspectChance=0.7
-    ScreamSuspectChance=0.25
+    VictimSuspectChance=0.9
+    ScreamSuspectChance=0.6
     SuspectHuntOverlookKillChance=0.3
     SuspectHuntOverlookDamageChance=0.6
     OverlookChanceFactorTargetIsSuspect=0.6
