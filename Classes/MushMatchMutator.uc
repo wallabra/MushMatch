@@ -90,7 +90,7 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
         NextDamageMutator.MutatorTakeDamage(ActualDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
     }
 
-    if ( InstigatedBy == None || Victim == None || InstigatedBy == Victim || MMI = None ) {
+    if ( InstigatedBy == None || Victim == None || InstigatedBy == Victim || MMI == None ) {
         return;
     }
 
