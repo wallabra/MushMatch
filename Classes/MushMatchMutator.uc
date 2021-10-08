@@ -90,13 +90,11 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
         NextDamageMutator.MutatorTakeDamage(ActualDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
     }
 
-    if ( InstigatedBy == None || Victim == None || InstigatedBy == Victim ) {
+    if ( InstigatedBy == None || Victim == None || InstigatedBy == Victim || MMI = None ) {
         return;
     }
 
     if (Role == ROLE_Authority && MushMatch(Level.Game).bMushSelected) {
-        OverlookChance = SuspectHuntOverlookDamageChance;
-
         // If already has suspicion beacon, skip; otherwise it would be redundant
         if ( MushMatchInfo(Level.Game.GameReplicationInfo).CheckBeacon(Victim.PlayerReplicationInfo) ) {
             return;
@@ -108,12 +106,14 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
         }
 
         // Add chance.
+        OverlookChance = SuspectHuntOverlookDamageChance;
+
         if (MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
             // Damaging someone who is suspected is less bad!
             OverlookChance += (1.0 - OverlookChance) * OverlookChanceFactorTargetIsSuspect;
         }
 
-        if (FRand() < OverlookChance && MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
+        if (FRand() < OverlookChance) {
             return;
         }
         
@@ -713,7 +713,7 @@ defaultproperties
     MinGuaranteeSuspectDamage=40
     VictimSuspectChance=0.7
     ScreamSuspectChance=0.25
-    SuspectHuntOverlookKillChance=0.4
-    SuspectHuntOverlookDamageChance=0.7
+    SuspectHuntOverlookKillChance=0.3
+    SuspectHuntOverlookDamageChance=0.6
     OverlookChanceFactorTargetIsSuspect=0.6
 }
