@@ -1,7 +1,7 @@
 1.3.0
 =====
 
- * Add maximum safe time for a Bot to hold a Sporifier without being confirmed mush
+ * Add maximum safe time for a Bot to roam around holding a Sporifier when not already a confirmed mush
    * Prevent a Sporifier being put down automatically if it is in active use
  * Fix InitialTeam being set to 0 for players/bots logged after Mush selection (which meant all Mush bots would have asterisks in front even if they were never infected in the first place).
  * Fix InitialTeam being ignored when displaying the alignment of a dead Mush in the Scoreboard
@@ -17,3 +17,4 @@
  * Implement (also configurable, and also optional) frag penalties for teamkilling or killing oneself
  * Make every player's underlying team value zero to avoid giving away the team via things like the shield belt energyfield colour or translocator disk light colour
  * Set the default frag limit to zero to prevent sudden match restarts as it is reached; it may still happen if the frag limit is set manually, though
+ * Fix respawning upon death when said death is provoked by suicide. Remember, you're only supposed to have one life!
