@@ -172,6 +172,12 @@ function Logout(pawn Exiting)
 
         MushMatchInfo(GameReplicationInfo).RemovePRL(Exiting.PlayerReplicationInfo);
     }
+
+    if (FragLimit > 0) {
+        // force FragLimit to be 0
+        Warn("FragLimit was set to"@FragLimit$"; Mush Match should always have a score limit of zero.");
+        FragLimit = 0;
+    }
 }
 
 function NotifySpree(Pawn Other, int num)
@@ -971,19 +977,8 @@ function BroadcastUnsuspected(PlayerReplicationInfo Whom, PlayerReplicationInfo 
     BroadcastLocalizedMessage(MushSuspectedMessageType, 1, Whom, Victim);
 }
 
-state Ongoing
-{
-    
-}
-
-state GameEnded
-{
-Begin:
-    Sleep(8);
-
-    if ( Level.NetMode != NM_Standalone )
-        EndGame("net end game");
-}
+state Ongoing {}
+state GameEnded {}
 
 defaultproperties
 {

@@ -8,9 +8,12 @@ Mush Match development team
 
 = 1.3.1
 
+ * Force zero frag limit, and warn if a different value is set in config
  * Fix the majority of settings; there was no way to set those through INI files
  * Have bot attitude always be "ignorant" on match start, never engaging other players
  * Change 'immune-resistance' parameter update and make it also configurable.
+ * Slight rebalance to default bot AI suspicion radius values
+ * Fix premature ending in network games
 
 = 1.3.0
 
