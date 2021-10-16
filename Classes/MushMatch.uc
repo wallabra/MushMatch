@@ -552,11 +552,6 @@ function StartMatch()
     GoToState('GameStarted');
 }
 
-function int ReduceDamage(int Damage, name DamageType, pawn injured, pawn instigatedBy)
-{
-    return Super(DeathMatchPlus).ReduceDamage(Damage, DamageType, injured, instigatedBy);
-}
-
 function byte AssessBotAttitude(Bot aBot, Pawn Other)
 {
     local MushMatchInfo MMI;

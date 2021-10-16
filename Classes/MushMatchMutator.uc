@@ -5,8 +5,15 @@ var PlayerPawn PlayerOwner;
 
 
 replication {
-    unreliable if (Role == ROLE_Authority)
-        ScreamRadius, DirectionBlameRadius;
+    reliable if (Role == ROLE_Authority)
+        ScreamRadius, DirectionBlameRadius,
+
+        VictimSuspectChance, ScreamSuspectChance,
+        NameClearChanceNormal, NameClearChanceBothMush,
+        SuspectHuntOverlookKillChance, SuspectHuntOverlookDamageChance,
+        OverlookChanceFactorTargetIsSuspect,
+
+        MinGuaranteeSuspectDamage;
 }
 
 
@@ -57,12 +64,11 @@ function UpdateConfigVars() {
     OverlookChanceFactorTargetIsSuspect = MM.OverlookChanceFactorTargetIsSuspect;
 }
 
-function bool IsRelevant(Actor Other, out byte bSuperRelevant)
-{
+function bool AlwaysKeep(Actor Other) {
     if ( Sporifier(Other) != None || SporeCanister(Other) != None || MushBeacon(Other) != None || MushBeaconAmmo(Other) != None )
         return true;
 
-    return Super.IsRelevant(Other, bSuperRelevant);
+    return Super.AlwaysKeep(Other);
 }
 
 function PostBeginPlay() {
@@ -741,7 +747,4 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
 
 defaultproperties
 {
-    RemoteRole=ROLE_SimulatedProxy
-    bAlwaysRelevant=True
-    bNetTemporary=True
 }
