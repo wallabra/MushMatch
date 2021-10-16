@@ -4,6 +4,14 @@ class MushMatchScoreBoard extends TournamentScoreBoard config(MushMatch);
 var localized string StatusString, TeamString;
 var bool bDrawScoreOnMatchEnd;
 
+replication {
+    reliable if (Role == ROLE_Authority)
+        StatusString, TeamString;
+
+    unreliable if (Role == ROLE_Authority)
+        bDrawScoreOnMatchEnd;
+}
+
 
 simulated function BeginPlay() {
     Super.BeginPlay();
@@ -223,4 +231,8 @@ function ShowScores( canvas Canvas )
     }
     Canvas.DrawColor = WhiteColor;
     Canvas.Font = CanvasFont;
+}
+
+defaultproperties {
+    bDrawScoreOnMatchEnd=false
 }
