@@ -747,4 +747,7 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
 
 defaultproperties
 {
+    RemoteRole=ROLE_SimulatedProxy
+    bAlwaysRelevant=True
+    bNetTemporary=True
 }
