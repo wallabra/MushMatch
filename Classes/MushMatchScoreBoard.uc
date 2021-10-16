@@ -1,41 +1,8 @@
 class MushMatchScoreBoard extends TournamentScoreBoard config(MushMatch);
 
 
-var localized string StatusString, TeamString;
-var bool bDrawScoreOnMatchEnd;
+var(MushMatch_Client) localized string StatusString, TeamString;
 
-replication {
-    reliable if (Role == ROLE_Authority)
-        StatusString, TeamString;
-
-    unreliable if (Role == ROLE_Authority)
-        bDrawScoreOnMatchEnd;
-}
-
-
-simulated function BeginPlay() {
-    Super.BeginPlay();
-
-    if (Role == ROLE_Authority) {
-        UpdateConfigVars();
-    }
-}
-
-// Update configuration from the MushMatch(Level.Game).
-function UpdateConfigVars() {
-    local MushMatch MM;
-    MM = MushMatch(Level.Game);
-
-    if (MM == None) {
-        // rip
-        Warn(class.name@"detected outside a Mush Match; gameinfo is"@Level.Game);
-        return;
-    }
-
-    bDrawScoreOnMatchEnd = MM.bDrawScoreOnMatchEnd;
-    StatusString         = MM.ScoreboardStatusString;
-    TeamString           = MM.ScoreboardTeamString;
-}
 
 // slightly modified version of Super.DrawNameAndPing
 // that does not draw frags, as those are possibly
@@ -52,7 +19,6 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
     local MushMatchInfo MMI;
 
     MMI = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo);
-    bCanDrawScoresNow = bDrawScoreOnMatchEnd && MMI.bMatchEnd;
     
     if (PRI.Team == 254) return; // don't render the Strawman
     if (PRI.Team == 253) return; // don't render spectators
@@ -86,6 +52,8 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
 
     if ( !bCompressed && PlayerPawn(Owner).GameReplicationInfo != None )
     {
+        bCanDrawScoresNow = MMI.bScoreboardDrawScoreOnMatchEnd && MMI.bMatchEnd;
+
         if (bCanDrawScoresNow) {
             // Draw Score
             Canvas.StrLen(ScoreNum, XL2, YL);
@@ -143,7 +111,7 @@ function DrawCategoryHeaders(Canvas Canvas)
     Canvas.SetPos((Canvas.ClipX / 8)*2 - XL/2, Offset);
     Canvas.DrawText(PlayerString);
 
-    if (bDrawScoreOnMatchEnd && MMI.bMatchEnd) {
+    if (MMI.bScoreboardDrawScoreOnMatchEnd && MMI.bMatchEnd) {
         Canvas.StrLen(FragsString, XL, YL);
         Canvas.SetPos((Canvas.ClipX / 8)*4.2 - XL/2, Offset);
         Canvas.DrawText(FragsString);

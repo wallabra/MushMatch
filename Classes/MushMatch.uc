@@ -20,9 +20,6 @@ var(MushMatch_Map)      config float
 // Pertinent to generally aesthetic details.
 //    (Exercise care; using the wrong kind of message may reveal 'secret' info early!)
 var(MushMatch_Custom)   config string DiscoveredMusic;
-var(MushMatch_Custom)   localized config string
-    ScoreboardStatusString,
-    ScoreboardTeamString;
 
 var(MushMatch_Custom)   config bool bHighDetailGhosts;
 var(MushMatch_Custom)   localized config bool bMushUseOwnPronoun;
@@ -33,7 +30,7 @@ var(MushMatch_Custom)   config class<LocalMessagePlus>
     MushSuspectedMessageType,
     MushSelectedMessageType;
 
-var(MushMatch_Custom)   config bool bDrawScoreOnMatchEnd;
+var(MushMatch_Custom)   config bool bScoreboardDrawScoreOnMatchEnd;
 
 // Pertinent to the overarching rules of the game.
 var(MushMatch_Game)     config float MushScarceRatio;
@@ -392,7 +389,7 @@ function bool CheckEnd()
     GetAliveTeams(h, m);
         
     if ( h == 0 || m == 0 ) {
-        SetEndCams("teamstand");
+        EndGame("teamstand");
         return true;
     }
 }
@@ -427,7 +424,6 @@ function GetAliveTeams(out int humans, out int mush) {
 
 function bool SetEndCams(string Reason)
 {
-    local float EndTime;
     local Pawn P, RWinner;
     local PlayerPawn Player;
     local int h, m;
@@ -495,7 +491,6 @@ function bool SetEndCams(string Reason)
     }
     
     CalcEndStats();
-    GotoState('GameEnded');
     
     return true;
 }
@@ -961,8 +956,6 @@ Begin:
     
     bMushSelected = true;
     MushMatchInfo(GameReplicationInfo).bMushSelected = true;
-
-    GoToState('Ongoing');
 }
 
 function BroadcastDeceased(PlayerReplicationInfo Who) {
@@ -984,9 +977,6 @@ function BroadcastSuspected(PlayerReplicationInfo By, PlayerReplicationInfo Whom
 function BroadcastUnsuspected(PlayerReplicationInfo Whom, PlayerReplicationInfo Victim) {
     BroadcastLocalizedMessage(MushSuspectedMessageType, 1, Whom, Victim);
 }
-
-state Ongoing {}
-state GameEnded {}
 
 defaultproperties
 {
@@ -1038,9 +1028,7 @@ defaultproperties
      DecideChance_TeamUp=0.35
      DecideChance_MushHelpMush=0.9
      DecideChance_Scapegoat=0.4
-     ScoreboardStatusString="Status"
-     ScoreboardTeamString="Alignment"
-     bDrawScoreOnMatchEnd=true
+     bScoreboardDrawScoreOnMatchEnd=true
      ImmuneMomentumThreshold=0.05
      ImmuneMomentumDrag=0.5
      ImmuneNaturalRegen=0.1

@@ -22,6 +22,8 @@ var float
     DecideChance_MushHelpMush,
     DecideChance_Scapegoat;
 
+var bool bScoreboardDrawScoreOnMatchEnd;
+
 
 simulated function BeginPlay() {
     Super.BeginPlay();
@@ -42,12 +44,13 @@ function UpdateConfigVars() {
         return;
     }
 
-    DecideChance_Infect         = MM.DecideChance_Infect;
-    DecideChance_SuspectAttack  = MM.DecideChance_SuspectAttack;
-    DecideChance_GrudgeAttack   = MM.DecideChance_GrudgeAttack;
-    DecideChance_TeamUp         = MM.DecideChance_TeamUp;
-    DecideChance_MushHelpMush   = MM.DecideChance_MushHelpMush;
-    DecideChance_Scapegoat      = MM.DecideChance_Scapegoat;
+    DecideChance_Infect             = MM.DecideChance_Infect;
+    DecideChance_SuspectAttack      = MM.DecideChance_SuspectAttack;
+    DecideChance_GrudgeAttack       = MM.DecideChance_GrudgeAttack;
+    DecideChance_TeamUp             = MM.DecideChance_TeamUp;
+    DecideChance_MushHelpMush       = MM.DecideChance_MushHelpMush;
+    DecideChance_Scapegoat          = MM.DecideChance_Scapegoat;
+    bScoreboardDrawScoreOnMatchEnd  = MM.bScoreboardDrawScoreOnMatchEnd;
 }
 
 
