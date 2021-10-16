@@ -213,15 +213,20 @@ simulated function Tick(float TimeDelta)
     }
 
     if (Role == ROLE_Authority) {
-        if (PRL != None && !PRL.bMush) {
-            Warn("Sporifier"@ self @"had a non-Mush owner,"@ Owner);
-        
-            Pawn(Owner).TossWeapon();
+        if (PRL != None && (!PRL.bMush || PRL.bDead)) {
+            if (!PRL.bMush) {
+                Warn("Sporifier"@ self @"had a non-Mush owner,"@ Owner);
+            }
+
+            if (!PRL.bDead) {
+                Pawn(Owner).TossWeapon();
+            }
+
             Destroy();
             return;
         }
     
-        if (!IsInState('BringUp') && AnimSequence != 'Select') {
+        if (!IsInState('BringUp') && AnimSequence != 'Select' && AnimSequence != 'Down') {
             CheckSpotted();
         }
 
