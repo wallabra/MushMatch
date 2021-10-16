@@ -467,10 +467,10 @@ function bool SetEndCams(string Reason)
         Player = PlayerPawn(P);
         MPRL = FindPawnPRL(P);
         
-        if (Player != None && MPRL != None)
+        if (Player != None)
         {
             if (!bTutorialGame) {
-                PlayWinMessage(Player, (Int(MPRL.bMush) == winTeam));
+                PlayWinMessage(Player, (MPRL != None && Int(MPRL.bMush) == winTeam));
             }
                 
             Player.bBehindView = true;
