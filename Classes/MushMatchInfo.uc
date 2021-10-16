@@ -4,7 +4,8 @@ class MushMatchInfo extends TournamentGameReplicationInfo config(MushMatch);
 replication
 {
     reliable if (Role == ROLE_Authority)
-        bMushSelected, bMatchEnd, bMatchStart, PRL;
+        bMushSelected, bMatchEnd, bMatchStart, PRL,
+        bScoreboardDrawScoreOnMatchEnd;
 }
 
 
