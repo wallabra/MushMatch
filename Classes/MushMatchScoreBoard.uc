@@ -14,7 +14,7 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
     local PlayerPawn PlayerOwner;
     local int Time;
     local string Status, Team, ScoreNum;
-    local MushMatchPRL PPRL;
+    local MushMatchPRL PPRL, OPRL;
     local bool bCanDrawScoresNow;
     local MushMatchInfo MMI;
 
@@ -30,6 +30,8 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
     PPRL = MMI.FindPRL(PRI);
 
     PlayerOwner = PlayerPawn(Owner);
+
+    OPRL = MMI.FindPRL(PlayerOwner.PlayerReplicationInfo);
 
     bLocalPlayer = (PRI.PlayerName == PlayerOwner.PlayerReplicationInfo.PlayerName);
     Canvas.Font = MyFonts.GetBigFont(Canvas.ClipX);
@@ -52,7 +54,7 @@ function DrawNameAndPing(Canvas Canvas, PlayerReplicationInfo PRI, float XOffset
 
     if ( !bCompressed && PlayerPawn(Owner).GameReplicationInfo != None )
     {
-        bCanDrawScoresNow = MMI.bScoreboardDrawScoreOnMatchEnd && MMI.bMatchEnd;
+        bCanDrawScoresNow = MMI.bScoreboardDrawScoreOnMatchEnd && (MMI.bMatchEnd || (OPRL != None && OPRL.bDead));
 
         if (bCanDrawScoresNow) {
             // Draw Score
@@ -101,8 +103,10 @@ function DrawCategoryHeaders(Canvas Canvas)
 {
     local float Offset, XL, YL;
     local MushMatchInfo MMI;
-    
+    local MushMatchPRL OPRL;
+
     MMI = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo);
+    OPRL = MMI.FindPRL(PlayerPawn(Owner).PlayerReplicationInfo);
 
     Offset = Canvas.CurY;
     Canvas.DrawColor = WhiteColor;
@@ -111,7 +115,7 @@ function DrawCategoryHeaders(Canvas Canvas)
     Canvas.SetPos((Canvas.ClipX / 8)*2 - XL/2, Offset);
     Canvas.DrawText(PlayerString);
 
-    if (MMI.bScoreboardDrawScoreOnMatchEnd && MMI.bMatchEnd) {
+    if (MMI.bScoreboardDrawScoreOnMatchEnd && (MMI.bMatchEnd || (OPRL != None && OPRL.bDead))) {
         Canvas.StrLen(FragsString, XL, YL);
         Canvas.SetPos((Canvas.ClipX / 8)*4.2 - XL/2, Offset);
         Canvas.DrawText(FragsString);
@@ -137,8 +141,10 @@ function ShowScores( canvas Canvas )
     local float YOffset, YStart;
     local font CanvasFont;
     local MushMatchInfo MMI;
-    
+    local MushMatchPRL OPRL;
+
     MMI = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo);
+    OPRL = MMI.FindPRL(PlayerPawn(Owner).PlayerReplicationInfo);
 
     Canvas.Style = ERenderStyle.STY_Normal;
 
@@ -166,7 +172,7 @@ function ShowScores( canvas Canvas )
     }
 
     // Don't always sort, that would be potentially incriminating
-    if (MMI.bScoreboardDrawScoreOnMatchEnd && MMI.bMatchEnd) {
+    if (MMI.bScoreboardDrawScoreOnMatchEnd && (MMI.bMatchEnd || (OPRL != None && OPRL.bDead))) {
         SortScores(PlayerCount);
     }
 
