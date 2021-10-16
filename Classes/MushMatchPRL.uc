@@ -1,27 +1,27 @@
 class MushMatchPRL extends PlayerReplicationList config(MushMatch);
 
-var             bool                    bIsSuspected;
-var             bool                    bMush;
-var             bool                    bKnownMush, bKnownHuman;
-var             bool                    bDead, bSpectator;
-var             int                     InitialTeam;
-var             float                   ImmuneLevel;
-var             float                   ImmuneMomentum, ImmuneThrust, ImmuneResistance;
-var             PlayerReplicationList   HatedBy;
-var(MushMatch)  config float            ImmuneMomentumDrag,
-                                            ImmuneMomentumThreshold,
-                                            ImmuneNaturalRegen,
-                                            ImmuneNaturalFallback,
-                                            ImmuneNaturalSnapThreshold,
-                                            ImmuneHitAmount,
-                                            InstantImmuneHitFactor,
-                                            ImmuneDangerLevel;
+var     bool                    bIsSuspected;
+var     bool                    bMush;
+var     bool                    bKnownMush, bKnownHuman;
+var     bool                    bDead, bSpectator;
+var     int                     InitialTeam;
+var     float                   ImmuneLevel;
+var     float                   ImmuneMomentum, ImmuneThrust, ImmuneResistance;
+var     PlayerReplicationList   HatedBy;
+var()   config float            ImmuneMomentumDrag,
+                                    ImmuneMomentumThreshold,
+                                    ImmuneNaturalRegen,
+                                    ImmuneNaturalFallback,
+                                    ImmuneNaturalSnapThreshold,
+                                    ImmuneHitAmount,
+                                    InstantImmuneHitFactor,
+                                    ImmuneDangerLevel;
 
-var(MushMatch)  config bool             bImmuneNaturallyTendsToFull,
-                                            bImmuneSnap,
-                                            bNoNegativeImmune,
-                                            bNoSuperImmune,
-                                            bImmuneInstantHit;
+var()   config bool             bImmuneNaturallyTendsToFull,
+                                    bImmuneSnap,
+                                    bNoNegativeImmune,
+                                    bNoSuperImmune,
+                                    bImmuneInstantHit;
 
 
 replication

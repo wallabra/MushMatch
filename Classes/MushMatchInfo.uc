@@ -8,7 +8,7 @@ replication
 }
 
 
-var(MushMatch) config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack, DecideChance_TeamUp, DecideChance_MushHelpMush, DecideChance_Scapegoat;
+var() config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack, DecideChance_TeamUp, DecideChance_MushHelpMush, DecideChance_Scapegoat;
 
 var     bool            bMushSelected, bMatchEnd, bMatchStart;
 var     MushMatchPRL    PRL;
