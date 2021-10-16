@@ -1,4 +1,4 @@
-class MushMatchScoreBoard extends TournamentScoreBoard;
+class MushMatchScoreBoard extends TournamentScoreBoard config(MushMatch);
 
 
 var localized string StatusString, TeamString;

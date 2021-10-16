@@ -1,4 +1,4 @@
-class MushMatchMutator extends DMMutator;
+class MushMatchMutator extends DMMutator config(MushMatch);
 
 
 var(MushMatch) config float ScreamRadius, DirectionBlameRadius, MinGuaranteeSuspectDamage, VictimSuspectChance, ScreamSuspectChance, NameClearChanceNormal, NameClearChanceBothMush, SuspectHuntOverlookKillChance, SuspectHuntOverlookDamageChance, OverlookChanceFactorTargetIsSuspect;

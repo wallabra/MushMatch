@@ -1,7 +1,7 @@
 #exec AUDIO IMPORT FILE="Sounds\mm_found.wav" NAME="FoundMush" GROUP="MushMatch"
 #exec AUDIO IMPORT FILE="Sounds\mm_suspect.wav" NAME="Suspected" GROUP="MushMatch"
 
-class MushMatch expands DeathMatchPlus;
+class MushMatch expands DeathMatchPlus config(MushMatch);
 
 
 replication

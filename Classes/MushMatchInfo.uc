@@ -1,4 +1,4 @@
-class MushMatchInfo extends TournamentGameReplicationInfo;
+class MushMatchInfo extends TournamentGameReplicationInfo config(MushMatch);
 
 
 replication

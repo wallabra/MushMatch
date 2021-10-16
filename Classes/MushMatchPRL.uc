@@ -1,4 +1,4 @@
-class MushMatchPRL extends PlayerReplicationList;
+class MushMatchPRL extends PlayerReplicationList config(MushMatch);
 
 var             bool                    bIsSuspected;
 var             bool                    bMush;

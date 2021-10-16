@@ -1,5 +1,5 @@
 class MushMatchMapList extends MapList
-	config;
+	config(MushMatch);
 
 defaultproperties
 {
