@@ -166,7 +166,7 @@ function ShowScores( canvas Canvas )
     }
 
     // Don't always sort, that would be potentially incriminating
-    if (bDrawScoreOnMatchEnd && MMI.bMatchEnd) {
+    if (MMI.bScoreboardDrawScoreOnMatchEnd && MMI.bMatchEnd) {
         SortScores(PlayerCount);
     }
 
