@@ -12,17 +12,76 @@ replication
 }
 
 
-var(MushMatch) config bool bHighDetailGhosts;
-var(MushMatch) config string DiscoveredMusic;
-var(MushMatch) config float MushScarceRatio;
-var(MushMatch) config class<Spectator> SpectatorClass;
-var(MushMatch) config class<LocalMessagePlus> MushDiedMessageType, MushSpottedMessageType, MushSuspectedMessageType, MushSelectedMessageType;
-var(MushMatch) config bool bMushUseOwnPronoun;
-var(MushMatch) config float SpawnChance_BeaconAmmo, SpawnChance_SporeAmmo;
-var(MushMatch) localized string RTeamNames[2];
-var(MUSHMATCH) config float InfectionScoreMultiplier;
-var(MUSHMATCH) config bool bPenalizeSameTeamKill, bPenalizeSuicide;
-var(MushMatch) config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
+//=============== Settings ===============//
+// Pertinent to the map played on.
+var(MushMatch_Map)      config float
+    SpawnChance_BeaconAmmo, SpawnChance_SporeAmmo;
+
+// Pertinent to generally aesthetic details.
+//    (Exercise care; using the wrong kind of message may reveal 'secret' info early!)
+var(MushMatch_Custom)   config string DiscoveredMusic;
+var(MushMatch_Custom)   localized config string
+    ScoreboardStatusString,
+    ScoreboardTeamString;
+
+var(MushMatch_Custom)   config bool bHighDetailGhosts;
+var(MushMatch_Custom)   localized config bool bMushUseOwnPronoun;
+var(MushMatch_Custom)   localized string RTeamNames[2];
+var(MushMatch_Custom)   config class<LocalMessagePlus>
+    MushDiedMessageType,
+    MushSpottedMessageType,
+    MushSuspectedMessageType,
+    MushSelectedMessageType;
+
+var(MushMatch_Custom)   config bool bDrawScoreOnMatchEnd;
+
+// Pertinent to the overarching rules of the game.
+var(MushMatch_Game)     config float MushScarceRatio;
+var(MushMatch_Game)     config float InfectionScoreMultiplier;
+var(MushMatch_Game)     config bool bPenalizeSameTeamKill, bPenalizeSuicide;
+var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
+var(MushMatch_Game)     config class<Spectator> SpectatorClass;
+
+// Pertinent to how the immune level of human players works.
+var(MushMatch_Immune)   config float
+    ImmuneMomentumDrag,
+    ImmuneMomentumThreshold,
+    ImmuneNaturalRegen,
+    ImmuneNaturalFallback,
+    ImmuneNaturalSnapThreshold,
+    ImmuneHitAmount,
+    InstantImmuneHitFactor,
+    ImmuneDangerLevel;
+
+var(MushMatch_Immune) config bool
+    bImmuneNaturallyTendsToFull,
+    bImmuneSnap,
+    bNoNegativeImmune,
+    bNoSuperImmune,
+    bImmuneInstantHit;
+
+// Pertinent to bot AI.
+var(MushMatch_AI) config float
+    DecideChance_Infect,
+    DecideChance_SuspectAttack,
+    DecideChance_GrudgeAttack,
+    DecideChance_TeamUp,
+    DecideChance_MushHelpMush,
+    DecideChance_Scapegoat;
+
+var(MushMatch_AI) config float
+    ScreamRadius,
+    DirectionBlameRadius,
+    MinGuaranteeSuspectDamage,
+    VictimSuspectChance,
+    ScreamSuspectChance,
+    NameClearChanceNormal,
+    NameClearChanceBothMush,
+    SuspectHuntOverlookKillChance,
+    SuspectHuntOverlookDamageChance,
+    OverlookChanceFactorTargetIsSuspect;
+
+/////////////////////////////////////////////////
 
 var bool bMushSelected, bHumanVictory, bMatchEnd, bHasHate, bHasBeacon;
 var byte winTeam;
@@ -958,4 +1017,39 @@ defaultproperties
      ScorePenalty_Suicide=15
      FragLimit=0
      MapListType=class'MushMatchMapList'
+     ScreamRadius=300
+     DirectionBlameRadius=400
+     NameClearChanceNormal=0.6
+     NameClearChanceBothMush=0.9
+     MinGuaranteeSuspectDamage=40
+     VictimSuspectChance=0.9
+     ScreamSuspectChance=0.6
+     SuspectHuntOverlookKillChance=0.3
+     SuspectHuntOverlookDamageChance=0.6
+     OverlookChanceFactorTargetIsSuspect=0.6
+     DecideChance_Infect=0.75
+     DecideChance_SuspectAttack=0.5
+     DecideChance_GrudgeAttack=0.8
+     DecideChance_TeamUp=0.35
+     DecideChance_MushHelpMush=0.9
+     DecideChance_Scapegoat=0.4
+     ScoreboardStatusString="Status"
+     ScoreboardTeamString="Alignment"
+     bDrawScoreOnMatchEnd=true
+     ImmuneLevel=1.0
+     ImmuneMomentum=0.0
+     ImmuneMomentumThreshold=0.05
+     ImmuneMomentumDrag=0.5
+     ImmuneResistance=1.1
+     ImmuneNaturalRegen=0.1
+     ImmuneNaturalFallback=0.04
+     ImmuneNaturalSnapThreshold=0.025
+     bImmuneNaturallyTendsToFull=True
+     bImmuneSnap=True
+     bNoNegativeImmune=True
+     bNoSuperImmune=False
+     bImmuneInstantHit=False
+     InstantImmuneHitFactor=1.15
+     ImmuneHitAmount=0.75
+     ImmuneDangerLevel=0.2
 }

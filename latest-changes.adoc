@@ -8,8 +8,8 @@ Mush Match development team
 
 = 1.3.1
 
- * Make some of the classes themselves `config(MushMatch)`.
- * Have bot attitude always be "ignorant" on match start, never engaging other players.
+ * Fix the majority of settings; there was no way to set those through INI files
+ * Have bot attitude always be "ignorant" on match start, never engaging other players
 
 = 1.3.0
 

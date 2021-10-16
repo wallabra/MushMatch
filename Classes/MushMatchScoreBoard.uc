@@ -2,8 +2,32 @@ class MushMatchScoreBoard extends TournamentScoreBoard config(MushMatch);
 
 
 var localized string StatusString, TeamString;
-var(MushMatch) config bool bDrawScoreOnMatchEnd;
+var bool bDrawScoreOnMatchEnd;
 
+
+simulated function BeginPlay() {
+    Super.BeginPlay();
+
+    if (Role == ROLE_Authority) {
+        UpdateConfigVars();
+    }
+}
+
+// Update configuration from the MushMatch(Level.Game).
+function UpdateConfigVars() {
+    local MushMatch MM;
+    MM = MushMatch(Level.Game);
+
+    if (MM == None) {
+        // rip
+        Warn(class.name@"detected outside a Mush Match; gameinfo is"@Level.Game);
+        return;
+    }
+
+    bDrawScoreOnMatchEnd = MM.bDrawScoreOnMatchEnd;
+    StatusString         = MM.ScoreboardStatusString;
+    TeamString           = MM.ScoreboardTeamString;
+}
 
 // slightly modified version of Super.DrawNameAndPing
 // that does not draw frags, as those are possibly
@@ -199,11 +223,4 @@ function ShowScores( canvas Canvas )
     }
     Canvas.DrawColor = WhiteColor;
     Canvas.Font = CanvasFont;
-}
-
-defaultproperties
-{
-    StatusString="Status"
-    TeamString="Alignment"
-    bDrawScoreOnMatchEnd=true;
 }

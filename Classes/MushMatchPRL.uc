@@ -8,20 +8,24 @@ var     int                     InitialTeam;
 var     float                   ImmuneLevel;
 var     float                   ImmuneMomentum, ImmuneThrust, ImmuneResistance;
 var     PlayerReplicationList   HatedBy;
-var()   config float            ImmuneMomentumDrag,
-                                    ImmuneMomentumThreshold,
-                                    ImmuneNaturalRegen,
-                                    ImmuneNaturalFallback,
-                                    ImmuneNaturalSnapThreshold,
-                                    ImmuneHitAmount,
-                                    InstantImmuneHitFactor,
-                                    ImmuneDangerLevel;
 
-var()   config bool             bImmuneNaturallyTendsToFull,
-                                    bImmuneSnap,
-                                    bNoNegativeImmune,
-                                    bNoSuperImmune,
-                                    bImmuneInstantHit;
+// Replicated settings
+var float
+    ImmuneMomentumDrag,
+    ImmuneMomentumThreshold,
+    ImmuneNaturalRegen,
+    ImmuneNaturalFallback,
+    ImmuneNaturalSnapThreshold,
+    ImmuneHitAmount,
+    InstantImmuneHitFactor,
+    ImmuneDangerLevel;
+
+var config bool
+    bImmuneNaturallyTendsToFull,
+    bImmuneSnap,
+    bNoNegativeImmune,
+    bNoSuperImmune,
+    bImmuneInstantHit;
 
 
 replication
@@ -50,6 +54,41 @@ replication
         ImmuneLevel, ImmuneResistance, ImmuneMomentum;
 }
 
+
+simulated function BeginPlay() {
+    Super.BeginPlay();
+
+    if (Role == ROLE_Authority) {
+        UpdateConfigVars();
+    }
+}
+
+// Update configuration from the MushMatch(Level.Game).
+function UpdateConfigVars() {
+    local MushMatch MM;
+    MM = MushMatch(Level.Game);
+
+    if (MM == None) {
+        // rip
+        Warn(class.name@"detected outside a Mush Match; gameinfo is"@Level.Game);
+        return;
+    }
+
+    ImmuneMomentumDrag          = MM.ImmuneMomentumDrag;
+    ImmuneMomentumThreshold     = MM.ImmuneMomentumThreshold;
+    ImmuneNaturalRegen          = MM.ImmuneNaturalRegen;
+    ImmuneNaturalFallback       = MM.ImmuneNaturalFallback;
+    ImmuneNaturalSnapThreshold  = MM.ImmuneNaturalSnapThreshold;
+    ImmuneHitAmount             = MM.ImmuneHitAmount;
+    InstantImmuneHitFactor      = MM.InstantImmuneHitFactor;
+    ImmuneDangerLevel           = MM.ImmuneDangerLevel;
+
+    bImmuneNaturallyTendsToFull = MM.bImmuneNaturallyTendsToFull;
+    bImmuneSnap                 = MM.bImmuneSnap;
+    bNoNegativeImmune           = MM.bNoNegativeImmune;
+    bNoSuperImmune              = MM.bNoSuperImmune;
+    bImmuneInstantHit           = MM.bImmuneInstantHit;
+}
 
 simulated event Tick(float TimeDelta) {
     ImmuneMomentum += ImmuneThrust;
@@ -217,21 +256,5 @@ defaultproperties
     bSpectator=false
     bMush=false
     HatedBy=none
-    ImmuneLevel=1.0
-    ImmuneMomentum=0.0
-    ImmuneMomentumThreshold=0.05
-    ImmuneMomentumDrag=0.5
-    ImmuneResistance=1.1
-    ImmuneNaturalRegen=0.1
-    ImmuneNaturalFallback=0.04
-    ImmuneNaturalSnapThreshold=0.025
-    bImmuneNaturallyTendsToFull=True
-    bImmuneSnap=True
-    bNoNegativeImmune=True
-    bNoSuperImmune=False
-    bImmuneInstantHit=False
-    InstantImmuneHitFactor=1.15
-    ImmuneHitAmount=0.75
-    ImmuneDangerLevel=0.2
     InitialTeam=0
 }

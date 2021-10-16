@@ -8,12 +8,47 @@ replication
 }
 
 
-var() config float DecideChance_Infect, DecideChance_SuspectAttack, DecideChance_GrudgeAttack, DecideChance_TeamUp, DecideChance_MushHelpMush, DecideChance_Scapegoat;
-
 var     bool            bMushSelected, bMatchEnd, bMatchStart;
 var     MushMatchPRL    PRL;
 var     Music           MushDiscoveredMusic;
 var     PlayerPawn      LocalPlayer;
+
+// Replicated settings
+var float
+    DecideChance_Infect,
+    DecideChance_SuspectAttack,
+    DecideChance_GrudgeAttack,
+    DecideChance_TeamUp,
+    DecideChance_MushHelpMush,
+    DecideChance_Scapegoat;
+
+
+simulated function BeginPlay() {
+    Super.BeginPlay();
+
+    if (Role == ROLE_Authority) {
+        UpdateConfigVars();
+    }
+}
+
+// Update configuration from the MushMatch(Level.Game).
+function UpdateConfigVars() {
+    local MushMatch MM;
+    MM = MushMatch(Level.Game);
+
+    if (MM == None) {
+        // rip
+        Warn(class.name@"detected outside a Mush Match; gameinfo is"@Level.Game);
+        return;
+    }
+
+    DecideChance_Infect         = MM.DecideChance_Infect;
+    DecideChance_SuspectAttack  = MM.DecideChance_SuspectAttack;
+    DecideChance_GrudgeAttack   = MM.DecideChance_GrudgeAttack;
+    DecideChance_TeamUp         = MM.DecideChance_TeamUp;
+    DecideChance_MushHelpMush   = MM.DecideChance_MushHelpMush;
+    DecideChance_Scapegoat      = MM.DecideChance_Scapegoat;
+}
 
 
 simulated function PlayerPawn GetLocalPlayer() {
@@ -555,9 +590,4 @@ defaultproperties {
     bMatchStart=false
     bMatchEnd=false
     bMushSelected=false
-    DecideChance_Infect=0.75
-    DecideChance_SuspectAttack=0.5
-    DecideChance_GrudgeAttack=0.8
-    DecideChance_TeamUp=0.35
-    DecideChance_MushHelpMush=0.9
-    DecideChance_Scapegoat=0.4
+}

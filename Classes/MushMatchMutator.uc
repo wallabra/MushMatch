@@ -1,8 +1,6 @@
 class MushMatchMutator extends DMMutator config(MushMatch);
 
 
-var() config float ScreamRadius, DirectionBlameRadius, MinGuaranteeSuspectDamage, VictimSuspectChance, ScreamSuspectChance, NameClearChanceNormal, NameClearChanceBothMush, SuspectHuntOverlookKillChance, SuspectHuntOverlookDamageChance, OverlookChanceFactorTargetIsSuspect;
-
 var PlayerPawn PlayerOwner;
 
 
@@ -13,6 +11,51 @@ replication {
 
 
 var bool bBeginplayed;
+
+// Replicated settings
+var(MushMatch_AI) config float
+    ScreamRadius,
+    DirectionBlameRadius,
+    MinGuaranteeSuspectDamage,
+    VictimSuspectChance,
+    ScreamSuspectChance,
+    NameClearChanceNormal,
+    NameClearChanceBothMush,
+    SuspectHuntOverlookKillChance,
+    SuspectHuntOverlookDamageChance,
+    OverlookChanceFactorTargetIsSuspect;
+
+
+simulated function BeginPlay() {
+    Super.BeginPlay();
+
+    if (Role == ROLE_Authority) {
+        UpdateConfigVars();
+    }
+}
+
+// Update configuration from the MushMatch(Level.Game).
+function UpdateConfigVars() {
+    local MushMatch MM;
+    MM = MushMatch(Level.Game);
+
+    if (MM == None) {
+        // rip
+        Warn(class.name@"detected outside a Mush Match; gameinfo is"@Level.Game);
+        return;
+    }
+
+    ScreamRadius                        = MM.ScreamRadius;
+    DirectionBlameRadius                = MM.DirectionBlameRadius;
+    MinGuaranteeSuspectDamage           = MM.MinGuaranteeSuspectDamage;
+    VictimSuspectChance                 = MM.VictimSuspectChance;
+    ScreamSuspectChance                 = MM.ScreamSuspectChance;
+    NameClearChanceNormal               = MM.NameClearChanceNormal;
+    NameClearChanceBothMush             = MM.NameClearChanceBothMush;
+    SuspectHuntOverlookKillChance       = MM.SuspectHuntOverlookKillChance;
+    SuspectHuntOverlookDamageChance     = MM.SuspectHuntOverlookDamageChance;
+    OverlookChanceFactorTargetIsSuspect = MM.OverlookChanceFactorTargetIsSuspect;
+}
 
 function bool IsRelevant(Actor Other, out byte bSuperRelevant)
 {
@@ -703,17 +746,7 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
 
 defaultproperties
 {
-    ScreamRadius=300
-    DirectionBlameRadius=400
     RemoteRole=ROLE_SimulatedProxy
     bAlwaysRelevant=True
     bNetTemporary=True
-    NameClearChanceNormal=0.6
-    NameClearChanceBothMush=0.9
-    MinGuaranteeSuspectDamage=40
-    VictimSuspectChance=0.9
-    ScreamSuspectChance=0.6
-    SuspectHuntOverlookKillChance=0.3
-    SuspectHuntOverlookDamageChance=0.6
-    OverlookChanceFactorTargetIsSuspect=0.6
 }
