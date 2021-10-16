@@ -1,0 +1,20 @@
+Todo List
+=========
+MushMatch Development Team
+:toc:
+:numbered:
+
+= Wishes
+
+* [ ] Add a **tutorial**, and ingame help e.g. for servers.
+* [ ] Add traps for the mush
+* [ ] Add cameras that can spot mush
+
+= Features
+
+* [ ] Make 'spotting' a gradual thing, just like infecting (immune level).
+* [ ] Maybe make suspicion wear over time.
+
+= Bug Fixes and Technical Stuff
+
+* [ ] Make the tiny-damage-suspect-chance check per witness, not per victim
