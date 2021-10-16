@@ -18,7 +18,9 @@ var float
     ImmuneNaturalSnapThreshold,
     ImmuneHitAmount,
     InstantImmuneHitFactor,
-    ImmuneDangerLevel;
+    ImmuneDangerLevel,
+    ImmuneResistLevel,
+    ImmuneResistVulnerability;
 
 var config bool
     bImmuneNaturallyTendsToFull,
@@ -88,6 +90,10 @@ function UpdateConfigVars() {
     bNoNegativeImmune           = MM.bNoNegativeImmune;
     bNoSuperImmune              = MM.bNoSuperImmune;
     bImmuneInstantHit           = MM.bImmuneInstantHit;
+    ImmuneResistLevel           = MM.ImmuneResistLevel;
+    ImmuneResistVulnerability   = MM.ImmuneResistVulnerability;
+
+    ImmuneResistance = ImmuneResistLevel;
 }
 
 simulated event Tick(float TimeDelta) {
@@ -144,7 +150,7 @@ simulated function ImmuneHit(float Amount) {
 
     // Also decrease immune-resistance a little
     if (ImmuneResistance > 1.0) {
-        ImmuneResistance /= Sqrt(Amount / (ImmuneResistance + 1.0));
+        ImmuneResistance = 1.0 + (ImmuneResistance - 1.0) / Sqrt(Amount / (ImmuneResistVulnerability - 1.0));
     }
 }
 
@@ -257,4 +263,6 @@ defaultproperties
     bMush=false
     HatedBy=none
     InitialTeam=0
+    ImmuneLevel=1.0
+    ImmuneMomentum=0.0
 }

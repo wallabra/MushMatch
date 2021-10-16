@@ -51,7 +51,9 @@ var(MushMatch_Immune)   config float
     ImmuneNaturalSnapThreshold,
     ImmuneHitAmount,
     InstantImmuneHitFactor,
-    ImmuneDangerLevel;
+    ImmuneDangerLevel,
+    ImmuneResistLevel,
+    ImmuneResistVulnerability;
 
 var(MushMatch_Immune) config bool
     bImmuneNaturallyTendsToFull,
@@ -1036,11 +1038,8 @@ defaultproperties
      ScoreboardStatusString="Status"
      ScoreboardTeamString="Alignment"
      bDrawScoreOnMatchEnd=true
-     ImmuneLevel=1.0
-     ImmuneMomentum=0.0
      ImmuneMomentumThreshold=0.05
      ImmuneMomentumDrag=0.5
-     ImmuneResistance=1.1
      ImmuneNaturalRegen=0.1
      ImmuneNaturalFallback=0.04
      ImmuneNaturalSnapThreshold=0.025
@@ -1052,4 +1051,6 @@ defaultproperties
      InstantImmuneHitFactor=1.15
      ImmuneHitAmount=0.75
      ImmuneDangerLevel=0.2
+     ImmuneResistLevel=1.0
+     ImmuneResistVulnerability=0.8
 }
