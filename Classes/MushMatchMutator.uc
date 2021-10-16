@@ -20,7 +20,7 @@ replication {
 var bool bBeginplayed;
 
 // Replicated settings
-var(MushMatch_AI) config float
+var float
     ScreamRadius,
     DirectionBlameRadius,
     MinGuaranteeSuspectDamage,

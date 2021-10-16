@@ -22,7 +22,7 @@ var float
     ImmuneResistLevel,
     ImmuneResistVulnerability;
 
-var config bool
+var bool
     bImmuneNaturallyTendsToFull,
     bImmuneSnap,
     bNoNegativeImmune,
