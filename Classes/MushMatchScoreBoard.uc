@@ -1,7 +1,7 @@
 class MushMatchScoreBoard extends TournamentScoreBoard config(MushMatch);
 
 
-var(MushMatch_Client) localized string StatusString, TeamString;
+var(MushMatch_Client) localized string StatusString, AlignmentString;
 
 
 // slightly modified version of Super.DrawNameAndPing
@@ -121,9 +121,9 @@ function DrawCategoryHeaders(Canvas Canvas)
     Canvas.SetPos((Canvas.ClipX / 8)*5 - XL/2, Offset);
     Canvas.DrawText(StatusString);
 
-    Canvas.StrLen(TeamString, XL, YL);
+    Canvas.StrLen(AlignmentString, XL, YL);
     Canvas.SetPos((Canvas.ClipX / 8)*6 - XL/2, Offset);
-    Canvas.DrawText(TeamString);
+    Canvas.DrawText(AlignmentString);
 }
 
 // slightly modified version of Super.ShowScores
@@ -202,5 +202,6 @@ function ShowScores( canvas Canvas )
 }
 
 defaultproperties {
-    bDrawScoreOnMatchEnd=false
+    StatusString="Status"
+    AlignmentString="Alignment"
 }
