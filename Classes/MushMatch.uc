@@ -1017,7 +1017,7 @@ defaultproperties
      DirectionBlameRadius=2000
      NameClearChanceNormal=0.6
      NameClearChanceBothMush=0.9
-     MinGuaranteeSuspectDamage=40
+     MinGuaranteeSuspectDamage=30
      VictimSuspectChance=0.9
      ScreamSuspectChance=0.6
      SuspectHuntOverlookKillChance=0.3

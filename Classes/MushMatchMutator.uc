@@ -144,7 +144,7 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
         }
 
         // Cull small damage events, like falling over top of someone's head, but with a linear probability
-        if (ActualDamage < MinGuaranteeSuspectDamage && FRand() * MinGuaranteeSuspectDamage > ActualDamage) {
+        if (ActualDamage < MinGuaranteeSuspectDamage && FRand() * MinGuaranteeSuspectDamage < ActualDamage) {
             return;
         }
 
