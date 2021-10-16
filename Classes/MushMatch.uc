@@ -145,8 +145,6 @@ function PostBeginPlay()
 
     Super.PostBeginPlay();
     
-    SetTimer(0.5, true);
-    
     for ( P = Level.PawnList; P != none; P = P.nextPawn )
         if ( P.bIsPlayer && p.PlayerReplicationInfo != none )
             p.PlayerReplicationInfo.Team = 0;
