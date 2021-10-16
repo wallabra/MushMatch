@@ -1050,4 +1050,5 @@ defaultproperties
      SporifierAIMinSafeInterval=10
      SuspicionBeaconFirerate=1.1
      bOffsetScoreMinusOne=false
+     RestartWait=30
 }
