@@ -31,6 +31,7 @@ var(MushMatch_Custom)   config class<LocalMessagePlus>
     MushSelectedMessageType;
 
 var(MushMatch_Custom)   config bool bScoreboardDrawScoreOnMatchEnd;
+var(MushMatch_Custom)   config bool bOffsetScoreMinusOne; // may fix weird scoring off-by-ones sometimes
 
 // Pertinent to the overarching rules of the game.
 var(MushMatch_Game)     config float MushScarceRatio;
@@ -257,7 +258,7 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
         else {
             if (bPenalizeSuicide) {
-                Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide + 1;
+                Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide;
             }
         }
     }
@@ -267,18 +268,18 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
 	    if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
     	    if (bPenalizeSameTeamKill) {
-    	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill + 1;
+    	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill;
             }
     	}
 
     	else if (OPRL != None) {
-    	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill - 1;
-    	}
-
-    	else {
-    	    Killer.PlayerReplicationInfo.Score -= 1;
+    	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill;
     	}
 	}
+
+	if (bOffsetScoreMinusOne) {
+ 	    Killer.PlayerReplicationInfo.Score -= 1;
+ 	}
 
 	BaseMutator.ScoreKill(Killer, Other);
 }
@@ -1048,4 +1049,5 @@ defaultproperties
      SporifierAIMaxSafeTime=20
      SporifierAIMinSafeInterval=10
      SuspicionBeaconFirerate=1.1
+     bOffsetScoreMinusOne=false
 }
