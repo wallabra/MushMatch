@@ -1,4 +1,4 @@
-fclass MushMatchMutator extends DMMutator config(MushMatch);
+class MushMatchMutator extends DMMutator config(MushMatch);
 
 
 var PlayerPawn PlayerOwner;
