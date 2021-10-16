@@ -353,24 +353,16 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
         return;
     }
 
+    Super.Killed(Killer, Other, DamageType);
+
     if (!Killer.bIsPlayer || !Other.bIsPlayer) {
-        Super.Killed(Killer, Other, DamageType);
-        
         return;
     }
 
-    Super.Killed(Killer, Other, DamageType);
-
-    if (bMushSelected) {
+    if (bMushSelected && !bMatchEnd) {
         MushMatchMutator(BaseMutator).MushMatchCheckKill(Killer, Other);
         CheckEnd();
     }
-    
-    if (bMatchEnd) {
-        return;
-    }
-
-    CheckEnd();
 }
     
 function bool CheckEnd()
