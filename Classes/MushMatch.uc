@@ -42,6 +42,10 @@ var(MushMatch_Game)     config bool bPenalizeSameTeamKill, bPenalizeSuicide;
 var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
 var(MushMatch_Game)     config class<Spectator> SpectatorClass;
 
+var(MushMatch_Game)     config float // firerates
+    SporifierFirerate,
+    SuspicionBeaconFirerate;
+
 // Pertinent to how the immune level of human players works.
 var(MushMatch_Immune)   config float
     ImmuneMomentumDrag,
@@ -70,6 +74,10 @@ var(MushMatch_AI) config float
     DecideChance_TeamUp,
     DecideChance_MushHelpMush,
     DecideChance_Scapegoat;
+
+var(MushMatcH_AI) config float
+    SporifierAIMaxSafeTime,
+    SporifierAIMinSafeInterval;
 
 var(MushMatch_AI) config float
     ScreamRadius,
@@ -1048,4 +1056,8 @@ defaultproperties
      ImmuneDangerLevel=0.2
      ImmuneResistLevel=1.0
      ImmuneResistVulnerability=0.8
+     SporifierFirerate=1.5
+     SporifierAIMaxSafeTime=20
+     SporifierAIMinSafeInterval=10
+     SuspicionBeaconFirerate=1.1
 }

@@ -16,14 +16,35 @@ class MushBeacon extends TournamentWeapon;
 
 
 var bool bRating;
-var(MushMatch) config float BeaconFirerate;
+var float BeaconFirerate;
 
 
 replication {
     reliable if (Role == ROLE_Authority)
-        bRating;
+        BeaconFirerate;
 }
 
+simulated function BeginPlay() {
+    Super.BeginPlay();
+
+    if (Role == ROLE_Authority) {
+        UpdateConfigVars();
+    }
+}
+
+// Update configuration from the MushMatch(Level.Game).
+function UpdateConfigVars() {
+    local MushMatch MM;
+    MM = MushMatch(Level.Game);
+
+    if (MM == None) {
+        // rip
+        Warn(class.name@"detected outside a Mush Match; gameinfo is"@Level.Game);
+        return;
+    }
+
+    BeaconFirerate = MM.SuspicionBeaconFirerate;
+}
 
 simulated function Projectile ProjectileFire(class<projectile> ProjClass, float ProjSpeed, bool bWarn)
 {
@@ -210,5 +231,4 @@ defaultproperties
      Icon=Texture'Botpack.Icons.IconPulse'
      Mesh=LodMesh'MBeaconWeap'
      Mass=65.000000
-     BeaconFirerate=1.2
 }

@@ -14,6 +14,8 @@ Mush Match development team
  * Change 'immune-resistance' parameter update and make it also configurable.
  * Slight rebalance to default bot AI suspicion radius values
  * Fix premature ending in network games
+ * Fix Beacon firerate setting replication
+ * Fix Sporifier being put down for players in netgames
 
 = 1.3.0
 

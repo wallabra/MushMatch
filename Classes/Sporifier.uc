@@ -39,13 +39,37 @@ var bool bDesired;
 var MushMatchInfo MMI;
 var MushMatchPRL PRL;
 
-var(MushMatch) config float SporifierFirerate, SporifierAIMaxSafeTime;
+var float SporifierFirerate, SporifierAIMaxSafeTime, SporifierAIMinSafeInterval;
 
 
 replication {
     reliable if (Role == ROLE_Authority)
-        SporifierFirerate, SporifierAIMaxSafeTime,
-        ResetSafeTime;
+        SporifierFirerate, SporifierAIMaxSafeTime, SporifierAIMinSafeInterval;
+}
+
+
+simulated function BeginPlay() {
+    Super.BeginPlay();
+
+    if (Role == ROLE_Authority) {
+        UpdateConfigVars();
+    }
+}
+
+// Update configuration from the MushMatch(Level.Game).
+function UpdateConfigVars() {
+    local MushMatch MM;
+    MM = MushMatch(Level.Game);
+
+    if (MM == None) {
+        // rip
+        Warn(class.name@"detected outside a Mush Match; gameinfo is"@Level.Game);
+        return;
+    }
+
+    SporifierFirerate           = MM.SporifierFirerate;
+    SporifierAIMaxSafeTime      = MM.SporifierAIMaxSafeTime;
+    SporifierAIMinSafeInterval  = MM.SporifierAIMinSafeInterval;
 }
 
 
@@ -69,16 +93,32 @@ simulated function float RateSelf(out int bUseAltMode)
     //local Pawn P;
     local MushMatchInfo MMI;
 
-    if ( (AmmoType != None) && (AmmoType.AmmoAmount <=0) )
-		return -2;
+    // No ammo.
+    if ( (AmmoType != None) && (AmmoType.AmmoAmount <=0) ) {
+		return -1000;
+    }
 
-    if (PlayerPawn(Owner) != None) return -10000;
+    // Not owned by a bot!
+    if (PlayerPawn(Owner) != None) {
+        return -10000;
+    }
+
+    // On interval.
+    if (SafeTime < 0) {
+        return -10000;
+    }
 
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
-    if (MMI == None) return -2;
+    // Not in the match?
+    if (MMI == None) {
+        return -10000;
+    }
 
-    if (Role == ROLE_Authority && bDesired) return 50000;
+    // Is desireable
+    if (Role == ROLE_Authority && bDesired && PlayerPawn(Owner) == None) {
+        return 50000;
+    }
     
     return 0;
 }
@@ -87,11 +127,12 @@ simulated function ResetSafeTime() {
     SafeTime = 0;
 }
 
+simulated function IntervalSafeTime() {
+    SafeTime = -SporifierAIMinSafeInterval;
+}
+
 simulated function bool PutDown() {
-    if (Role == ROLE_Authority) {
-        ResetSafeTime();
-        bDesired = false;
-    }
+    bDesired = false;
 
     return Super.PutDown();
 }
@@ -149,6 +190,15 @@ simulated function Tick(float TimeDelta)
     }
     
     if (Pawn(Owner).Weapon != Self) {
+        if (PlayerPawn(Owner) == None && SafeTime < 0.0) {
+            bDesired = false;
+            SafeTime += TimeDelta;
+
+            if (SafeTime > 0.0) {
+                SafeTime = 0.0;
+            }
+        }
+
         return;
     }
 
@@ -174,14 +224,17 @@ simulated function Tick(float TimeDelta)
         if (!IsInState('BringUp') && AnimSequence != 'Select') {
             CheckSpotted();
         }
-    }
 
-    SafeTime += TimeDelta;
-
-    if (SafeTime >= SporifierAIMaxSafeTime) {
-        if (Role == ROLE_Authority) {
-            bDesired = false; // just in case we don't get put down
-            Pawn(Owner).SwitchToBestWeapon();
+        if (PlayerPawn(Owner) == None) {
+            SafeTime += TimeDelta;
+            
+            if (SafeTime >= SporifierAIMaxSafeTime) {
+                if (Role == ROLE_Authority) {
+                    bDesired = false; // just in case we don't get put down
+                    PutDown();
+                    Pawn(Owner).SwitchToBestWeapon();
+                }
+            }
         }
     }
 }
@@ -272,5 +325,4 @@ defaultproperties
      bAltWarnTarget=false
      bWarnTarget=false
      SporifierFirerate=1.5
-     SporifierAIMaxSafeTime=15
 }
