@@ -1,4 +1,4 @@
-class MushMatchMutator extends DMMutator config(MushMatch);
+fclass MushMatchMutator extends DMMutator config(MushMatch);
 
 
 var PlayerPawn PlayerOwner;
@@ -114,11 +114,6 @@ simulated function PlayerPawn FindLocalPlayer() {
     }
 
     return PlayerOwner;
-}
-
-function bool HandleEndGame()
-{
-    return true;
 }
 
 simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn InstigatedBy, out Vector HitLocation, out Vector Momentum, name DamageType)
