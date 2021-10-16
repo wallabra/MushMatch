@@ -388,6 +388,18 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     if (MM == None) {
         return 255;
     }
+
+    if (!bMatchStart) {
+        if (Other != None && !Other.bIsPlayer) {
+            // Porbably a monster. Do whatever the default would be.
+            return 255;
+        }
+
+        else {
+            // Do nothing, just mind your own business.
+            return 2;
+        }
+    }
     
     if (Other == None || aBot == None || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
         //Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying");
