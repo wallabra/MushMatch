@@ -87,7 +87,9 @@ var(MushMatch_AI) config float
     NameClearChanceBothMush,
     SuspectHuntOverlookKillChance,
     SuspectHuntOverlookDamageChance,
-    OverlookChanceFactorTargetIsSuspect;
+    OverlookChanceFactorTargetIsSuspect,
+    OverlookChanceFactorTargetIsSelf,
+    OverlookChanceFactorWitnessSlyMush;
 
 /////////////////////////////////////////////////
 
@@ -966,74 +968,76 @@ function BroadcastUnsuspected(PlayerReplicationInfo Whom, PlayerReplicationInfo 
 
 defaultproperties
 {
-     DiscoveredMusic="Cannon.Cannon"
-     RTeamNames(0)="Humans"
-     RTeamNames(1)="Mushes"
-     bUseTranslocator=True
-     StartUpMessage="Kill any suspiciously mush players to win the match! Don't trust team colors."
-     GameEndedMessage="win the match!"
-     MaxCommanders=0
-     ScoreBoardType=Class'MushMatchScoreBoard'
-     //HUDType=Class'MushMatchHUD'
-     BeaconName="MUSH"
-     GameName="Mush Match {{{version}}}{{{namesuffix}}}"
-     GameReplicationInfoClass=Class'MushMatchInfo'
-     MutatorClass=Class'MushMatchMutator'
-     bAlwaysForceRespawn=True
-     MushScarceRatio=5.0
-     SpectatorClass=class'CHSpectator'
-     MushDiedMessageType=Class'MushDiedMessage'
-     MushSpottedMessageType=Class'MushSpottedMessage'
-     MushSuspectedMessageType=Class'MushSuspectedMessage'
-     MushSelectedMessageType=Class'MushSelectedMessage'
-     bMushUseOwnPronoun=True
-     SpawnChance_BeaconAmmo=0.04
-     SpawnChance_SporeAmmo=0.025
-     InfectionScoreMultiplier=-0.5
-     bPenalizeSameTeamKill=true
-     bPenalizeSuicide=true
-     ScoreReward_Kill=10
-     ScoreReward_Infect=25
-     ScorePenalty_TeamKill=5
-     ScorePenalty_Suicide=15
-     FragLimit=0
-     MapListType=class'MushMatchMapList'
-     ScreamRadius=600
-     DirectionBlameRadius=2000
-     NameClearChanceNormal=0.6
-     NameClearChanceBothMush=0.9
-     MinGuaranteeSuspectDamage=30
-     VictimSuspectChance=0.9
-     ScreamSuspectChance=0.6
-     SuspectHuntOverlookKillChance=0.3
-     SuspectHuntOverlookDamageChance=0.6
-     OverlookChanceFactorTargetIsSuspect=0.6
-     DecideChance_Infect=0.75
-     DecideChance_SuspectAttack=0.5
-     DecideChance_GrudgeAttack=0.8
-     DecideChance_TeamUp=0.35
-     DecideChance_MushHelpMush=0.9
-     DecideChance_Scapegoat=0.4
-     bScoreboardDrawScoreOnMatchEnd=true
-     ImmuneMomentumThreshold=0.05
-     ImmuneMomentumDrag=0.5
-     ImmuneNaturalRegen=0.1
-     ImmuneNaturalFallback=0.04
-     ImmuneNaturalSnapThreshold=0.025
-     bImmuneNaturallyTendsToFull=True
-     bImmuneSnap=True
-     bNoNegativeImmune=True
-     bNoSuperImmune=False
-     bImmuneInstantHit=False
-     InstantImmuneHitFactor=1.15
-     ImmuneHitAmount=0.75
-     ImmuneDangerLevel=0.2
-     ImmuneResistLevel=1.0
-     ImmuneResistVulnerability=0.8
-     SporifierFirerate=1.5
-     SporifierAIMaxSafeTime=20
-     SporifierAIMinSafeInterval=10
-     SuspicionBeaconFirerate=1.1
-     bOffsetScoreMinusOne=false
-     RestartWait=30
+    RestartWait=30
+    DiscoveredMusic="Cannon.Cannon"
+    RTeamNames(0)="Humans"
+    RTeamNames(1)="Mushes"
+    bUseTranslocator=True
+    StartUpMessage="Kill any suspiciously mush players to win the match! Don't trust team colors."
+    GameEndedMessage="win the match!"
+    MaxCommanders=0
+    ScoreBoardType=Class'MushMatchScoreBoard'
+    //HUDType=Class'MushMatchHUD'
+    BeaconName="MUSH"
+    GameName="Mush Match {{{version}}}{{{namesuffix}}}"
+    GameReplicationInfoClass=Class'MushMatchInfo'
+    MutatorClass=Class'MushMatchMutator'
+    bAlwaysForceRespawn=True
+    MushScarceRatio=5.0
+    SpectatorClass=class'CHSpectator'
+    MushDiedMessageType=Class'MushDiedMessage'
+    MushSpottedMessageType=Class'MushSpottedMessage'
+    MushSuspectedMessageType=Class'MushSuspectedMessage'
+    MushSelectedMessageType=Class'MushSelectedMessage'
+    bMushUseOwnPronoun=True
+    SpawnChance_BeaconAmmo=0.04
+    SpawnChance_SporeAmmo=0.025
+    InfectionScoreMultiplier=-0.5
+    bPenalizeSameTeamKill=true
+    bPenalizeSuicide=true
+    ScoreReward_Kill=10
+    ScoreReward_Infect=25
+    ScorePenalty_TeamKill=5
+    ScorePenalty_Suicide=15
+    FragLimit=0
+    MapListType=class'MushMatchMapList'
+    ScreamRadius=600
+    DirectionBlameRadius=2000
+    NameClearChanceNormal=0.6
+    NameClearChanceBothMush=0.9
+    MinGuaranteeSuspectDamage=30
+    VictimSuspectChance=0.9
+    ScreamSuspectChance=0.6
+    SuspectHuntOverlookKillChance=0.2
+    SuspectHuntOverlookDamageChance=0.5
+    OverlookChanceFactorTargetIsSuspect=0.6
+    OverlookChanceFactorTargetIsSelf=-0.4
+    OverlookChanceFactorWitnessSlyMush=-0.6
+    DecideChance_Infect=0.75
+    DecideChance_SuspectAttack=0.5
+    DecideChance_GrudgeAttack=0.8
+    DecideChance_TeamUp=0.35
+    DecideChance_MushHelpMush=0.9
+    DecideChance_Scapegoat=0.4
+    bScoreboardDrawScoreOnMatchEnd=true
+    ImmuneMomentumThreshold=0.05
+    ImmuneMomentumDrag=0.5
+    ImmuneNaturalRegen=0.1
+    ImmuneNaturalFallback=0.04
+    ImmuneNaturalSnapThreshold=0.025
+    bImmuneNaturallyTendsToFull=True
+    bImmuneSnap=True
+    bNoNegativeImmune=True
+    bNoSuperImmune=False
+    bImmuneInstantHit=False
+    InstantImmuneHitFactor=1.15
+    ImmuneHitAmount=0.75
+    ImmuneDangerLevel=0.2
+    ImmuneResistLevel=1.0
+    ImmuneResistVulnerability=0.8
+    SporifierFirerate=1.5
+    SporifierAIMaxSafeTime=20
+    SporifierAIMinSafeInterval=10
+    SuspicionBeaconFirerate=1.1
+    bOffsetScoreMinusOne=false
 }

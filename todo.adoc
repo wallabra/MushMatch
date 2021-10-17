@@ -6,15 +6,29 @@ MushMatch Development Team
 
 = Wishes
 
+Large plans for the future of MushMatch.
+
 * [ ] Add a **tutorial**, and ingame help e.g. for servers.
 * [ ] Add traps for the mush
 * [ ] Add cameras that can spot mush
 
+
 = Features
 
+Things that would be nice to implement that aren't as major.
+
 * [ ] Make 'spotting' a gradual thing, just like infecting (immune level).
-* [ ] Maybe make suspicion wear over time.
+
+
+== Staging
+
+Feedback pending on those.
+
+* Maybe make suspicion wear over time.
+
 
 = Bug Fixes and Technical Stuff
 
-* [ ] Make the tiny-damage-suspect-chance check per witness, not per victim
+Tiny nuances and peeves.
+
+* [x] Make the tiny-damage-suspect-chance check per witness, not per victim

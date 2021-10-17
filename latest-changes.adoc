@@ -18,6 +18,8 @@ Mush Match development team
  * Fix Sporifier being put down for players in netgames
  * Fix tiny-damage AI suspicion culling
  * Make Sporifier not have mush owner spotted if it's in the put down animation
+ * Make chance-based suspicion checks repeat per witness
+ * Add suspicion overlook chance modifiers for mush-witness-human-instigator, and witness-is-victim, situations
 
 = 1.3.0
 

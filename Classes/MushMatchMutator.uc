@@ -11,7 +11,8 @@ replication {
         VictimSuspectChance, ScreamSuspectChance,
         NameClearChanceNormal, NameClearChanceBothMush,
         SuspectHuntOverlookKillChance, SuspectHuntOverlookDamageChance,
-        OverlookChanceFactorTargetIsSuspect,
+        OverlookChanceFactorTargetIsSuspect, OverlookChanceFactorTargetIsSelf,
+        OverlookChanceFactorWitnessSlyMush,
 
         MinGuaranteeSuspectDamage;
 }
@@ -30,7 +31,9 @@ var float
     NameClearChanceBothMush,
     SuspectHuntOverlookKillChance,
     SuspectHuntOverlookDamageChance,
-    OverlookChanceFactorTargetIsSuspect;
+    OverlookChanceFactorTargetIsSuspect,
+    OverlookChanceFactorTargetIsSelf,
+    OverlookChanceFactorWitnessSlyMush;
 
 
 simulated function BeginPlay() {
@@ -62,6 +65,8 @@ function UpdateConfigVars() {
     SuspectHuntOverlookKillChance       = MM.SuspectHuntOverlookKillChance;
     SuspectHuntOverlookDamageChance     = MM.SuspectHuntOverlookDamageChance;
     OverlookChanceFactorTargetIsSuspect = MM.OverlookChanceFactorTargetIsSuspect;
+    OverlookChanceFactorTargetIsSelf    = MM.OverlookChanceFactorTargetIsSelf;
+    OverlookChanceFactorWitnessSlyMush  = MM.OverlookChanceFactorWitnessSlyMush;
 }
 
 function bool AlwaysKeep(Actor Other) {
@@ -125,7 +130,6 @@ simulated function PlayerPawn FindLocalPlayer() {
 simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn InstigatedBy, out Vector HitLocation, out Vector Momentum, name DamageType)
 {
     local MushMatchInfo MMI;
-    local float OverlookChance;
 
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
@@ -143,26 +147,9 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
         if ( MushMatchInfo(Level.Game.GameReplicationInfo).CheckBeacon(Victim.PlayerReplicationInfo) ) {
             return;
         }
-
-        // Cull small damage events, like falling over top of someone's head, but with a linear probability
-        if (ActualDamage < MinGuaranteeSuspectDamage && FRand() * MinGuaranteeSuspectDamage < ActualDamage) {
-            return;
-        }
-
-        // Add chance.
-        OverlookChance = SuspectHuntOverlookDamageChance;
-
-        if (MMI.CheckBeacon(Victim.PlayerReplicationInfo)) {
-            // Damaging someone who is suspected is less bad!
-            OverlookChance += (1.0 - OverlookChance) * OverlookChanceFactorTargetIsSuspect;
-        }
-
-        if (FRand() < OverlookChance) {
-            return;
-        }
         
         // See if anyone saw that!
-        CheckSuspects(InstigatedBy, Victim);
+        CheckSuspects(InstigatedBy, Victim, ActualDamage);
     }
 
     else {
@@ -213,8 +200,19 @@ simulated event ModifyPlayer(Pawn Other) {
     }
 }
 
-function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
+simulated function LinearChanceSkew(out float Chance, float Skew) {
+    if (Skew < 0) {
+        Chance *= 1.0 - Skew;
+    }
+
+    else {
+        Chance += (1.0 - Chance) * Skew;
+    }
+}
+
+function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int Damage) {
     local MushMatchPRL WitPRL, VictPRL, InstigPRL;
+    local float SuspectOverlookChance;
 
     // sanity checks
 
@@ -243,6 +241,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
     InstigPRL = FindPawnPRL(InstigatedBy);
     VictPRL = FindPawnPRL(Witness);
 
+    // sanity checks
     if (WitPRL == None || InstigPRL == None || VictPRL == None) {
         return false;
     }
@@ -251,20 +250,27 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
         return false;
     }
 
-    // now the interesting checks
-
-    if (WitPRL.bMush && VictPRL.bMush) {
-        return false;
-    }
-
+    // suspecting on someone who is a confirmed mush is a bit redundant innit
     if (WitPRL.bKnownMush) {
         return false;
     }
 
+    // make sure this suspicion does not already exist
+    if (MushMatch(Level.Game).bHasHate && !MushMatchInfo(Level.Game.GameReplicationInfo).CheckHate(InstigatedBy.PlayerReplicationInfo, Witness.PlayerReplicationInfo)) {
+        return false;
+    }
+
+    // must have line of sight to the perpetrator
     if (!Witness.LineOfSightTo(Victim)) {
         return false;
     }
 
+    // mush know who their comrades are, only pretend to suspect on humans
+    if (WitPRL.bMush && VictPRL.bMush) {
+        return false;
+    }
+
+    // check that the instigator can be identified
     if (!Witness.CanSee(InstigatedBy)) {
         // other witness check
         if (Witness != Victim) {
@@ -283,9 +289,38 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
         }
     }
 
-    // make sure this suspicion does not already exist
+    // weight the chance to overlook based on damage/kill
+    if (Damage > 0) {
+        // cull small damage events, like falling over top of someone's head, but with a linear probability
+        if (Damage < MinGuaranteeSuspectDamage && FRand() * MinGuaranteeSuspectDamage < Damage) {
+            return false;
+        }
 
-    if (MushMatch(Level.Game).bHasHate && !MushMatchInfo(Level.Game.GameReplicationInfo).CheckHate(InstigatedBy.PlayerReplicationInfo, Witness.PlayerReplicationInfo)) {
+        SuspectOverlookChance = SuspectHuntOverlookDamageChance;
+    }
+
+    else {
+        // was a kill
+        SuspectOverlookChance = SuspectHuntOverlookKillChance;
+    }
+
+    // be more lax if the victim was suspected to begin with!
+    if (VictPRL.bIsSuspected) {
+        LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorTargetIsSuspect);
+    }
+
+    // be less lax is the victim was oneself
+    if (Victim == Witness) {
+        LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorTargetIsSelf);
+    }
+
+    // be less lax if the witness is mush and the instigator is human
+    if (WitPRL.bMush && !InstigPRL.bMush) {
+        LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorWitnessSlyMush);
+    }
+
+    // finally act upon the overlook chance! dice roll.. and drum roll...
+    if (FRand() < SuspectOverlookChance) {
         return false;
     }
 
@@ -293,7 +328,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
     return true;
 }
 
-function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
+function CheckSuspects(Pawn InstigatedBy, Pawn Victim, int Damage)
 {
     local Pawn P;
     local MushMatchInfo MMI;
@@ -340,14 +375,14 @@ function CheckSuspects(Pawn InstigatedBy, Pawn Victim)
     // Check for witnesses and suspicions.
 
     for (P = Level.PawnList; P != None; P = P.NextPawn) {
-        if (!WitnessSuspect(Victim, InstigatedBy, P)) {
+        if (!WitnessSuspect(Victim, InstigatedBy, P, Damage)) {
             continue;
         }
 
         MushMatch(Level.Game).RegisterHate(P, InstigatedBy);
     }
 
-    if (WitnessSuspect(Victim, InstigatedBy, Victim)) {
+    if (WitnessSuspect(Victim, InstigatedBy, Victim, Damage)) {
         MushMatch(Level.Game).RegisterHate(Victim, InstigatedBy);
     }
 }
@@ -408,7 +443,7 @@ simulated function MushMatchCheckKill(Pawn Killer, Pawn Other, optional bool bTe
     local Pawn P;
     local MushMatchInfo MMI;
     local MushMatchPRL OPRL, KPRL, PPRL;
-    local float NameClearIgnoreChance, SuspectOverlookChance;
+    local float NameClearIgnoreChance;
 
     if (Role != ROLE_Authority) {
         return;
@@ -489,17 +524,6 @@ simulated function MushMatchCheckKill(Pawn Killer, Pawn Other, optional bool bTe
         return;
     }
 
-    SuspectOverlookChance = SuspectHuntOverlookKillChance;
-
-    if (MMI.CheckBeacon(Other.PlayerReplicationInfo)) {
-        // Killing someone who is suspected is less bad!..?
-        SuspectOverlookChance += (1.0 - SuspectOverlookChance) * OverlookChanceFactorTargetIsSuspect;
-    }
-
-    if (FRand() < SuspectOverlookChance && MMI.CheckBeacon(Other.PlayerReplicationInfo)) {
-        return;
-    }
-
     if (!MushMatch(Level.Game).bMushSelected) {
         return;
     }
@@ -508,7 +532,7 @@ simulated function MushMatchCheckKill(Pawn Killer, Pawn Other, optional bool bTe
         return;
     }
 
-    CheckSuspects(Killer, Other);
+    CheckSuspects(Killer, Other, -1);
 }
 
 //===== HUD Drawing for Modding Compatibility ========//
