@@ -6,7 +6,7 @@ MushMatch Development Team
 
 = Wishes
 
-Large plans for the future of MushMatch.
+Large plans for the future of MushMatch. Should be fixed within a major version release.
 
 * [ ] Add a **tutorial**, and ingame help e.g. for servers.
 * [ ] Add traps for the mush
@@ -15,7 +15,7 @@ Large plans for the future of MushMatch.
 
 = Features
 
-Things that would be nice to implement that aren't as major.
+Things that would be nice to implement that aren't as major. Should be fixed within a minor version release.
 
 * [ ] Make 'spotting' a gradual thing, just like infecting (immune level).
 
@@ -24,11 +24,9 @@ Things that would be nice to implement that aren't as major.
 
 Feedback pending on those.
 
-* Maybe make suspicion wear over time.
-
 
 = Bug Fixes and Technical Stuff
 
-Tiny nuances and peeves.
+Tiny nuances and peeves. Should be fixed within a patch version release.
 
 * [x] Make the tiny-damage-suspect-chance check per witness, not per victim
