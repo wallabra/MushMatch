@@ -93,9 +93,10 @@ and `bz2`, but you will also need to install a Go package named `mustache`.
 You can grab it by https://golang.org/doc/install[installing Go],
 and then running:
 
-```console
+[source,console]
+----
 $ go get github.com/cbroglie/mustache/..
-```
+----
 
 ==== Build
 
