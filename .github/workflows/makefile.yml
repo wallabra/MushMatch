@@ -91,6 +91,6 @@ jobs:
                 files: /tmp/mushmatch-distrib/MushMatch-${{ steps.get-version-num.outputs.build }}.*
                 tag_name: releases/v${{ steps.get-version-num.outputs.version }}
                 name: Mush Match v${{ steps.get-version-num.outputs.version }}
-                body_path: latest-changes.adoc
+                body_path: latest-changes.md
                 draft: false
                 prerelease: false
