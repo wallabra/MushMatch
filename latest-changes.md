@@ -1,12 +1,4 @@
-Changelog
-=========
-Mush Match development team
-:homepage: https://github.com/Gustavo6046/MushMatch
-:toc:
-:numbered:
-
-
-= 1.3.1
+# 1.3.1 Changelog
 
  * Force zero frag limit, and warn if a different value is set in config
  * Fix the majority of settings; there was no way to set those through INI files
