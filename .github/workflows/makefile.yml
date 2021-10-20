@@ -2,6 +2,8 @@ name: MushMatch Makefile build
 
 on:
   push:
+    tags:
+      - 'releases/v*'
     branches: [ master ]
   pull_request:
     branches: [ master ]
@@ -12,45 +14,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+        - name: Checkout
+          uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: sudo apt install zip bzip2 gzip tar curl bash
+        - name: Install dependencies
+          run: sudo apt install zip bzip2 gzip tar curl bash
 
-    - name: Setup Go
-      uses: actions/setup-go@v2.1.4
+        - name: Setup Go
+          uses: actions/setup-go@v2.1.4
 
-    - name: Install Mustache (build dependency)
-      run: go get github.com/cbroglie/mustache/...
+        - name: Install Mustache (build dependency)
+          run: go get github.com/cbroglie/mustache/...
 
-    - name: Add Go bin to PATH
-      run: echo 'export PATH="$HOME/go/bin:$PATH"'>>~/.bash_profile
+        - name: Add Go bin to PATH
+          run: echo 'export PATH="$HOME/go/bin:$PATH"'>>~/.bash_profile
 
-    - name: Cache build environment downloads
-      id: cache-downloads
-      uses: actions/cache@v2
-      with:
-        path: |
-          build
-          !build/ut-server
-        key: ${{ runner.os }}-${{ hashFiles('build/deps/**') }}
-        restore-keys: |
-            ${{ runner.os }}-
+        - name: Cache build environment downloads
+          id: cache-downloads
+          uses: actions/cache@v2
+          with:
+            path: |
+                build
+                !build/ut-server
+            key: ${{ runner.os }}-${{ hashFiles('build/deps/**') }}
+            restore-keys: |
+                ${{ runner.os }}-
 
-    - name: Download build environment
-      if: steps.cache-downloads.outputs.cache-hit != 'true'
-      run: make download
+        - name: Download build environment
+          if: steps.cache-downloads.outputs.cache-hit != 'true'
+          run: make download
 
-    - name: Set up build environment
-      run: make configure
+        - name: Set up build environment
+          run: make configure
 
-    - name: Build
-      run: MUSTACHE="$HOME/go/bin/mustache" make build
+        - name: Build
+          run: MUSTACHE="$HOME/go/bin/mustache" make build
 
-    - uses: actions/upload-artifact@v2
-      name: Upload build artifacts
-      with:
-        name: mushmatch-distrib
-        path: build/dist/MushMatch/latest/*
-        if-no-files-found: error
+        - uses: actions/upload-artifact@v2
+          name: Upload build artifacts
+          with:
+            name: mushmatch-distrib-zip
+            path: build/dist/MushMatch/latest/*
+            if-no-files-found: error
+
+        ### Below is for the near future.
+        #- name: Release if Applicable
+        #  id: release
+        #  uses: rymndhng/release-on-push-action@master
+        #  with:
+        #    bump_version_scheme: patch
+        #    tag_prefix: releases/v
