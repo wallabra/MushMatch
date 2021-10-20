@@ -1,4 +1,4 @@
-name: MushMatch Makefile build
+name: Makefile build
 
 on:
   push:
@@ -14,12 +14,22 @@ on:
 
 jobs:
     build:
-        name: Build MushMatch
+        name: Build
         runs-on: ubuntu-latest
 
         steps:
           - name: Checkout
             uses: actions/checkout@v2
+
+          - name: (Get metadata)
+            id: metadata
+            run: |
+                source buildconfig.sh
+                echo "::set-output name=version::$version"
+                echo "::set-output name=build::$build"
+                echo "::set-output name=package::$package"
+                echo "::set-output name=name::$name"
+                echo "::set-output name=debug::$debug"
 
           - name: Install dependencies
             run: sudo apt install zip bzip2 gzip tar curl bash
@@ -57,8 +67,8 @@ jobs:
           - name: Upload build artifacts
             uses: actions/upload-artifact@v2
             with:
-                name: mushmatch-distrib-zip
-                path: build/dist/MushMatch/latest/*
+                name: ${{ steps.metadata.outputs.package }}-distrib-zip
+                path: build/dist//latest/*
                 if-no-files-found: error
 
     publish:
@@ -71,26 +81,30 @@ jobs:
           - name: Checkout
             uses: actions/checkout@v2
 
-          - name: Download build artifacts
-            uses: actions/download-artifact@v2
-            with:
-                name: mushmatch-distrib-zip
-                path: /tmp/mushmatch-distrib
-
-          - name: (Get version and build number)
-            id: get-version-num
+          - name: (Get metadata)
+            id: metadata
             run: |
                 source buildconfig.sh
                 echo "::set-output name=version::$version"
                 echo "::set-output name=build::$build"
+                echo "::set-output name=package::$package"
+                echo "::set-output name=debug::$debug"
+                echo "::set-output name=name::$name"
+
+          - name: Download build artifacts
+            uses: actions/download-artifact@v2
+            with:
+                name: ${{ steps.metadata.outputs.package }}-distrib-zip
+                path: /tmp/distrib
+
 
           - name: Release!
             id: create_release
             uses: softprops/action-gh-release@v1
             with:
-                files: /tmp/mushmatch-distrib/MushMatch-${{ steps.get-version-num.outputs.build }}.*
-                tag_name: releases/v${{ steps.get-version-num.outputs.version }}
-                name: Mush Match v${{ steps.get-version-num.outputs.version }}
+                files: /tmp/distrib/*
+                tag_name: releases/v${{ steps.metadata.outputs.version }}
+                name: ${{ steps.metadata.outputs.name }} v${{ steps.metadata.outputs.version }}
                 body_path: latest-changes.md
-                draft: false
-                prerelease: false
+                draft: true
+                prerelease: ${{ steps.metadata.outputs.debug }}
