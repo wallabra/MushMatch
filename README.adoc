@@ -134,8 +134,12 @@ http://www.mushpedia.com/wiki/Main_Page[Mushpedia]!
 
 == Licensing
 
-The license only applies to the code inside the `Classes/` subdirectory,
-and files in the project's top folder. For those, see the [LICENSE.md] file.
+The license only applies to the code inside the `Classes/` subdirectory.
+For those, see the [LICENSE.md] file.
+
+Files in the project's top folder that pertain to the ModBuild build system
+are actually licensed under the ISC. For those, see the [LICENSE.buildscript.md]
+file.
 
 All non-code assets, i.e. files within the `Models/`, `Sounds/` and `Textures/`
 subdirectories, are provided under the
