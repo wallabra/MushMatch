@@ -24,7 +24,7 @@ them. In the end, the last team standing wins.
 See the https://github.com/Gustavo6046/MushMatch/releases[Releases] page!
 
 If you want to build from source, you must be on a Linux system. See the
-section <<_building_from_source>> below.
+section <<building>> below.
 
 == Rules
 
@@ -72,8 +72,9 @@ _I found this bug offline, or that glitch online, or this crazy crash, or some l
 
 _Why the name? Why 'Mush'? Why is 'Mush' an uncountable noun if it is a team that can have multiple people?_::
     Because of Mush Match's inspiration; see About near the top. Also, the noun 
-    is uncountable because lore lore lore. See the <<_lore>> section below!
+    is uncountable because lore lore lore. See the <<lore>> section below!
 
+[#building]
 == Building from Source
 
 Currently you can only build MushMatch from a Linux system.
@@ -106,6 +107,7 @@ of downloads, setting up a bare UT tree, and building MushMatch in it, all for y
 A few variables control how the build is done. Usually, those variables don't
 have to be edited, as they 
 
+[#lore]
 == Lore
 
 A Mush is actually a fungus, borne from a distant planet from another star, 
