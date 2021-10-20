@@ -102,11 +102,6 @@ $ go get github.com/cbroglie/mustache/..
 Simply run `make`. The provided Makefile should automatically take care
 of downloads, setting up a bare UT tree, and building MushMatch in it, all for you!
 
-==== Settings
-
-A few variables control how the build is done. Usually, those variables don't
-have to be edited, as they 
-
 [#lore]
 == Lore
 
