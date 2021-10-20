@@ -78,7 +78,7 @@ jobs:
             uses: actions/download-artifact@v2
             with:
                 name: mushmatch-distrib-zip
-                path: /tmp/mushmatch-distrib.zip
+                path: /tmp/mushmatch-distrib
 
           - name: (Get version and build number)
             id: get-version-num
@@ -91,7 +91,7 @@ jobs:
             id: create_release
             uses: softprops/action-gh-release@v1
             with:
-                files: /tmp/MushMatch-${{ steps.get-version-num.outputs.build }}.*
+                files: /tmp/mushmatch-distrib/MushMatch-${{ steps.get-version-num.outputs.build }}.*
                 tag_name: releases/v${{ steps.get-version-num.outputs.version }}
                 name: Mush Match v${{ steps.get-version-num.outputs.version }}
                 body_path: latest-changes.yml
