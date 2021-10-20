@@ -68,7 +68,7 @@ jobs:
             uses: actions/upload-artifact@v2
             with:
                 name: ${{ steps.metadata.outputs.package }}-distrib-zip
-                path: build/dist//latest/*
+                path: build/dist/${{ steps.metadata.outputs.package }}/latest/*
                 if-no-files-found: error
 
     publish:
