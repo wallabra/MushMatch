@@ -61,7 +61,7 @@ good luck spotting them, before they spot _you_!
 _Mush Match appears several times on my gameplay selection screen! What do I do?_::
     If you have older versions of MushMatch, they will appear unless you remove their
     .int files.
-
+    +
     Save that, if you have any instance of GusPackII.u or GusPackII.int in your System 
     folder, try removing any lines referencing MushMatch or ArenaMush from 
     GusPackII.int. That is an outdated version, and GusPackII has never seen a 
