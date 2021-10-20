@@ -1,4 +1,4 @@
-# 1.3.1 Changelog
+## Changelog
 
  * Force zero frag limit, and warn if a different value is set in config
  * Fix the majority of settings; there was no way to set those through INI files
