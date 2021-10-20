@@ -37,12 +37,12 @@ jobs:
                 id: cache-downloads
                 uses: actions/cache@v2
                 with:
-                path: |
-                    build
-                    !build/ut-server
-                key: ${{ runner.os }}-${{ hashFiles('build/deps/**') }}
-                restore-keys: |
-                    ${{ runner.os }}-
+                    path: |
+                        build
+                        !build/ut-server
+                    key: ${{ runner.os }}-${{ hashFiles('build/deps/**') }}
+                    restore-keys: |
+                        ${{ runner.os }}-
 
               - name: Download build environment
                 if: steps.cache-downloads.outputs.cache-hit != 'true'
@@ -54,8 +54,8 @@ jobs:
               - name: Build
                 run: MUSTACHE="$HOME/go/bin/mustache" make build
 
-              - uses: actions/upload-artifact@v2
-                name: Upload build artifacts
+              - name: Upload build artifacts
+                uses: actions/upload-artifact@v2
                 with:
                     name: mushmatch-distrib-zip
                     path: build/dist/MushMatch/latest/*
