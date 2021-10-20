@@ -61,3 +61,35 @@ jobs:
                 path: build/dist/MushMatch/latest/*
                 if-no-files-found: error
 
+    publish:
+        name: Publish Tag Release (if applicable)
+        needs: build
+        if: startsWith(github.ref, 'refs/tags/releases/v')
+
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v2
+
+          - name: Download build artifacts
+            uses: actions/download-artifact@v2
+            with:
+                name: mushmatch-distrip.zip
+                path: /tmp/mushmatch-distrib.zip
+
+          - name: (Get version and build number)
+            id: get-version-num
+            run: |
+                source buildconfig.sh
+                echo "::set-output name=version::$version"
+                echo "::set-output name=build::$build"
+
+          - name: Release!
+            id: create_release
+            uses: softprops/action-gh-release@v1
+            with:
+                files: /tmp/MushMatch-${{ steps.get-version-num.outputs.build }}.*
+                tag_name: releases/v${{ steps.get-version-num.outputs.version }}
+                name: Mush Match v${{ steps.get-version-num.outputs.version }}
+                body_path: latest-changes.yml
+                draft: false
+                prerelease: false
