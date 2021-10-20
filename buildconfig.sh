@@ -3,9 +3,9 @@
 # Edit this file if necessary; it is read by _build.sh in order to
 # provide some context variables.
 
-export build=20214125
+export build=20214126
 export version=1.3.1
-export debug=1
+export debug=0
 export package=MushMatch
 
 # It is most likely unnecessary to edit the below defaults. The scripts
