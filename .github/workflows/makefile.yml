@@ -15,14 +15,14 @@ on:
 jobs:
     build:
         name: Build MushMatch
-        runs-on: ubuntu-latest
+        runs-on: alpine-latest
 
         steps:
           - name: Checkout
             uses: actions/checkout@v2
 
           - name: Install dependencies
-            run: sudo apt install zip bzip2 gzip tar curl bash
+            run: sudo apk add zip bzip2 gzip tar curl bash
 
           - name: Setup Go
             uses: actions/setup-go@v2.1.4
@@ -63,13 +63,16 @@ jobs:
 
     publish:
         name: Publish Tag Release (if applicable)
-        runs-on: ubuntu-latest
+        runs-on: alpine-latest
         needs: build
         if: startsWith(github.ref, 'refs/tags/releases/v')
 
         steps:
           - name: Checkout
             uses: actions/checkout@v2
+
+          - name: Install dependencies
+            run: sudo apk add bash
 
           - name: Download build artifacts
             uses: actions/download-artifact@v2
