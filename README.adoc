@@ -24,7 +24,7 @@ them. In the end, the last team standing wins.
 See the https://github.com/Gustavo6046/MushMatch/releases[Releases] page!
 
 If you want to build from source, you must be on a Linux system. See the
-section link:#building-from-source[*Building from Source*] below.
+section <<Building from Source>> below.
 
 == Rules
 
@@ -72,7 +72,7 @@ _I found this bug offline, or that glitch online, or this crazy crash, or some l
 
 _Why the name? Why 'Mush'? Why is 'Mush' an uncountable noun if it is a team that can have multiple people?_::
     Because of Mush Match's inspiration; see About near the top. Also, the noun 
-    is uncountable because lore lore lore. See the Lore section below!
+    is uncountable because lore lore lore. See the <<Lore>> section below!
 
 == Building from Source
 
