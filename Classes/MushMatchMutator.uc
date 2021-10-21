@@ -133,6 +133,12 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
 
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
+    // Ensure the match is already selected. Otherwise, zero the damage.
+    if (!MMI.bMushSelected) {
+        ActualDamage = 0;
+        return;
+    }
+
     // Let other mutators process the damage before we decide upon it ourselves
     if ( NextDamageMutator != None ) {
         NextDamageMutator.MutatorTakeDamage(ActualDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
