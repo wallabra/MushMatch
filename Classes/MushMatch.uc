@@ -402,13 +402,13 @@ function GetAliveTeams(out int humans, out int mush) {
         if (p.bIsPlayer && p.PlayerReplicationInfo != none) {
             PRL = MushMatchInfo(GameReplicationInfo).FindPRL(p.PlayerReplicationInfo);
 
-            if (!PRL.bDead) {
-                if (!PRL.bMush) {
-                    humans += 1;
+            if (PRL != None && !PRL.bDead) {
+                if (PRL.bMush) {
+                    mush += 1;
                 }
             
                 else {
-                    mush += 1;
+                    humans += 1;
                 }
             }
         }
