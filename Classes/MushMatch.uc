@@ -251,6 +251,12 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
     Other.DieCount++;
 
+    // Ensure Other is a player.
+    if (!Other.bIsPlayer || Other.PlayerReplicationInfo == None) {
+        return;
+    }
+
+    // Penalize suicide.
     if (Killer == None || Killer == Other) {
         if (Killer == None) {
             return;
@@ -266,21 +272,25 @@ function ScoreKill(Pawn Killer, Pawn Other)
 	else {
         Killer.KillCount++;
 
+        // Check for team kill and penalize accordingly.
 	    if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
     	    if (bPenalizeSameTeamKill) {
     	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill;
             }
     	}
 
+        // Reward for kill.
     	else if (OPRL != None) {
     	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill;
     	}
 	}
 
+    // Offest score if applicable.
 	if (bOffsetScoreMinusOne) {
  	    Killer.PlayerReplicationInfo.Score -= 1;
  	}
 
+    // Call ScoreKill on BaseMutator.
 	BaseMutator.ScoreKill(Killer, Other);
 }
 
