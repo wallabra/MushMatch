@@ -19,14 +19,8 @@ Things that would be nice to implement that aren't as major. Should be fixed wit
 
 * [ ] Make 'spotting' a gradual thing, just like infecting (immune level).
 
-
-== Staging
-
-Feedback pending on those.
-
-
 = Bug Fixes and Technical Stuff
 
 Tiny nuances and peeves. Should be fixed within a patch version release.
 
-* [x] Make the tiny-damage-suspect-chance check per witness, not per victim
+_(nil.)_
