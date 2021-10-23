@@ -88,10 +88,14 @@ emptor.
 
 If you want to build from source, make sure you have the build dependencies
 beforehand. You most likely already have `curl`, `zip`, `tar`, `gzip`, `bash`
-and `bz2`, but you will also need to install a Go package named `mustache`.
+and `bz2`.
 
-You can grab it by https://golang.org/doc/install[installing Go],
-and then running:
+Optionally, you may install a Go package named `mustache`, however if it's not
+found on your `$PATH` already, a pre-compiled binary will be downloaded on
+first build.
+
+For manually setting it up, you can grab it by
+https://golang.org/doc/install[installing Go], and then running:
 
 [source,console]
 ----
@@ -102,6 +106,13 @@ $ go get github.com/cbroglie/mustache/..
 
 Simply run `make`. The provided Makefile should automatically take care
 of downloads, setting up a bare UT tree, and building MushMatch in it, all for you!
+
+The folder containing the bare UT tree, as well as the output subdr with builds
+of the mod, can be specified with the `BUILD_DIR` environment variable. It
+defaults to `./build`.
+
+You can then use `DESTDIR=/path/to/my/UnrealTournament make install` to install
+the mod.
 
 [#lore]
 == Lore

@@ -34,15 +34,6 @@ jobs:
           - name: Install dependencies
             run: sudo apt install zip bzip2 gzip tar curl bash
 
-          - name: Setup Go
-            uses: actions/setup-go@v2.1.4
-
-          - name: Install Mustache (build dependency)
-            run: go get github.com/cbroglie/mustache/...
-
-          - name: Add Go bin to PATH
-            run: echo 'export PATH="$HOME/go/bin:$PATH"'>>~/.bash_profile
-
           - name: Cache build environment downloads
             id: cache-downloads
             uses: actions/cache@v2
@@ -62,7 +53,7 @@ jobs:
             run: make configure
 
           - name: Build
-            run: MUSTACHE="$HOME/go/bin/mustache" make build
+            run: make build
 
           - name: Upload build artifacts
             uses: actions/upload-artifact@v2

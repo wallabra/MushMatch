@@ -1,16 +1,18 @@
-PACKAGE_NAME ?= MushMatch
+PACKAGE_NAME ?= MyMod
 PACKAGE_ROOT ?= .
-MUSHMATCH_BUILD ?= build
-DIR_DEPS ?= $(MUSHMATCH_BUILD)/deps
-DIR_TARG = $(MUSHMATCH_BUILD)/ut-server
+BUILD_DIR ?= build
+DIR_DEPS ?= $(BUILD_DIR)/deps
+DIR_TARG = $(BUILD_DIR)/ut-server
 DIR_TARG_PACKAGE = $(DIR_TARG)/$(PACKAGE_NAME)
 BUILD_LOG ?= ./build.log
 MUSTACHE ?= mustache
-DIR_DIST = $(MUSHMATCH_BUILD)/dist
+MUSTACHE_VER ?= 1.3.0
+DIR_DIST = $(BUILD_DIR)/dist
 CAN_DOWNLOAD ?= 1
 DESTDIR ?= ..
+SHELL = bash
 
-CMDS_EXPECTED = curl tar gzip bzip2 zip bash mustache
+CMDS_EXPECTED = curl tar gzip bzip2 zip bash
 
 BUILD_NUM := $(shell source ./buildconfig.sh; echo $$build)
 
@@ -25,24 +27,22 @@ expect-cmd-%:
 	echo "   some other build dependency install method.">&2; \
 	echo >&2; \
 	echo "   Here is a list of commands expected: $(CMDS_EXPECTED)">&2; \
-	echo "   • Note. mustache has to be installed via Go: https://github.com/cbroglie/mustache"; \
 	echo "----'">&2; \
 	exit 2; fi
 
-expect-mustache:
-	if ! which "$(MUSTACHE)" >/dev/null; then \
-	echo "----.">&2; \
-	echo "   Command 'mustache' not found! It is required for build!">&2; \
-	echo >&2; \
-	echo "   mustache is a formatting tool used by the build process">&2; \
-	echo "   when formatting the .int, as well as the UnrealScript">&2; \
-	echo "	 classes to be built, to provide slight environment-awareness..">&2; \
-	echo >&2; \
-	echo "	 It must be installed via Go. Assuming Go is already installed,">&2; \
-	echo "	 it's one simple command.">&2; \
-	echo "	 See README.adoc for more info on how to install it.">&2; \
-	echo "----'">&2; \
-	exit 2; fi
+find-mustache: | expect-cmd-curl expect-cmd-tar expect-cmd-gunzip expect-cmd-realpath
+	$(eval MUSTACHE_BIN=$(shell if which "$(MUSTACHE)" >/dev/null ; then \
+	  echo ${MUSTACHE} ;\
+	elif [ -f $(DIR_DEPS)/mustache ] ; then \
+	  realpath "${DIR_DEPS}/mustache" ;\
+	else \
+	  echo '=== Downloading mustache ${MUSTACHE_VER} to $(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz...'>&2 ;\
+		mkdir -p "$(DIR_DEPS)" ;\
+		curl 'https://github.com/cbroglie/mustache/releases/download/v${MUSTACHE_VER}/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz' -LC- -o"$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" ;\
+		echo '=== Extracting mustache...'>&2 ;\
+    tar xzf "$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" -C "$(DIR_DEPS)" mustache >&2 ;\
+    realpath "${DIR_DEPS}/mustache" ;\
+	fi))
 
 $(DIR_DEPS)/ut-server-linux-436.tar.gz: | expect-cmd-curl
 	mkdir -p "$(DIR_DEPS)" ;\
@@ -83,22 +83,25 @@ endif
 else
 endif
 
-auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2, cannot-download)
+auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2 find-mustache, cannot-download)
 
 $(DIR_TARG)/System/ucc-bin: | auto-download expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
 	echo '=== Extracting and setting up...' ;\
 	[[ -d "$(DIR_TARG)" ]] && rm -rv "$(DIR_TARG)" ;\
 	mkdir -p "$(DIR_TARG)" ;\
-	tar xzmvf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" --overwrite -C "$(MUSHMATCH_BUILD)" ;\
+	tar xzmvf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" --overwrite -C "$(BUILD_DIR)" ;\
 	tar xjpmvf "$(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
 	ln -sf -T "$(shell realpath $(PACKAGE_ROOT))" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
 
-$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR_TARG)/System/ucc-bin Classes/*.uc $(PACKAGE_NAME).int $(PACKAGE_NAME).yml buildconfig.sh | expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash expect-mustache 
+$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR_TARG)/System/ucc-bin Classes/*.uc template.int template-options.yml buildconfig.sh | expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash
 	echo $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip
 	echo '=== Starting build!' ;\
+	[[ -d "$(DIR_TARG)"/"$(PACKAGE_NAME)" ]] || ln -sv \
+			"$$(realpath "$(PACKAGE_ROOT)")" \
+			"$(DIR_TARG)"/"$(PACKAGE_NAME)" ;\
 	cd "$(DIR_TARG)"/"$(PACKAGE_NAME)" >/dev/null ;\
-	if MUSTACHE="$(MUSTACHE)" bash ./_build.sh 2>&1; then\
+	if MUSTACHE="$(MUSTACHE_BIN)" bash ./_build.sh 2>&1; then\
 		echo "Build finished: see $(DIR_DIST)/$(PACKAGE_NAME)/latest" 2>&1 ; exit 0 ;\
 	else\
 		echo "Build errored: see $(BUILD_LOG)" 2>&1 ; exit 1 ;\
@@ -111,7 +114,7 @@ $(DESTDIR)/System/$(PACKAGE_NAME)-$(BUILD_NUM).u: $(DIR_DIST)/$(PACKAGE_NAME)/$(
 
 #-- Entrypoint rules
 
-download: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2
+download: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469b-Linux.tar.bz2 find-mustache
 
 configure: $(DIR_TARG)/System/ucc-bin
 
@@ -127,5 +130,5 @@ clean-tree:
 
 clean: clean-downloads clean-tree
 
-.PHONY: configure build download install auto-download cannot-download expect-cmd-% expect-mustache clean clean-downloads clean-tree
+.PHONY: configure build download install auto-download cannot-download expect-cmd-% clean clean-downloads clean-tree
 .SILENT:
