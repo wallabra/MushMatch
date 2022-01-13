@@ -16,8 +16,7 @@ release.
 ** [ ] The tutorial would be for people who install Mush Match into their
 game manually (auto-downloads from servers only include the package
 with class definitions and assets, and only the map currently on the
-server, so this map would instead come with the mod). It would teach
-all the salient mechanics of the game.
+server). It would teach all the salient mechanics of the gametype.
 (Although I don't have a voice actor ;-;)
 ** [ ] The in-game help would be helpful when playing Mush Match for the
 first time, e.g. auto-downloaded off a server, which would mean being
