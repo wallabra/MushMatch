@@ -27,8 +27,10 @@ cleanup() {
 
         # Build temporary YAML file
         echo "build: '$build'" > "$TMP_YML"
+        echo "name: '$name'" > "$TMP_YML"
         echo "version: '$version'" >> "$TMP_YML"
         echo "package: '$packagefull'" >> "$TMP_YML"
+        echo "debug: '$debug'" >> "$TMP_YML"
 
         if [[ "$debug" == 1 ]]; then
             echo "namesuffix: ' ($build)'" >> "$TMP_YML"
@@ -37,17 +39,19 @@ cleanup() {
         fi
 
         echo >> "$TMP_YML"
-        cat "$package/$package.yml" >> "$TMP_YML"
+        cat "$package/template-options.yml" >> "$TMP_YML"
 
         # Copy assets
-        for asset in Models Textures Sounds make.ini; do
+        for asset in Models/ Textures/ Sounds/; do
+            if [[ -d "$package"/"$asset" ]]; then
             cp -rv "$package"/"$asset" "$packagefull"
+            fi
         done
 
         # Format classes with Mustache
         mkdir "$packagefull"/Classes
 
-        for class in "$package"/Classes/*; do
+        for class in "$package"/Classes/**; do
             class="$(basename "$class")"
             echo "Formatting: $packagefull/Classes/$class"
             "$MUSTACHE" "$package/Classes/$class" < "$TMP_YML" > "$packagefull/Classes/$class"
@@ -75,7 +79,7 @@ cleanup() {
 
         # Format .int with Mustache
         echo "Formatting: System/$package.int"
-        "$MUSTACHE" "$package/$package.int" < "$TMP_YML" > "System/$packagefull.int"
+        "$MUSTACHE" "$package/template.int" < "$TMP_YML" > "System/$packagefull.int"
 
         # Package up
         cp -f "$package/README.adoc" "Help/$package.adoc"
@@ -107,6 +111,7 @@ code=$?
 rm "$TMP_YML"
 rm "$TMP_INI"
 
+echo
 echo Cleaning up...
 cleanup
 

@@ -1,0 +1,5 @@
+mutators:
+    # None, so far.
+    # An arena compatibility mutator used to reside here.
+    # However, it has since been obsoleted by functionality
+    # built into Mush Match itself.

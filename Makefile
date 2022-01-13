@@ -1,4 +1,4 @@
-PACKAGE_NAME ?= MyMod
+PACKAGE_NAME ?= MushMatch
 PACKAGE_ROOT ?= .
 BUILD_DIR ?= build
 DIR_DEPS ?= $(BUILD_DIR)/deps
@@ -30,18 +30,21 @@ expect-cmd-%:
 	echo "----'">&2; \
 	exit 2; fi
 
+
+
 find-mustache: | expect-cmd-curl expect-cmd-tar expect-cmd-gunzip expect-cmd-realpath
-	$(eval MUSTACHE_BIN=$(shell if which "$(MUSTACHE)" >/dev/null ; then \
-	  echo ${MUSTACHE} ;\
-	elif [ -f $(DIR_DEPS)/mustache ] ; then \
-	  realpath "${DIR_DEPS}/mustache" ;\
+	$(eval MUSTACHE_BIN=$(shell if which "$(MUSTACHE)" >/dev/null 2>&1 ; then \
+	  	echo ${MUSTACHE} ;\
+	elif [ -f $(DIR_DEPS)/mustache-$(MUSTACHE_VER) ] ; then \
+	  	realpath "${DIR_DEPS}/mustache-${MUSTACHE_VER}" ;\
 	else \
-	  echo '=== Downloading mustache ${MUSTACHE_VER} to $(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz...'>&2 ;\
-		mkdir -p "$(DIR_DEPS)" ;\
-		curl 'https://github.com/cbroglie/mustache/releases/download/v${MUSTACHE_VER}/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz' -LC- -o"$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" ;\
+	  	echo '=== Downloading mustache ${MUSTACHE_VER} to $(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz...'>&2 ;\
+		  mkdir -p "$(DIR_DEPS)" ;\
+		  curl 'https://github.com/cbroglie/mustache/releases/download/v${MUSTACHE_VER}/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz' -LC- -o"$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" ;\
 		echo '=== Extracting mustache...'>&2 ;\
-    tar xzf "$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" -C "$(DIR_DEPS)" mustache >&2 ;\
-    realpath "${DIR_DEPS}/mustache" ;\
+	      tar xzf "$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" -C "$(DIR_DEPS)" mustache >&2 ;\
+	      mv $(DIR_DEPS)/mustache $(DIR_DEPS)/mustache-$(MUSTACHE_VER) ;\
+	      realpath "${DIR_DEPS}/mustache" ;\
 	fi))
 
 $(DIR_DEPS)/ut-server-linux-436.tar.gz: | expect-cmd-curl
