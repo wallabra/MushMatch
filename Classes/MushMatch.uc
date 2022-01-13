@@ -285,7 +285,7 @@ function ScoreKill(Pawn Killer, Pawn Other)
     	}
 	}
 
-    // Offest score if applicable.
+    // Offset score if applicable.
 	if (bOffsetScoreMinusOne) {
  	    Killer.PlayerReplicationInfo.Score -= 1;
  	}
