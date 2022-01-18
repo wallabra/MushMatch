@@ -39,7 +39,7 @@ var(MushMatch_Game)     config float InfectionScoreMultiplier;
 var(MushMatch_Game)     config bool bPenalizeSameTeamKill, bPenalizeSuicide;
 var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
 var(MushMatch_Game)     config class<Spectator> SpectatorClass;
-var(MushMatch_Game)     config bool bMushifyScoreCountNegativeContribution;
+var(MushMatch_Game)     config bool bInfectionScoreCountNegative;
 
 var(MushMatch_Game)     config float // firerates
     SporifierFirerate,
@@ -627,7 +627,7 @@ function MakeMush(Pawn Other, Pawn Instigator) {
     
     MPRL.bMush = true;
 
-    if (Other.PlayerReplicationInfo.Score >= 0 || bMushifyScoreCountNegativeContribution) {
+    if (Other.PlayerReplicationInfo.Score >= 0 || bInfectionScoreCountNegative) {
         Other.PlayerReplicationInfo.Score *= InfectionScoreMultiplier;
     }
 
@@ -1013,7 +1013,7 @@ defaultproperties
     InfectionScoreMultiplier=-0.5
     bPenalizeSameTeamKill=true
     bPenalizeSuicide=true
-    bMushifyScoreCountNegativeContribution=false
+    bInfectionScoreCountNegative=false
     ScoreReward_Kill=10
     ScoreReward_Infect=25
     ScorePenalty_TeamKill=5
