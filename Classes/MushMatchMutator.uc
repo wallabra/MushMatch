@@ -238,7 +238,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         return false;
     }
 
-    if (Witness == InstigatedBy) {
+    if (Witness == InstigatedBy || Victim == InstigatedBy) {
         return false;
     }
 
@@ -251,7 +251,8 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     InstigPRL = FindPawnPRL(InstigatedBy);
     VictPRL = FindPawnPRL(Victim);
 
-    // sanity checks
+    // more sanity checks
+
     if (WitPRL == None || InstigPRL == None || VictPRL == None) {
         return false;
     }
@@ -259,6 +260,9 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     if (WitPRL.bDead || InstigPRL.bDead || VictPRL.bDead) {
         return false;
     }
+
+    // debug
+    Log("Checking suspicion by"@ Witness.PlayerReplicationInfo.PlayerName @"on"@ InstigatedBy.PlayerReplicationInfo.PlayerName @"for bringing harming to"@ Victim.PlayerReplicationInfo.PlayerName);
 
     // suspecting on someone who is a confirmed mush is a bit redundant innit
     if (InstigPRL.bKnownMush) {
@@ -271,7 +275,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     }
 
     // must have line of sight to the perpetrator
-    if (!Witness.LineOfSightTo(Victim)) {
+    if (!Witness.LineOfSightTo(InstigatedBy)) {
         return false;
     }
 
@@ -314,19 +318,22 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         SuspectOverlookChance = SuspectHuntOverlookKillChance;
     }
 
-    // be more lax if the victim was suspected to begin with!
-    if (VictPRL.bIsSuspected) {
-        LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorTargetIsSuspect);
-    }
-
     // be less lax is the victim was oneself
     if (Victim == Witness) {
         LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorTargetIsSelf);
     }
 
-    // be less lax if the witness is mush and the instigator is human
-    if (WitPRL.bMush && !InstigPRL.bMush) {
-        LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorWitnessSlyMush);
+    else {
+        
+        // be more lax if the victim was suspected to begin with!
+        if (VictPRL.bIsSuspected && !WitPRL.bMush) {
+            LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorTargetIsSuspect);
+        }
+
+        // be less lax if the witness is mush and the instigator is human
+        if (WitPRL.bMush && !InstigPRL.bMush) {
+            LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorWitnessSlyMush);
+        }
     }
 
     // finally act upon the overlook chance! dice roll.. and drum roll...

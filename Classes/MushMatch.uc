@@ -1031,9 +1031,9 @@ defaultproperties
     ScreamSuspectChance=0.6
     SuspectHuntOverlookKillChance=0.2
     SuspectHuntOverlookDamageChance=0.5
-    OverlookChanceFactorTargetIsSuspect=0.6
-    OverlookChanceFactorTargetIsSelf=-0.4
-    OverlookChanceFactorWitnessSlyMush=-0.6
+    OverlookChanceFactorTargetIsSuspect=0.3
+    OverlookChanceFactorTargetIsSelf=-0.5
+    OverlookChanceFactorWitnessSlyMush=-0.4
     DecideChance_Infect=0.75
     DecideChance_SuspectAttack=0.5
     DecideChance_GrudgeAttack=0.8
