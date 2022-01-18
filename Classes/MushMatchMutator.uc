@@ -131,6 +131,15 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
 {
     local MushMatchInfo MMI;
 
+    // Let other mutators process the damage before we decide upon it ourselves
+    if ( NextDamageMutator != None ) {
+        NextDamageMutator.MutatorTakeDamage(ActualDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
+    }
+
+    if (Role != ROLE_Authority) {
+        return;
+    }
+
     MMI = MushMatchInfo(Level.Game.GameReplicationInfo);
 
     // Ensure the match is already selected. Otherwise, zero the damage.
@@ -139,18 +148,13 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
         return;
     }
 
-    // Let other mutators process the damage before we decide upon it ourselves
-    if ( NextDamageMutator != None ) {
-        NextDamageMutator.MutatorTakeDamage(ActualDamage, Victim, InstigatedBy, HitLocation, Momentum, DamageType);
-    }
-
     if ( InstigatedBy == None || Victim == None || InstigatedBy == Victim || MMI == None ) {
         return;
     }
 
-    if (Role == ROLE_Authority && MushMatch(Level.Game).bMushSelected) {
-        // If already has suspicion beacon, skip; otherwise it would be redundant
-        if ( MushMatchInfo(Level.Game.GameReplicationInfo).CheckBeacon(Victim.PlayerReplicationInfo) ) {
+    if (MushMatch(Level.Game).bMushSelected) {
+        // If already has suspicion beacon, skip; it would be redundant to check for suspicion!
+        if ( MMI.CheckBeacon(Victim.PlayerReplicationInfo) ) {
             return;
         }
         
@@ -208,7 +212,7 @@ simulated event ModifyPlayer(Pawn Other) {
 
 simulated function LinearChanceSkew(out float Chance, float Skew) {
     if (Skew < 0) {
-        Chance *= 1.0 - Skew;
+        Chance *= 1.0 + Skew;
     }
 
     else {
@@ -243,21 +247,21 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         return false;
     }
 
-    WitPRL = FindPawnPRL(Victim);
+    WitPRL = FindPawnPRL(Witness);
     InstigPRL = FindPawnPRL(InstigatedBy);
-    VictPRL = FindPawnPRL(Witness);
+    VictPRL = FindPawnPRL(Victim);
 
     // sanity checks
     if (WitPRL == None || InstigPRL == None || VictPRL == None) {
         return false;
     }
 
-    if (WitPRL.bDead) {
+    if (WitPRL.bDead || InstigPRL.bDead || VictPRL.bDead) {
         return false;
     }
 
     // suspecting on someone who is a confirmed mush is a bit redundant innit
-    if (WitPRL.bKnownMush) {
+    if (InstigPRL.bKnownMush) {
         return false;
     }
 
@@ -271,7 +275,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         return false;
     }
 
-    // mush know who their comrades are, only pretend to suspect on humans
+    // mush know who their comrades are, only pretend to suspect on humans, not fellow mush
     if (WitPRL.bMush && VictPRL.bMush) {
         return false;
     }

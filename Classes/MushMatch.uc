@@ -103,11 +103,13 @@ var PlayerReplicationInfo StrawmanInfo;
 
 event bool RegisterHate(Pawn Hater, Pawn Hated)
 {
-    if (!bMushSelected)
+    if (!bMushSelected) {
         return false;
+    }
 
-    if (Hater == None || Hated == None)
+    if (Hater == None || Hated == None) {
         return false;
+    }
 
     bHasHate = true;
     

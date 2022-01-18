@@ -1,13 +1,14 @@
 class MushMatchPRL extends PlayerReplicationList config(MushMatch);
 
-var     bool                    bIsSuspected;
-var     bool                    bMush;
-var     bool                    bKnownMush, bKnownHuman;
-var     bool                    bDead, bSpectator;
-var     int                     InitialTeam;
-var     float                   ImmuneLevel;
-var     float                   ImmuneMomentum, ImmuneThrust, ImmuneResistance;
-var     PlayerReplicationList   HatedBy;
+var bool                            bIsSuspected;
+var bool                            bMush;
+var bool                            bKnownMush, bKnownHuman;
+var bool                            bDead, bSpectator;
+var int                             InitialTeam;
+var float                           ImmuneLevel;
+var float                           ImmuneMomentum, ImmuneThrust, ImmuneResistance;
+var PlayerReplicationList           HatedBy;
+var class<PlayerReplicationList>    HatePRLType;
 
 // Replicated settings
 var float
@@ -229,12 +230,12 @@ simulated event bool HasAnyHate()
 simulated event AddHate(PlayerReplicationInfo Other)
 {
     if ( HatedBy == None ) {
-        HatedBy = Other.Spawn(class'PlayerReplicationList', Other);
+        HatedBy = Other.Spawn(HatePRLType, Other);
         HatedBy.Root = HatedBy;
     }
 
     else {
-        HatedBy.AppendPlayer(Other);
+        HatedBy.AppendPlayer(Other, HatePRLType);
     }
 }
 
@@ -265,4 +266,5 @@ defaultproperties
     InitialTeam=0
     ImmuneLevel=1.0
     ImmuneMomentum=0.0
+    HatePRLType=class'PlayerReplicationList'
 }
