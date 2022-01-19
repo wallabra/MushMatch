@@ -326,13 +326,18 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     }
 
     // weight the chance to overlook based on damage/kill
-    if (Damage > 0) {
+    if (Damage > 0 && Victim.Health > 0) {
+        /*
         // cull small damage events, like falling over top of someone's head, but with a linear probability
         if (Damage < MinGuaranteeSuspectDamage && FRand() * MinGuaranteeSuspectDamage < Damage) {
             return false;
         }
+        */
 
         SuspectOverlookChance = SuspectHuntOverlookDamageChance;
+
+        // Skew chance depending on how close to fatal the damage was
+        LinearChanceSkew(SuspectOverlookChance, Max(1.0 - Damage / Victim.class.default.Health, 0.0));
     }
 
     else {
