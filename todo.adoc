@@ -9,8 +9,8 @@ future.
 
 == Wishes
 
-Large plans for the future of MushMatch. Should be fixed within a major version
-release.
+Large plans for the future of MushMatch. Should be added within a major or
+minor version release.
 
 * Add a **tutorial**, and ingame help e.g. for servers.
 ** [ ] The tutorial would be for people who install Mush Match into their
@@ -92,10 +92,15 @@ disambiguate and allow showing multiple values at once.
 
 == Features
 
-Things that would be nice to implement that aren't as major. Should be fixed
-within a minor version release.
+Things that would be nice to implement that aren't as major. Should be added
+or fixed within a minor version release.
 
-_(nil.)_
+* [ ] Make spotting a mush require a suspicion beacon: a beacon hitting a
+mush with a sporifier would mark it as spotted, but spotting wouldn't
+be automatic anymore!
+** [ ] Make this behaviour configurable in the INI files.
+** [ ] Increase the amount of suspicion beacon ammo spawned to make for
+this added requirement.
 
 == Bug Fixes and Technical Stuff
 
