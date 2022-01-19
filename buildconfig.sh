@@ -5,8 +5,8 @@
 
 export name="Mush Match"
 export package=MushMatch
-export version=1.3.2
-export build=20220307
+export version=1.3.3
+export build=20220308
 export debug=1
 
 # It is most likely unnecessary to edit the below defaults. The scripts
