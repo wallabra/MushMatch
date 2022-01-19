@@ -70,7 +70,7 @@ _Mush Match appears several times on my gameplay selection screen! What do I do?
 _I found this bug offline, or that glitch online, or this crazy crash, or some lag-spike weedy-de-doo! What do?_::
     Report it! Preferably, in the issues tracker.
 
-_Why the name? Why '`Mush`'? Why is '`Mush`' an uncountable noun if it is a team that can have multiple people?_::
+_Why the name? Why \'Mush\'? Why is \'Mush\' an uncountable noun if it is a team that can have multiple people?_::
     Because of Mush Match's inspiration; see About near the top. Also, the noun 
     is uncountable because lore lore lore. See the <<lore>> section below!
 
