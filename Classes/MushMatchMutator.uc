@@ -286,10 +286,14 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
 
     // check that the instigator can be identified
     if (!Witness.CanSee(InstigatedBy)) {
+        if (!Witness.LineOfSightTo(InstigatedBy)) {
+            return false;
+        }
+    
         // other witness check
         if (Witness != Victim) {
             // scream alerting
-            if (VSize(InstigatedBy.Location - Witness.Location) > ScreamRadius || FRand() < ScreamSuspectChance) {
+            if (VSize(InstigatedBy.Location - Witness.Location) > ScreamRadius || FRand() > ScreamSuspectChance) {
                 return false;
             }
         }
@@ -297,7 +301,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         // victim's own check
         else {
             // know direction of your own hit, use to blame
-            if (VSize(InstigatedBy.Location - Victim.Location) > DirectionBlameRadius || FRand() < VictimSuspectChance) {
+            if (VSize(InstigatedBy.Location - Victim.Location) > DirectionBlameRadius || FRand() > VictimSuspectChance) {
                 return false;
             }
         }
