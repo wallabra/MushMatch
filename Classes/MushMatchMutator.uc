@@ -309,7 +309,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
 
     // must have line of sight to the perpetrator
     if (!Witness.LineOfSightTo(InstigatedBy)) {
-        Log("Ruled out suspicion for lack of line of sight to the perpetrator. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
+        //Log("Ruled out suspicion for lack of line of sight to the perpetrator. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
         return false;
     }
 
@@ -319,7 +319,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         if (Witness != Victim) {
             // scream alerting
             if (VSize(InstigatedBy.Location - Witness.Location) + VSize(InstigatedBy.Location - Victim.Location) > ScreamRadius * 2 || FRand() > ScreamSuspectChance) {
-                Log("Ruled out suspicion for being too far for scream. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
+                //Log("Ruled out suspicion for being too far for scream. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
                 return false;
             }
         }
@@ -328,7 +328,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         else {
             // know direction of your own hit, use to blame
             if (VSize(InstigatedBy.Location - Victim.Location) > DirectionBlameRadius || FRand() > VictimSuspectChance) {
-                Log("Ruled out suspicion for being too far for direction blame. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
+                //Log("Ruled out suspicion for being too far for direction blame. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
                 return false;
             }
         }
@@ -378,7 +378,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     }
 
     // debug
-    Log("Checking suspicion by"@ Witness.PlayerReplicationInfo.PlayerName @"on"@ InstigatedBy.PlayerReplicationInfo.PlayerName @"for bringing harming to"@ Victim.PlayerReplicationInfo.PlayerName $", chance is"@ (1.0 - SuspectOverlookChance) * 100 $ "%");
+    //Log("Checking suspicion by"@ Witness.PlayerReplicationInfo.PlayerName @"on"@ InstigatedBy.PlayerReplicationInfo.PlayerName @"for bringing harming to"@ Victim.PlayerReplicationInfo.PlayerName $", chance is"@ (1.0 - SuspectOverlookChance) * 100 $ "%");
 
     // finally act upon the overlook chance! dice roll.. and drum roll...
     if (FRand() < SuspectOverlookChance) {
