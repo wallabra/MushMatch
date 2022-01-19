@@ -81,7 +81,7 @@ var(MushMatcH_AI) config float
 var(MushMatch_AI) config float
     ScreamRadius,
     DirectionBlameRadius,
-    MinGuaranteeSuspectDamage,
+    SuspectDmgOverlookMaxDamage,
     VictimSuspectChance,
     ScreamSuspectChance,
     NameClearChanceNormal,
@@ -1026,9 +1026,9 @@ defaultproperties
     DirectionBlameRadius=2000
     NameClearChanceNormal=0.6
     NameClearChanceBothMush=0.9
-    MinGuaranteeSuspectDamage=30
-    VictimSuspectChance=0.9
-    ScreamSuspectChance=0.6
+    SuspectDmgOverlookMaxDamage=30
+    VictimSuspectChance=0.95
+    ScreamSuspectChance=0.75
     SuspectHuntOverlookKillChance=0.2
     SuspectHuntOverlookDamageChance=0.5
     OverlookChanceFactorTargetIsSuspect=0.3

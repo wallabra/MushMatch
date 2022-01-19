@@ -14,7 +14,7 @@ replication {
         OverlookChanceFactorTargetIsSuspect, OverlookChanceFactorTargetIsSelf,
         OverlookChanceFactorWitnessSlyMush,
 
-        MinGuaranteeSuspectDamage;
+        SuspectDmgOverlookMaxDamage;
 }
 
 
@@ -24,7 +24,7 @@ var bool bBeginplayed;
 var float
     ScreamRadius,
     DirectionBlameRadius,
-    MinGuaranteeSuspectDamage,
+    SuspectDmgOverlookMaxDamage,
     VictimSuspectChance,
     ScreamSuspectChance,
     NameClearChanceNormal,
@@ -57,7 +57,7 @@ function UpdateConfigVars() {
 
     ScreamRadius                        = MM.ScreamRadius;
     DirectionBlameRadius                = MM.DirectionBlameRadius;
-    MinGuaranteeSuspectDamage           = MM.MinGuaranteeSuspectDamage;
+    SuspectDmgOverlookMaxDamage           = MM.SuspectDmgOverlookMaxDamage;
     VictimSuspectChance                 = MM.VictimSuspectChance;
     ScreamSuspectChance                 = MM.ScreamSuspectChance;
     NameClearChanceNormal               = MM.NameClearChanceNormal;
@@ -272,6 +272,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     // more sanity checks
 
     if (WitPRL == None || InstigPRL == None || VictPRL == None) {
+        Warn("Missing PRLs among the witness, instigator and victim! Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
         return false;
     }
 
@@ -285,7 +286,12 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     }
 
     // make sure this suspicion does not already exist
-    if (MushMatch(Level.Game).bHasHate && !MushMatchInfo(Level.Game.GameReplicationInfo).CheckHate(InstigatedBy.PlayerReplicationInfo, Witness.PlayerReplicationInfo)) {
+    if (MushMatch(Level.Game).bHasHate && WitPRL.HasHateOnPRL(InstigPRL)) {
+        return false;
+    }
+
+    // mush know who their comrades are, only pretend to suspect on humans, not fellow mush
+    if (WitPRL.bMush && InstigPRL.bMush) {
         return false;
     }
 
@@ -294,18 +300,9 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         return false;
     }
 
-    // mush know who their comrades are, only pretend to suspect on humans, not fellow mush
-    if (WitPRL.bMush && VictPRL.bMush) {
-        return false;
-    }
-
     // check that the instigator can be identified
     if (!Witness.CanSee(InstigatedBy)) {
-        if (!Witness.LineOfSightTo(InstigatedBy)) {
-            return false;
-        }
-    
-        // other witness check
+        // third-party witness check
         if (Witness != Victim) {
             // scream alerting
             if (VSize(InstigatedBy.Location - Witness.Location) > ScreamRadius || FRand() > ScreamSuspectChance) {
@@ -322,19 +319,25 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         }
     }
 
+    //---------
+    // at this point, all checks that could have ruled this out have passed.
+    // now we're determining the chance of actually carrying out the suspicion.
+
     // weight the chance to overlook based on damage/kill
     if (Damage > 0 && Victim.Health > 0) {
         /*
         // cull small damage events, like falling over top of someone's head, but with a linear probability
-        if (Damage < MinGuaranteeSuspectDamage && FRand() * MinGuaranteeSuspectDamage < Damage) {
+        if (Damage < SuspectDmgOverlookMaxDamage && FRand() * SuspectDmgOverlookMaxDamage < Damage) {
             return false;
         }
         */
 
         SuspectOverlookChance = SuspectHuntOverlookDamageChance;
 
-        // Skew chance depending on how close to fatal the damage was
-        LinearChanceSkew(SuspectOverlookChance, Max(1.0 - Damage / Victim.class.default.Health, 0.0));
+        if (Damage < SuspectDmgOverlookMaxDamage) {
+            // Skew chance depending on how significant the damage was
+            LinearChanceSkew(SuspectOverlookChance, Max(1.0 - Damage / SuspectDmgOverlookMaxDamage, 0.0));
+        }
     }
 
     else {
@@ -342,26 +345,25 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         SuspectOverlookChance = SuspectHuntOverlookKillChance;
     }
 
-    // be less lax is the victim was oneself
+    // be less lax is the victim was oneself!
     if (Victim == Witness) {
         LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorTargetIsSelf);
     }
 
     else {
-        
         // be more lax if the victim was suspected to begin with!
         if (VictPRL.bIsSuspected && !WitPRL.bMush) {
             LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorTargetIsSuspect);
         }
+    }
 
-        // be less lax if the witness is mush and the instigator is human
-        if (WitPRL.bMush && !InstigPRL.bMush) {
-            LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorWitnessSlyMush);
-        }
+    // be less lax if the witness is mush and the instigator is human
+    if (WitPRL.bMush && !InstigPRL.bMush) {
+        LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorWitnessSlyMush);
     }
 
     // debug
-        Log("Checking suspicion by"@ Witness.PlayerReplicationInfo.PlayerName @"on"@ InstigatedBy.PlayerReplicationInfo.PlayerName @"for bringing harming to"@ Victim.PlayerReplicationInfo.PlayerName @", chance is"@ (1.0 - SuspectOverlookChance) * 100 $ "%");
+    Log("Checking suspicion by"@ Witness.PlayerReplicationInfo.PlayerName @"on"@ InstigatedBy.PlayerReplicationInfo.PlayerName @"for bringing harming to"@ Victim.PlayerReplicationInfo.PlayerName $", chance is"@ (1.0 - SuspectOverlookChance) * 100 $ "%");
 
     // finally act upon the overlook chance! dice roll.. and drum roll...
     if (FRand() < SuspectOverlookChance) {
