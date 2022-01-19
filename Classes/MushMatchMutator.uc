@@ -419,15 +419,13 @@ function CheckSuspects(Pawn InstigatedBy, Pawn Victim, int Damage)
     // Check for witnesses and suspicions.
 
     for (P = Level.PawnList; P != None; P = P.NextPawn) {
-        if (!WitnessSuspect(Victim, InstigatedBy, P, Damage)) {
+        // P can also be Victim, but not InstigatedBy.
+
+        if (P != InstigatedBy && !WitnessSuspect(Victim, InstigatedBy, P, Damage)) {
             continue;
         }
 
         MushMatch(Level.Game).RegisterHate(P, InstigatedBy);
-    }
-
-    if (WitnessSuspect(Victim, InstigatedBy, Victim, Damage)) {
-        MushMatch(Level.Game).RegisterHate(Victim, InstigatedBy);
     }
 }
 
