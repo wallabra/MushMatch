@@ -66,7 +66,7 @@ from oneself.
 +
 ** [ ] Both humans and mush could damage cameras. Destroying them would
 render their effect null until a human went up to one (their
-presence would automatically progress a 'repair meter').
+presence would automatically progress a '`repair meter`').
 +
 *** [ ] A mush could spend time repairing a camera, and the repaired camera
 would operate as sabotaged. But this would be seen as a suspicious act if
@@ -86,7 +86,7 @@ suspicion upon a player.
 Suspicion and spotting would not happen, even at 100%, if there was no
 human looking (or turret camera; see above).
 +
-Those meters are ideally separate from the extant 'immune meter', to
+Those meters are ideally separate from the extant '`immune meter`', to
 disambiguate and allow showing multiple values at once.
 
 
@@ -99,7 +99,7 @@ or fixed within a minor version release.
 mush with a sporifier would mark it as spotted, but spotting wouldn't
 be automatic anymore!
 +
-Of course, this idea would come before the 'Add meters for suspicion and spotting'
+Of course, this idea would come before the '`Add meters for suspicion and spotting`'
 one from the planned major changes list above.
 +
 ** [ ] Make this behaviour configurable in the INI files.
@@ -112,7 +112,7 @@ this added requirement.
 ** [ ] Make the immune meter separate from the human/mush icon.
 +
 This is for clarity. This could also potentially tie in with the
-'Add meters for suspicion and spotting' idea from the planned major
+'`Add meters for suspicion and spotting`' idea from the planned major
 changes list above.
 
 == Bug Fixes and Technical Stuff
