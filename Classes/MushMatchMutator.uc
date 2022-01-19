@@ -279,9 +279,6 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         return false;
     }
 
-    // debug
-    Log("Checking suspicion by"@ Witness.PlayerReplicationInfo.PlayerName @"on"@ InstigatedBy.PlayerReplicationInfo.PlayerName @"for bringing harming to"@ Victim.PlayerReplicationInfo.PlayerName);
-
     // suspecting on someone who is a confirmed mush is a bit redundant innit
     if (InstigPRL.bKnownMush) {
         return false;
@@ -362,6 +359,9 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
             LinearChanceSkew(SuspectOverlookChance, OverlookChanceFactorWitnessSlyMush);
         }
     }
+
+    // debug
+        Log("Checking suspicion by"@ Witness.PlayerReplicationInfo.PlayerName @"on"@ InstigatedBy.PlayerReplicationInfo.PlayerName @"for bringing harming to"@ Victim.PlayerReplicationInfo.PlayerName @", chance is"@ (1.0 - SuspectOverlookChance) * 100 $ "%");
 
     // finally act upon the overlook chance! dice roll.. and drum roll...
     if (FRand() < SuspectOverlookChance) {
