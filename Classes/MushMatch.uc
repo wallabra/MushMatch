@@ -1022,8 +1022,8 @@ defaultproperties
     ScorePenalty_Suicide=15
     FragLimit=0
     MapListType=class'MushMatchMapList'
-    ScreamRadius=600
-    DirectionBlameRadius=2000
+    ScreamRadius=900
+    DirectionBlameRadius=2400
     NameClearChanceNormal=0.6
     NameClearChanceBothMush=0.9
     SuspectDmgOverlookMaxDamage=30

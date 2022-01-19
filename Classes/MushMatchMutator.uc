@@ -211,6 +211,18 @@ simulated event ModifyPlayer(Pawn Other) {
 }
 
 simulated function LinearChanceSkew(out float Chance, float Skew) {
+    if (Skew == 0) {
+        return;
+    }
+
+    if (Skew > 1) {
+        Skew = 1;
+    }
+
+    if (Skew < -1) {
+        Skew = -1;
+    }
+
     if (Skew < 0) {
         Chance *= 1.0 + Skew;
     }
@@ -297,15 +309,17 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
 
     // must have line of sight to the perpetrator
     if (!Witness.LineOfSightTo(InstigatedBy)) {
+        Log("Ruled out suspicion for lack of line of sight to the perpetrator. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
         return false;
     }
 
     // check that the instigator can be identified
-    if (!Witness.CanSee(InstigatedBy)) {
+    if (!(Witness.CanSee(InstigatedBy) || (Witness != Victim && Witness.CanSee(Victim)))) {
         // third-party witness check
         if (Witness != Victim) {
             // scream alerting
-            if (VSize(InstigatedBy.Location - Witness.Location) > ScreamRadius || FRand() > ScreamSuspectChance) {
+            if (VSize(InstigatedBy.Location - Witness.Location) + VSize(InstigatedBy.Location - Victim.Location) > ScreamRadius * 2 || FRand() > ScreamSuspectChance) {
+                Log("Ruled out suspicion for being too far for scream. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
                 return false;
             }
         }
@@ -314,6 +328,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
         else {
             // know direction of your own hit, use to blame
             if (VSize(InstigatedBy.Location - Victim.Location) > DirectionBlameRadius || FRand() > VictimSuspectChance) {
+                Log("Ruled out suspicion for being too far for direction blame. Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
                 return false;
             }
         }
