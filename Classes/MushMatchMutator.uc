@@ -231,6 +231,23 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     }
 
     if (Witness.PlayerReplicationInfo == None) {
+        Warn("Tried WitnessSuspect with a player witness without PRI:" @ Witness);
+        return false;
+    }
+
+    if (InstigatedBy.PlayerReplicationInfo == None) {
+        if (InstigatedBy.bIsPlayer) {
+            Warn("Tried WitnessSuspect with a player instigator without PRI:" @ InstigatedBy);
+        }
+
+        return false;
+    }
+
+    if (Victim.PlayerReplicationInfo == None) {
+        if (Victim.bIsPlayer) {
+            Warn("Tried WitnessSuspect with a player victim without PRI:" @ Victim);
+        }
+
         return false;
     }
 
@@ -239,6 +256,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     }
 
     if (Witness == InstigatedBy || Victim == InstigatedBy) {
+        Warn("Tried WitnessSuspect where the instigator is also the victim/witness! Instigator:" @ InstigatedBy.PlayerReplicationInfo.PlayerName $"; victim:"@ Victim.PlayerReplicationInfo.PlayerName $"; witness:"@ Witness.PlayerReplicationInfo.PlayerName);
         return false;
     }
 
