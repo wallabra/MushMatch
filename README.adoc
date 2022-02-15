@@ -1,6 +1,7 @@
 Mush Match
 ==========
 Mush Match development team
+:description: A social deduction gametype for Unreal Tournament.
 :homepage: https://ut99.org/viewtopic.php?f=4&t=14820
 :toc:
 :numbered:
