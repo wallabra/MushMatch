@@ -32,17 +32,20 @@ expect-cmd-%:
 	exit 2; fi
 
 find-mustache: | expect-cmd-curl expect-cmd-tar expect-cmd-gunzip expect-cmd-realpath
-	$(eval MUSTACHE_BIN=$(shell if which "$(MUSTACHE)" 2>&1 >/dev/null ; then \
+	$(eval MUSTACHE_BIN=$(shell if which "$(MUSTACHE)" 2>/dev/null ; then \
 	  echo ${MUSTACHE} ;\
-	elif [ -f $(DIR_DEPS)/mustache ] ; then \
-	  realpath "${DIR_DEPS}/mustache" ;\
 	else \
-	  echo '=== Downloading mustache ${MUSTACHE_VER} to $(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz...'>&2 ;\
+	  echo "* Mustache not installed; setting up automatically" >&2 ;\
+	  if [ -f $(DIR_DEPS)/mustache ] ; then \
+	    echo '* Already downloaded Mustache; using that' >&2 ;\
+	  else \
+	    echo '=== Downloading mustache ${MUSTACHE_VER} to $(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz...'>&2 ;\
 		mkdir -p "$(DIR_DEPS)" ;\
 		curl 'https://github.com/cbroglie/mustache/releases/download/v${MUSTACHE_VER}/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz' -LC- -o"$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" ;\
 		echo '=== Extracting mustache...'>&2 ;\
-    tar xzf "$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" -C "$(DIR_DEPS)" mustache >&2 ;\
-    realpath "${DIR_DEPS}/mustache" ;\
+	    tar xzf "$(DIR_DEPS)/mustache_${MUSTACHE_VER}_linux_amd64.tar.gz" -C "$(DIR_DEPS)" mustache >&2 ;\
+	  fi ;\
+	  realpath "${DIR_DEPS}/mustache" ;\
 	fi))
 
 $(DIR_DEPS)/ut-server-linux-436.tar.gz: | expect-cmd-curl
@@ -96,7 +99,6 @@ $(DIR_TARG)/System/ucc-bin: | auto-download expect-cmd-tar expect-cmd-gunzip exp
 	echo Done.
 
 $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR_TARG)/System/ucc-bin Classes/*.uc template.int template-options.yml buildconfig.sh | expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash
-	echo $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip
 	echo '=== Starting build!' ;\
 	[[ -d "$(DIR_TARG)"/"$(PACKAGE_NAME)" ]] || ln -sv \
 			"$$(realpath "$(PACKAGE_ROOT)")" \
