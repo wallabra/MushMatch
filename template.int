@@ -5,3 +5,4 @@ Object=(Name={{{package}}}.MushMatch,Class=Class,MetaClass=Botpack.TournamentGam
 {{#mutators}}
 Object=(Name={{{package}}}.{{{class}}},Class=Class,MetaClass=Engine.Mutator, Description="{{{name}}},{{{description}}}")
 {{/mutators}}
+
