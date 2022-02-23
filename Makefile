@@ -1,4 +1,5 @@
 PACKAGE_NAME ?= MushMatch
+
 PACKAGE_ROOT ?= .
 BUILD_DIR ?= build
 DIR_DEPS ?= $(BUILD_DIR)/deps
