@@ -81,9 +81,25 @@ cleanup() {
         echo "Formatting: System/$package.int"
         "$MUSTACHE" "$package/template.int" < "$TMP_YML" > "System/$packagefull.int"
 
+        # Include extra assets (map, sound and texture packages)
+        x_array=()
+        
+        for x_asset in "Maps" "Sounds" "Textures" "Music"; do
+            if [[ -d "Extra/$x_asset" ]]; then
+                for fname in Extra/"$x_asset"/*; do
+                    if [[ "$fname" == ".gitignore" ]]; then
+                        continue
+                    fi
+
+                    cp -vf "$fname" "$x_asset"
+                    x_array+=("$x_asset/$fname")
+                done
+            fi
+        done
+
         # Package up
         cp -f "$package/README.adoc" "Help/$package.adoc"
-        tar cf "$packagefull.tar" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc"
+        tar cf "$packagefull.tar" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc" "${x_array[@]}"
 
         zip -9r "$packagefull.zip" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc" >/dev/null
         gzip --best -k "$packagefull.tar"
