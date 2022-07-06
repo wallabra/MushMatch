@@ -111,7 +111,7 @@ $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR
 	fi
 
 $(DESTDIR)/System/$(PACKAGE_NAME)-$(BUILD_NUM).u: $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip | expect-cmd-unzip
-	echo '=== Installing to Unreal Tournament at $(shell realpath $(DESTDIR))' ;\
+	echo '=== Installing to Unreal Tournament at $(shell realpath "$(DESTDIR)")' ;\
 	unzip "$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip" -d "$(DESTDIR)" &&\
 	echo Done.
 
