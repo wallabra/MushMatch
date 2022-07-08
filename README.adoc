@@ -127,20 +127,19 @@ the mod.
 [#lore]
 == Lore
 
-A Mush is actually a fungus, borne from a distant planet from another star, 
+The Mush is actually a fungus, borne from a distant planet from another star, 
 which can be pathogenic and takes full control of its host's body, and 
 particularly mind. It can
 
-(a) communicate in a way only other Mush can detect (which explains how Mush 
+a. communicate in a way only other Mush can detect (which explains how Mush 
 know whether anyone else is a Mush or Human, unlike Humans who have to, well, 
 deduce!);
-(b) are able to produce spores, which can infect someone else and turn them 
+b. are able to produce spores, which can infect someone else and turn them 
 into a Mush too (though in the original Mush game they require introspection 
 into the bloodstream, or "spiking");
-(c) may look and behave just like humans when not doing anything that is 
-specifically only possible to Mush (such as taking damage from water or, in the 
-case of Mush Match, holding the Sporifier, the mush weapon that can infect 
-others).
+c. look and behave just like humans when not doing anything that is specifically
+only possible to Mush (such as taking damage from water or, in the case of Mush
+Match, holding the Sporifier, the weapon mush use to infect others).
 
 They behave like a _hivemind_; this is why they are regarded as uncountable.
 
