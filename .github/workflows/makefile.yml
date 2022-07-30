@@ -38,11 +38,10 @@ jobs:
             id: cache-downloads
             uses: actions/cache@v2
             with:
-                path: |
-                    build
-                    !build/ut-server
-                key: ${{ runner.os }}-${{ hashFiles('build/deps/**') }}
+                path: build/deps
+                key: ${{ runner.os }}-build-${{ hashFiles('deps.lock') }}
                 restore-keys: |
+                    ${{ runner.os }}-build-
                     ${{ runner.os }}-
 
           - name: Download build environment

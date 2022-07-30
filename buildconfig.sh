@@ -8,6 +8,8 @@ export package=MushMatch
 export version=1.4.0
 export build=20220312
 export debug=1
+export makeint=1
+export incl_readme=1
 
 # It is most likely unnecessary to edit the below defaults. The scripts
 # in the build/ subdirectory provide a sufficiently predictable build environment.

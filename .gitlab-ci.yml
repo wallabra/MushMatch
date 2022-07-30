@@ -1,0 +1,45 @@
+default:
+    image: "ubuntu:latest"
+
+stages:
+  - getinfo
+  - build
+
+getinfo:
+    stage: getinfo
+
+    script:
+      - apt-get install -y bash
+      - source ./buildconfig.sh
+      - echo "VERSION=$version" >> build.env
+      - echo "PACKAGE=$package" >> build.env
+      - echo "BUILD_NUM=$build" >> build.env
+      - echo "NAME=$name" >> build.env
+      - echo "DEBUG=$debug" >> build.env
+
+    artifacts:
+      reports:
+        dotenv: build.env
+
+build-job:
+    stage: build
+
+    cache:
+      - key:
+            files:
+              - deps.lock
+        paths:  ["build/deps"]
+
+    script:
+      - dpkg --add-architecture i386
+      - apt-get update
+      - apt-get install -y libc6:i386 curl zip bzip2 make
+      - make
+
+    artifacts:
+      name: "$PACKAGE-$VERSION-b$BUILD_NUM"
+      paths:
+        - build/dist/$PACKAGE/latest/
+
+    dependencies:
+      - getinfo

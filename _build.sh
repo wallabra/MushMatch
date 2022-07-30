@@ -57,6 +57,23 @@ cleanup() {
             "$MUSTACHE" "$package/Classes/$class" < "$TMP_YML" > "$packagefull/Classes/$class"
         done
 
+        # Include extra assets (map, sound and texture packages)
+        # Do this before building because extra packages here may be referenced by the code.
+        x_array=()
+        
+        for x_asset in "Maps" "Sounds" "Textures" "Music"; do
+            if [[ -d "Extra/$x_asset" ]]; then
+                for fname in Extra/"$x_asset"/*; do
+                    if [[ "$fname" == ".gitignore" ]]; then
+                        continue
+                    fi
+
+                    cp -vf "$fname" "$x_asset"
+                    x_array+=("$x_asset/$fname")
+                done
+            fi
+        done
+
         # Build .u
         (
             cd System
@@ -77,31 +94,25 @@ cleanup() {
         )
         code=$?; [[ $code == 0 ]] || exit $code
 
+        pkg_members=("System/$packagefull.u" "${x_array[@]}")
+
         # Format .int with Mustache
-        echo "Formatting: System/$package.int"
-        "$MUSTACHE" "$package/template.int" < "$TMP_YML" > "System/$packagefull.int"
+        if [[ "$makeint" == "1" ]]; then
+            echo "Formatting: System/$package.int"
+            "$MUSTACHE" "$package/template.int" < "$TMP_YML" > "System/$packagefull.int"
+            pkg_members+=("System/$packagefull.int")
+        fi
 
-        # Include extra assets (map, sound and texture packages)
-        x_array=()
-        
-        for x_asset in "Maps" "Sounds" "Textures" "Music"; do
-            if [[ -d "Extra/$x_asset" ]]; then
-                for fname in Extra/"$x_asset"/*; do
-                    if [[ "$fname" == ".gitignore" ]]; then
-                        continue
-                    fi
-
-                    cp -vf "$fname" "$x_asset"
-                    x_array+=("$x_asset/$fname")
-                done
-            fi
-        done
+        # Include readme inside Help/
+        if [[ "$incl_readme" == "1" ]]; then
+            cp -f "$package/README.adoc" "Help/$package.adoc"
+            pkg_members+=("Help/$package.adoc")
+        fi
 
         # Package up
-        cp -f "$package/README.adoc" "Help/$package.adoc"
-        tar cf "$packagefull.tar" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc" "${x_array[@]}"
+        tar cf "$packagefull.tar" "${pkg_members[@]}"
 
-        zip -9r "$packagefull.zip" "System/$packagefull.int" "System/$packagefull.u" "Help/$package.adoc" >/dev/null
+        zip -9r "$packagefull.zip" "${pkg_members[@]}" >/dev/null
         gzip --best -k "$packagefull.tar"
         bzip2 --best -k "$packagefull.tar"
 
