@@ -25,11 +25,11 @@ jobs:
             id: metadata
             run: |
                 source buildconfig.sh
-                echo "::set-output name=version::$version"
-                echo "::set-output name=build::$build"
-                echo "::set-output name=package::$package"
-                echo "::set-output name=name::$name"
-                echo "::set-output name=debug::$debug"
+                echo "version=$version" >> "$GITHUB_OUTPUT"
+                echo "build=$build"" >> "$GITHUB_OUTPUT"
+                echo "package=$package"" >> "$GITHUB_OUTPUT"
+                echo "name=$name"" >> "$GITHUB_OUTPUT"
+                echo "debug=$debug"" >> "$GITHUB_OUTPUT"
 
           - name: Install dependencies
             run: sudo apt install zip bzip2 gzip tar curl bash
@@ -75,11 +75,11 @@ jobs:
             id: metadata
             run: |
                 source buildconfig.sh
-                echo "::set-output name=version::$version"
-                echo "::set-output name=build::$build"
-                echo "::set-output name=package::$package"
-                echo "::set-output name=debug::$debug"
-                echo "::set-output name=name::$name"
+                echo "version=$version" >> "$GITHUB_OUTPUT"
+                echo "build=$build" >> "$GITHUB_OUTPUT"
+                echo "package=$package" >> "$GITHUB_OUTPUT"
+                echo "debug=$debug" >> "$GITHUB_OUTPUT"
+                echo "name=$name" >> "$GITHUB_OUTPUT"
 
           - name: Download build artifacts
             uses: actions/download-artifact@v2
