@@ -771,10 +771,11 @@ function bool RestartPlayer(Pawn aPlayer)
     if (APRL != None) {
         if (APRL.bDead && bMushSelected)
         {
+			aPlayer.PlayerReplicationInfo.bIsSpectator = true;
+			aPlayer.PlayerReplicationInfo.bWaitingPlayer = true;
+		
             if (PlayerPawn(aPlayer) == None) {
                 // bots don't respawn when ghosts
-                aPlayer.PlayerReplicationInfo.bIsSpectator = true;
-                aPlayer.PlayerReplicationInfo.bWaitingPlayer = true;
                 aPlayer.GotoState('GameEnded');
                 return false;
             }
@@ -849,7 +850,13 @@ function bool SetUpPlayer(Pawn P)
 
 function AddDefaultInventory(Pawn PlayerPawn)
 {
-    Super.AddDefaultInventory(PlayerPawn);
+	if (!PlayerPawn.PlayerReplicationInfo) {
+		return;
+	}
+	
+	if (PlayerPawn.PlayerReplicationInfo && !PlayerPawn.PlayerReplicationInfo.bIsSpectator) {
+		Super.AddDefaultInventory(PlayerPawn);
+	}
 
     if (Role == ROLE_Authority && PlayerPawn(PlayerPawn) == None /* AKA bots */) SetUpPlayer(PlayerPawn);
 }
