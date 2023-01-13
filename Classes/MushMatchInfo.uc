@@ -132,10 +132,10 @@ simulated function MushMatchPRL FindPRL(PlayerReplicationinfo PRI) {
 
 simulated event bool CheckHate(PlayerReplicationInfo Hated, PlayerReplicationInfo Hater) {
     local MushMatchPRL PRLHated;
-    
+
     if (Hater == None || Hated == None || PRL == None)
         return False;
-    
+
     PRLHated = MushMatchPRL(PRL.FindPlayer(Hated));
 
     if (PRLHated == None)
@@ -146,10 +146,10 @@ simulated event bool CheckHate(PlayerReplicationInfo Hated, PlayerReplicationInf
 
 simulated function bool CheckAnyHate(PlayerReplicationInfo Hated) {
     local MushMatchPRL PRLHated;
-    
+
     if (Hated == None || PRL == None)
         return False;
-    
+
     PRLHated = MushMatchPRL(PRL.FindPlayer(Hated));
 
     if (PRLHated == None)
@@ -161,46 +161,46 @@ simulated function bool CheckAnyHate(PlayerReplicationInfo Hated) {
 simulated function bool CheckBeacon(PlayerReplicationInfo Other)
 {
     local MushMatchPRL list;
-    
+
     if ( Other == None || PRL == None )
         return False;
-    
-    list = MushMatchPRL(PRL.FindPlayer(Other)); 
-    
+
+    list = MushMatchPRL(PRL.FindPlayer(Other));
+
     if ( list != None )
     {
         // Log("bIsSuspected"@Other.PlayerName@list.bIsSuspected);
         return list.bIsSuspected;
     }
-    
+
     return False;
 }
 
 simulated function Pawn CheckBeaconInstigator(PlayerReplicationInfo Other)
 {
     local MushMatchPRL list;
-    
+
     if ( Other == None || PRL == None )
         return None;
-    
-    list = MushMatchPRL(PRL.FindPlayer(Other)); 
-    
+
+    list = MushMatchPRL(PRL.FindPlayer(Other));
+
     if ( list != None )
     {
         // Log("bIsSuspected"@Other.PlayerName@list.bIsSuspected);
         return list.Instigator;
     }
-    
+
     return None;
 }
 
 simulated function bool CheckConfirmedMush(PlayerReplicationInfo Other)
 {
     local MushMatchPRL list;
-    
+
     if ( Other == None || PRL == None )
         return False;
-    
+
     list = MushMatchPRL(PRL.FindPlayer(Other));
 
     if ( list != None )
@@ -208,44 +208,44 @@ simulated function bool CheckConfirmedMush(PlayerReplicationInfo Other)
         // Log("bKnownMush"@Other.PlayerName@list.bKnownMush);
         return list.bKnownMush;
     }
-    
+
     return False;
 }
 
 simulated function bool CheckConfirmedHuman(PlayerReplicationInfo Other)
 {
     local MushMatchPRL list;
-    
+
     if ( Other == None || PRL == None )
         return False;
-    
-    list = MushMatchPRL(PRL.FindPlayer(Other)); 
-    
+
+    list = MushMatchPRL(PRL.FindPlayer(Other));
+
     if ( list != None )
     {
         // Log("bKnownHuman"@Other.PlayerName@list.bKnownHuman);
         return list.bKnownHuman;
     }
-    
+
     return False;
 }
 
 simulated function bool CheckDead(PlayerReplicationInfo Other)
 {
     local MushMatchPRL list;
-    
+
     if (Other == None || PRL == None)
         return False;
 
     if (!bMushSelected)
         return False;
-    
+
     list = FindPRL(Other);
-    
+
     if ( list == None ) {
         return false;
     }
-    
+
     // Log("bDead"@Other.PlayerName@list.bDead);
     return list.bDead;
 }
@@ -265,7 +265,7 @@ simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
         if (OtherPRL.bMush) {
             return "Mush (dead)";
         }
-            
+
         else {
             return "Human (dead)";
         }
@@ -277,30 +277,30 @@ simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
                 if (CheckBeacon(PRI)) {
                     return "Mush (susp.)";
                 }
-                
+
                 if (!CheckConfirmedMush(PRI)) {
                     return "Mush (unk.)";
                 }
             }
-                
-            else {	                    
+
+            else {
                 if (CheckConfirmedHuman(PRI)) {
                     return "Human (cert)";
                 }
-                    
+
                 else if ( CheckBeacon(PRI)) {
                     return "Human (susp.)";
                 }
-                
+
                 else {
                     return "Human";
                 }
             }
         }
-        
+
         if (CheckBeacon(PRI))
             return "Suspected";
-        
+
         if (!TargPRL.bMush && TargPRL.bKnownHuman) {
             return "Human (cert)";
         }
@@ -308,14 +308,14 @@ simulated event string TeamText(PlayerReplicationInfo PRI, PlayerPawn Other)
         if (TargPRL.bMush  && TargPRL.bKnownMush) {
             return "Mush (found)";
         }
-        
+
         if (CheckBeacon(PRI) && !CheckConfirmedMush(PRI)) {
             return "Suspected";
         }
-        
+
         return " - ";
     }
-    
+
     return "...";
 }
 
@@ -323,7 +323,7 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
 {
     local MushMatchPRL MPRL;
     local MushMatchPRL OtherPRL;
-    
+
     OtherPRL = FindPRL(Other.PlayerReplicationInfo);
     MPRL = FindPRL(PRI);
 
@@ -332,7 +332,7 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
     }
 
     if (CheckDead(PRI)) {
-        if (MPRL.bMush) {    
+        if (MPRL.bMush) {
             if (Int(MPRL.bMush) == MPRL.InitialTeam) {
                 return "Mush";
             }
@@ -341,7 +341,7 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
                 return "* Mush";
             }
         }
-            
+
         else {
             return "Human";
         }
@@ -351,7 +351,7 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
         if (Other.PlayerReplicationInfo == PRI || (OtherPRL != None && OtherPRL.bMush) || bMatchEnd || CheckDead(Other.PlayerReplicationInfo)) {
             if (MPRL.bMush) {
                 MPRL = FindPRL(PRI);
-            
+
                 if (MPRL != None && Int(MPRL.bMush) == MPRL.InitialTeam) {
                     return "Mush";
                 }
@@ -360,12 +360,12 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
                     return "* Mush";
                 }
             }
-                
+
             else {
                 return "Human";
             }
         }
-        
+
         if (!MPRL.bMush && CheckConfirmedHuman(PRI)) {
             return "Human";
         }
@@ -373,10 +373,10 @@ simulated event string TeamTextAlignment(PlayerReplicationInfo PRI, PlayerPawn O
         if (MPRL.bMush && CheckConfirmedMush(PRI)) {
             return "Mush";
         }
-        
+
         return " - ";
     }
-    
+
     return "...";
 }
 
@@ -402,14 +402,14 @@ simulated event string TeamTextStatus(PlayerReplicationInfo PRI, PlayerPawn Othe
         if ( MPRl.bMush && CheckConfirmedMush(PRI)) {
             return "Discovered";
         }
-        
+
         if (CheckBeacon(PRI)) {
             return "Suspected";
         }
-        
+
         return " - ";
     }
-    
+
     return "...";
 }
 
@@ -439,7 +439,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
             return 2;
         }
     }
-    
+
     if (Other == None || aBot == None || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
         //Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying");
         return 255;
@@ -449,7 +449,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
         // Default AssessBotAttitude - probably involves a monster or smsth
         return 255;
     }
-    
+
     if (aBot.PlayerReplicationInfo == None || Other.PlayerReplicationInfo == None) {
         //Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no PlayerReplicationInfo");
         return 2;
@@ -487,8 +487,8 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     {
         if (!OtherMPRL.bMush)
         {
-            // if spotted mush, don't hold back
-            if (BotMPRL.bKnownMush) {
+            // if spotted or suspected mush, don't hold back
+            if (BotMPRL.bKnownMush || BotMPRL.bIsSuspected) {
                 return 1;
             }
 
@@ -497,7 +497,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                 for (P = Level.PawnList; P != None; P = P.NextPawn) {
                     if (!P.bIsPlayer) continue;
                     if (P.PlayerReplicationInfo == None) continue;
-                
+
                     PPRL = MMI.FindPRL(P.PlayerReplicationInfo);
 
                     if (PPRL == None) {
@@ -506,7 +506,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                     }
 
                     if (PPRL.bMush) continue;
-                
+
                     if (P.LineOfSightTo(aBot) && P != Other) {
                         bNoSneaking = true;
                     }
@@ -527,7 +527,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                     return 1;
                 }
             }
-        
+
             return 2;
         }
 
