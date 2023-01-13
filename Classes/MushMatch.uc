@@ -850,7 +850,7 @@ function bool SetUpPlayer(Pawn P)
 
 function AddDefaultInventory(Pawn PlayerPawn)
 {
-	if (!PlayerPawn.PlayerReplicationInfo) {
+	if (PlayerPawn.PlayerReplicationInfo == None) {
 		return;
 	}
 	
