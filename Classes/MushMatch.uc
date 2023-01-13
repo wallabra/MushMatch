@@ -854,7 +854,7 @@ function AddDefaultInventory(Pawn PlayerPawn)
 		return;
 	}
 	
-	if (PlayerPawn.PlayerReplicationInfo && !PlayerPawn.PlayerReplicationInfo.bIsSpectator) {
+	if (!PlayerPawn.PlayerReplicationInfo.bIsSpectator) {
 		Super.AddDefaultInventory(PlayerPawn);
 	}
 
