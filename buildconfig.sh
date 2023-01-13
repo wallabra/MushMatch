@@ -5,8 +5,8 @@
 
 export name="Mush Match"
 export package=MushMatch
-export version=1.4.0
-export build=20220312
+export version=1.3.10
+export build=20230113
 export debug=1
 export makeint=1
 export incl_readme=1

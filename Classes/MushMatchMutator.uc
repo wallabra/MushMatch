@@ -157,7 +157,7 @@ simulated event MutatorTakeDamage(out int ActualDamage, Pawn Victim, Pawn Instig
         if ( MMI.CheckBeacon(Victim.PlayerReplicationInfo) ) {
             return;
         }
-        
+
         // See if anyone saw that!
         CheckSuspects(InstigatedBy, Victim, ActualDamage);
     }
@@ -183,6 +183,10 @@ simulated function MushMatchPRL FindPawnPRL(Pawn Other) {
 simulated event ModifyPlayer(Pawn Other) {
     local Weapon w;
     local MushMatchPRL MPRL;
+
+    if (CHSpectator(Other) != None) {
+        return;
+    }
 
     w = Other.Weapon;
     Other.Spawn(class'MushBeacon').GiveTo(Other);
@@ -232,11 +236,10 @@ simulated function LinearChanceSkew(out float Chance, float Skew) {
     }
 }
 
-function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int Damage) {
+function bool BasicWitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
+    // Basic sanity checks for whether a bot's personal suspicion is valid.
     local MushMatchPRL WitPRL, VictPRL, InstigPRL;
     local float SuspectOverlookChance;
-
-    // sanity checks
 
     if (!Witness.bIsPlayer) {
         return false;
@@ -306,6 +309,21 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     if (WitPRL.bMush && InstigPRL.bMush) {
         return false;
     }
+
+    return true;
+}
+
+function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int Damage) {
+    local MushMatchPRL WitPRL, VictPRL, InstigPRL;
+    local float SuspectOverlookChance;
+
+    if (!BasicWitnessSuspect(Victim, InstigatedBy, Witness)) {
+        return false;
+    }
+
+    WitPRL = FindPawnPRL(Witness);
+    InstigPRL = FindPawnPRL(InstigatedBy);
+    VictPRL = FindPawnPRL(Victim);
 
     // must have line of sight to the perpetrator
     if (!Witness.LineOfSightTo(InstigatedBy)) {
