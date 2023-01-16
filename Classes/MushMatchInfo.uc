@@ -473,6 +473,11 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     if (aBot.bIsPlayer && Other.bIsPlayer && MM.NumBots + MM.NumPlayers - MM.TotalKills <= 2) {
         return 1; // just two players left, duke it out!!
     }
+	
+	if (!aBot.CanSee(Other) && !BotPRI.bMush) {
+		// what the eyes don't see, the heart doesn't feel
+		return 2;
+	}
 
     BotMPRL = MMI.FindPRL(BotPRI);
     OtherMPRL = MMI.FindPRL(OtherPRI);
