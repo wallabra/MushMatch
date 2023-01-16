@@ -473,11 +473,6 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     if (aBot.bIsPlayer && Other.bIsPlayer && MM.NumBots + MM.NumPlayers - MM.TotalKills <= 2) {
         return 1; // just two players left, duke it out!!
     }
-	
-	if (!aBot.CanSee(Other) && !BotPRI.bMush) {
-		// what the eyes don't see, the heart doesn't feel
-		return 2;
-	}
 
     BotMPRL = MMI.FindPRL(BotPRI);
     OtherMPRL = MMI.FindPRL(OtherPRI);
@@ -486,6 +481,11 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
         //Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them has no MushMatchPRL!");
         return 255;
     }
+	
+	if (!aBot.CanSee(Other) && !BotMPRL.bMush) {
+		// what the eyes don't see, the heart doesn't feel
+		return 2;
+	}
 
     // check for Mush-specific behaviour
     if (BotMPRL.bMush)
