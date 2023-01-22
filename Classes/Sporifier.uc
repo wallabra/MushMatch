@@ -245,12 +245,12 @@ simulated function Tick(float TimeDelta)
 }
 
 function CheckSpotted() {
+    local MushMatchPRL PPRL;
+    local Pawn p;
+
     if (MushMatch(Level.Game).bBeaconCanSpotMush && !bAlwaysAutoSpot) {
         return;
     }
-
-    local MushMatchPRL PPRL;
-    local Pawn p;
     
     for (p = Level.PawnList; p != none; p = p.nextPawn) {
         if (!p.bIsPlayer) continue;
