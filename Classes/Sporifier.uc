@@ -275,35 +275,23 @@ function AltFire(float Value)
 	return; // alt fire do nothing
 }
 
-
 function Projectile ProjectileFire(class<projectile> ProjClass, float ProjSpeed, bool bWarn)
 {
     local Projectile pj;
     
-    FireOffset.X += 15;
-    
-    while (pj == None) {
-        FireOffset.X -= 15;
-    
-        if (FireOffset.X < -32) {
-            if (Role == ROLE_Authority && Pawn(Owner) != None)
-                Warn(Pawn(Owner).PlayerReplicationInfo.PlayerName @"could not fire projectile from Sporifier!");
-        
-            return None;
-        }
-        
-        pj = Super.ProjectileFire(ProjClass, ProjSpeed, bWarn);
-    }
-    
-    FireOffset.X = Default.FireOffset.X;
-    
-    pj.Instigator = Pawn(Owner);
-
     // Sporifier in active use, don't randomly put down!
     if (PlayerPawn(Owner) == None) {
         ResetSafeTime();
     }
-    
+
+    pj = Super.ProjectileFire(ProjClass,  ProjSpeed, bWarn);
+
+    if (pj == None) {
+        return;
+    }
+
+    pj.Instigator = Pawn(Owner);
+
     return pj;
 }
 
@@ -316,7 +304,7 @@ defaultproperties
      AltProjectileClass=Class'SporeProj'
      FireSound=Sound'Botpack.BioRifle.GelHit'
      SelectSound=Sound'Botpack.enforcer.Cocking'
-     DeathMessage="%o somehow died. And %k promised the mush would fix his defects. Huh."
+     DeathMessage="%o somehow died. And %k promised the mush would fix their defects. Huh."
      InventoryGroup=10
      PickupMessage="You got the Sporifier."
      ItemName="Sporifier"
