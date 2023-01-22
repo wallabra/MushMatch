@@ -40,7 +40,7 @@ var(MushMatch_Game)     config bool bPenalizeSameTeamKill, bPenalizeSuicide;
 var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
 var(MushMatch_Game)     config class<Spectator> SpectatorClass;
 var(MushMatch_Game)     config bool bInfectionScoreCountNegative;
-var(MushMatch_Game)	config bool bSuspicionBeaconCanSpotMush;
+var(MushMatch_Game)	config bool bBeaconCanSpotMush;
 
 var(MushMatch_Game)     config float // firerates
     SporifierFirerate,
@@ -541,7 +541,7 @@ function bool StrapBeacon(Pawn Other, optional Pawn Suspector)
     }
 
     // Spot mush.
-    if (Sporifier(Other.Weapon) != None && bSuspicionBeaconCanSpotMush) {
+    if (Sporifier(Other.Weapon) != None && bBeaconCanSpotMush) {
         SpotMush(Other, Suspector);
     }
 
@@ -1085,4 +1085,5 @@ defaultproperties
     SporifierAIMinSafeInterval=10
     SuspicionBeaconFirerate=1.1
     bOffsetScoreMinusOne=false
+    bBeaconCanSpotMush=true
 }

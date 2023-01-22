@@ -35,7 +35,7 @@ class Sporifier extends TournamentWeapon;
 
 
 var float SafeTime;
-var bool bDesired, bSporifierSpot;
+var bool bDesired, bAlwaysAutoSpot;
 var MushMatchInfo MMI;
 var MushMatchPRL PRL;
 
@@ -245,7 +245,7 @@ simulated function Tick(float TimeDelta)
 }
 
 function CheckSpotted() {
-    if (!bSporifierSpot) {
+    if (MushMatch(Level.Game).bBeaconCanSpotMush && !bAlwaysAutoSpot) {
         return;
     }
 
@@ -322,5 +322,5 @@ defaultproperties
      bAltWarnTarget=false
      bWarnTarget=false
      SporifierFirerate=1.5
-     bSporifierSpot=false
+     bAlwaysAutoSpot=false
 }
