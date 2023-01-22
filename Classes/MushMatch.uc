@@ -1033,7 +1033,7 @@ defaultproperties
     MushSuspectedMessageType=Class'MushSuspectedMessage'
     MushSelectedMessageType=Class'MushSelectedMessage'
     bMushUseOwnPronoun=True
-    SpawnChance_BeaconAmmo=0.04
+    SpawnChance_BeaconAmmo=0.15
     SpawnChance_SporeAmmo=0.025
     InfectionScoreMultiplier=-0.5
     bPenalizeSameTeamKill=true
