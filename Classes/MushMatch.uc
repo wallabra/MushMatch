@@ -40,6 +40,7 @@ var(MushMatch_Game)     config bool bPenalizeSameTeamKill, bPenalizeSuicide;
 var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
 var(MushMatch_Game)     config class<Spectator> SpectatorClass;
 var(MushMatch_Game)     config bool bInfectionScoreCountNegative;
+var(MushMatch_Game)	config bool bBeaconCanSpotMush;
 
 var(MushMatch_Game)     config float // firerates
     SporifierFirerate,
@@ -531,22 +532,34 @@ function bool StrapBeacon(Pawn Other, optional Pawn Suspector)
         return False;  // Already has beacon, but for that same reason the act of strapping did not succeed, so False.
     }
 
-    if (OtherPRL != None) {
-        if (PlayerPawn(Other) != None) {
-            PlayerPawn(Other).PlayOwnedSound(sound'Suspected');
-        }
+    if (OtherPRL == None) {
+        return false;
+    }
 
+    if (PlayerPawn(Other) != None) {
+        PlayerPawn(Other).PlayOwnedSound(sound'Suspected');
+    }
+
+    // Spot mush.
+    if (Sporifier(Other.Weapon) != None && bBeaconCanSpotMush) {
+        SpotMush(Other, Suspector);
+    }
+
+    // Deploy suspicion.
+    else {
         BroadcastSuspected(Suspector.PlayerReplicationInfo, Other.PlayerReplicationInfo);
 
         OtherPRL.bIsSuspected = True;
-        OtherPRL.Instigator = Suspector;
 
-        if (!OtherPRL.bMush && MushMatchMutator(BaseMutator).BasicWitnessSuspect(Other, Suspector, Other)) {
+
+        if (MushMatchMutator(BaseMutator).BasicWitnessSuspect(Other, Suspector, Other)) {
             RegisterHate(Other, Suspector);
         }
     }
 
-    return OtherPRL != None;
+    OtherPRL.Instigator = Suspector;
+
+    return true;
 }
 
 function StartMatch()
@@ -1021,7 +1034,7 @@ defaultproperties
     MushSuspectedMessageType=Class'MushSuspectedMessage'
     MushSelectedMessageType=Class'MushSelectedMessage'
     bMushUseOwnPronoun=True
-    SpawnChance_BeaconAmmo=0.04
+    SpawnChance_BeaconAmmo=0.15
     SpawnChance_SporeAmmo=0.025
     InfectionScoreMultiplier=-0.5
     bPenalizeSameTeamKill=true
@@ -1072,4 +1085,5 @@ defaultproperties
     SporifierAIMinSafeInterval=10
     SuspicionBeaconFirerate=1.1
     bOffsetScoreMinusOne=false
+    bBeaconCanSpotMush=true
 }

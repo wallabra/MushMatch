@@ -35,7 +35,7 @@ class Sporifier extends TournamentWeapon;
 
 
 var float SafeTime;
-var bool bDesired;
+var bool bDesired, bAlwaysAutoSpot;
 var MushMatchInfo MMI;
 var MushMatchPRL PRL;
 
@@ -247,6 +247,9 @@ simulated function Tick(float TimeDelta)
 function CheckSpotted() {
     local MushMatchPRL PPRL;
     local Pawn p;
+    local bool bAutoSpot;
+
+    bAutoSpot = !MushMatch(Level.Game).bBeaconCanSpotMush || bAlwaysAutoSpot;
     
     for (p = Level.PawnList; p != none; p = p.nextPawn) {
         if (!p.bIsPlayer) continue;
@@ -261,8 +264,14 @@ function CheckSpotted() {
 
         if (!p.CanSee(Owner)) continue;
 
-        MushMatch(Level.Game).SpotMush(Pawn(Owner), p);
-        break;
+        if (bAutoSpot) {
+            MushMatch(Level.Game).SpotMush(Pawn(Owner), p);
+            break;
+        }
+
+        else {
+            MushMatch(Level.Game).RegisterHate(p, Pawn(Owner));
+        }
     }
 }
 
@@ -271,35 +280,23 @@ function AltFire(float Value)
 	return; // alt fire do nothing
 }
 
-
 function Projectile ProjectileFire(class<projectile> ProjClass, float ProjSpeed, bool bWarn)
 {
     local Projectile pj;
     
-    FireOffset.X += 15;
-    
-    while (pj == None) {
-        FireOffset.X -= 15;
-    
-        if (FireOffset.X < -32) {
-            if (Role == ROLE_Authority && Pawn(Owner) != None)
-                Warn(Pawn(Owner).PlayerReplicationInfo.PlayerName @"could not fire projectile from Sporifier!");
-        
-            return None;
-        }
-        
-        pj = Super.ProjectileFire(ProjClass, ProjSpeed, bWarn);
-    }
-    
-    FireOffset.X = Default.FireOffset.X;
-    
-    pj.Instigator = Pawn(Owner);
-
     // Sporifier in active use, don't randomly put down!
     if (PlayerPawn(Owner) == None) {
         ResetSafeTime();
     }
-    
+
+    pj = Super.ProjectileFire(ProjClass,  ProjSpeed, bWarn);
+
+    if (pj == None) {
+        return None;
+    }
+
+    pj.Instigator = Pawn(Owner);
+
     return pj;
 }
 
@@ -312,7 +309,7 @@ defaultproperties
      AltProjectileClass=Class'SporeProj'
      FireSound=Sound'Botpack.BioRifle.GelHit'
      SelectSound=Sound'Botpack.enforcer.Cocking'
-     DeathMessage="%o somehow died. And %k promised the mush would fix his defects. Huh."
+     DeathMessage="%o somehow died. And %k promised the mush would fix their defects. Huh."
      InventoryGroup=10
      PickupMessage="You got the Sporifier."
      ItemName="Sporifier"
@@ -330,4 +327,5 @@ defaultproperties
      bAltWarnTarget=false
      bWarnTarget=false
      SporifierFirerate=1.5
+     bAlwaysAutoSpot=false
 }
