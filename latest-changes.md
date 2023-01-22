@@ -10,3 +10,4 @@ Implemented changes in Mush Match **v1.3.3** listed below.
 * Make suspicion beacon able to spot mush when it holds a Sporifier
 * Make using the Sporifier not lead to automatic spotting
 * Increase default BeaconAmmo spawning rate to balance new spotting mechanic
+* Make bots suspect you using the Sporiifer

@@ -102,9 +102,9 @@ be automatic anymore!
 Of course, this idea would come before the \'Add meters for suspicion and spotting'
 one from the planned major changes list above.
 +
-** [ ] Make this behaviour configurable in the INI files.
+** [x] Make this behaviour configurable in the INI files.
 +
-** [ ] Increase the amount of suspicion beacon ammo spawned to make for
+** [x] Increase the amount of suspicion beacon ammo spawned to make for
 this added requirement.
 
 * [ ] Clean up the HUD.
