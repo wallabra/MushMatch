@@ -556,7 +556,6 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                 ||
                 (   // OR if we have a grudge on the other
                     MM.bHasHate
-                    && !BotMPRL.bMush
                     && MMI.CheckHate(OtherPRI, BotPRI)
                     && !(OtherMPRL.bMush && BotMPRL.bMush)
                     && FRand() < DecideChance_GrudgeAttack
