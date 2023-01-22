@@ -287,7 +287,7 @@ function Projectile ProjectileFire(class<projectile> ProjClass, float ProjSpeed,
     pj = Super.ProjectileFire(ProjClass,  ProjSpeed, bWarn);
 
     if (pj == None) {
-        return;
+        return None;
     }
 
     pj.Instigator = Pawn(Owner);
