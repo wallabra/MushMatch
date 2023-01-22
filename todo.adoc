@@ -95,7 +95,7 @@ disambiguate and allow showing multiple values at once.
 Things that would be nice to implement that aren't as major. Should be added
 or fixed within a minor version release.
 
-* [ ] Make spotting a mush require a suspicion beacon: a beacon hitting a
+* [x] Make spotting a mush require a suspicion beacon: a beacon hitting a
 mush with a sporifier would mark it as spotted, but spotting wouldn't
 be automatic anymore!
 +
