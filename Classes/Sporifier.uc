@@ -247,10 +247,9 @@ simulated function Tick(float TimeDelta)
 function CheckSpotted() {
     local MushMatchPRL PPRL;
     local Pawn p;
+    local bool bAutoSpot;
 
-    if (MushMatch(Level.Game).bBeaconCanSpotMush && !bAlwaysAutoSpot) {
-        return;
-    }
+    bAutoSpot = !MushMatch(Level.Game).bBeaconCanSpotMush || bAlwaysAutoSpot;
     
     for (p = Level.PawnList; p != none; p = p.nextPawn) {
         if (!p.bIsPlayer) continue;
@@ -265,8 +264,14 @@ function CheckSpotted() {
 
         if (!p.CanSee(Owner)) continue;
 
-        MushMatch(Level.Game).SpotMush(Pawn(Owner), p);
-        break;
+        if (bAutoSpot) {
+            MushMatch(Level.Game).SpotMush(Pawn(Owner), p);
+            break;
+        }
+
+        else {
+            MushMatch(Level.Game).RegisterHate(p, Pawn(Owner));
+        }
     }
 }
 
