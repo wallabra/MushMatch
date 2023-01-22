@@ -531,22 +531,34 @@ function bool StrapBeacon(Pawn Other, optional Pawn Suspector)
         return False;  // Already has beacon, but for that same reason the act of strapping did not succeed, so False.
     }
 
-    if (OtherPRL != None) {
-        if (PlayerPawn(Other) != None) {
-            PlayerPawn(Other).PlayOwnedSound(sound'Suspected');
-        }
+    if (OtherPRL == None) {
+        return false;
+    }
 
+    if (PlayerPawn(Other) != None) {
+        PlayerPawn(Other).PlayOwnedSound(sound'Suspected');
+    }
+
+    // Spot mush.
+    if (Sporifier(Other.Weapon) != None) {
+        SpotMush(Other, Suspector);
+    }
+
+    // Deploy suspicion.
+    else {
         BroadcastSuspected(Suspector.PlayerReplicationInfo, Other.PlayerReplicationInfo);
 
         OtherPRL.bIsSuspected = True;
-        OtherPRL.Instigator = Suspector;
+
 
         if (!OtherPRL.bMush && MushMatchMutator(BaseMutator).BasicWitnessSuspect(Other, Suspector, Other)) {
             RegisterHate(Other, Suspector);
         }
     }
 
-    return OtherPRL != None;
+    OtherPRL.Instigator = Suspector;
+
+    return true;
 }
 
 function StartMatch()
