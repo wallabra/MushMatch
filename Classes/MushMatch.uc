@@ -654,10 +654,6 @@ function MakeMush(Pawn Other, Pawn Instigator) {
         Other.PlayerReplicationInfo.Score = 0;
     }
 
-    if (MushMatch(Level.Game).CheckEnd()) {
-        return;
-    }
-
     if (Instigator != None) {
         Instigator.PlayerReplicationInfo.Score += ScoreReward_Infect;
 
@@ -669,6 +665,10 @@ function MakeMush(Pawn Other, Pawn Instigator) {
         //         if ( p.bIsPlayer && p != Other && p.PlayerReplicationInfo != none && p.PlayerReplicationInfo.Deaths <= 0 && p.CanSee(Other) && Other.PlayerReplicationInfo.Team == 1  && p.PlayerReplicationInfo.Team == 0 )
         //             mushmatch(Level.Game).SpotMush(Other, p);
         // }
+    }
+    
+    if (MushMatch(Level.Game).CheckEnd()) {
+        return;
     }
 
     if (PlayerPawn(Other) != None && !MushMatch(Level.Game).bMatchEnd) {
