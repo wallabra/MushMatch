@@ -284,7 +284,7 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
         // Check for team kill and penalize accordingly.
 	    if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
     	    if (bPenalizeSameTeamKill) {
-                if (OPRL.bIsSuspected)
+                if (OPRL.bIsSuspected && OPRL.SuspectedBy != KPRL)
                     factor *= ScorePenalty_SuspectedFactor;
                     
     	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill * factor;
