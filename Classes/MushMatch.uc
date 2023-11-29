@@ -297,7 +297,7 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
     	}
 	}
 
-    // Propagate score to suspector, if applicable.
+    // Propagate score to suspector, if applicable.    
     if (ScoreSuspectorPropag > 0 && OPRL.SuspectedBy != None && OPRL.SuspectedBy != KPRL) {
         SPRL = MushMatchPRL(OPRL.SuspectedBy);
 
@@ -583,7 +583,7 @@ function bool StrapBeacon(Pawn Other, optional Pawn Suspector)
         BroadcastSuspected(Suspector.PlayerReplicationInfo, Other.PlayerReplicationInfo);
 
         OtherPRL.bIsSuspected = True;
-
+        OtherPRL.SuspectedBy = SuspectorPRL;
 
         if (MushMatchMutator(BaseMutator).BasicWitnessSuspect(Other, Suspector, Other)) {
             RegisterHate(Other, Suspector);
