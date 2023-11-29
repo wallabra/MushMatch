@@ -107,6 +107,9 @@ one from the planned major changes list above.
 ** [x] Increase the amount of suspicion beacon ammo spawned to make for
 this added requirement.
 
+* [ ] **Replace weapon models and skins.** They're currently fairly messy and a
+little cartoonish, especially the Beacon Launcher.
+
 * [ ] Clean up the HUD.
 +
 ** [ ] Make the immune meter separate from the human/mush icon.
