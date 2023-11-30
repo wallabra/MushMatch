@@ -246,6 +246,7 @@ event playerpawn Login
 function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
 {
     local MushMatchPRL KPRL, OPRL, SPRL;
+    local float localFactor;
 
     if (factor == 0.0) {
         factor = 1.0;
@@ -282,18 +283,20 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
         Killer.KillCount++;
 
         // Check for team kill and penalize accordingly.
-	    if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
+	    if (OPRL != None && KPRL.bMush == OPRL.bMush) {
     	    if (bPenalizeSameTeamKill) {
+                localFactor = factor;
+                
                 if (OPRL.bIsSuspected && OPRL.SuspectedBy != KPRL) {
                     Log("Decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName);
-                    factor *= ScorePenalty_SuspectedFactor;
+                    localFactor *= ScorePenalty_SuspectedFactor;
                 }
 
                 else if (OPRL.bIsSuspected) {
                     Log("Not decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName@"as they themselves are the suspector!");
                 }
                     
-    	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill * factor;
+    	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill * localFactor;
             }
     	}
 
