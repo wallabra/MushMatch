@@ -284,8 +284,14 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
         // Check for team kill and penalize accordingly.
 	    if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
     	    if (bPenalizeSameTeamKill) {
-                if (OPRL.bIsSuspected && OPRL.SuspectedBy != KPRL)
+                if (OPRL.bIsSuspected && OPRL.SuspectedBy != KPRL) {
+                    Log("Decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName);
                     factor *= ScorePenalty_SuspectedFactor;
+                }
+
+                else if (OPRL.bIsSuspected) {
+                    Log("Not decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName@"as they themselves are the suspector!");
+                }
                     
     	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill * factor;
             }
@@ -297,40 +303,33 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
     	}
 	}
 
-    // Propagate score to suspector, if applicable.    
-
-    if (ScoreSuspectorPropag > 0 && OPRL.SuspectedBy != None) {
-        if (OPRL.SuspectedBy == None) {
-            return;
-        }
-    
+    // Propagate score to suspector, if applicable.   
+    if (ScoreSuspectorPropag > 0 && OPRL.SuspectedBy != None && OPRL.SuspectedBy != None) {
         SPRL = MushMatchPRL(OPRL.SuspectedBy);
 
         if (SPRL == None) {
             Warn("SuspectedBy is"@OPRL.SuspectedBy@"when it should be a MushMatchPRL!");
-            return;
         }
 
-        if (SPRL.Owner == None || SPRL.Owner.Owner == None) {
+        else if (SPRL.Owner == None || SPRL.Owner.Owner == None) {
             if (SPRL.Owner == None)
                 Warn(SPRL@"has no PlayerReplicationInfo owner!");
             else
                 Warn(SPRL$"'s owner"@SPRL.Owner@"has no Pawn owner!");
-
-            return;
         }
 
-        if (SPRL == KPRL) {
-            Log("Did not propagate kill of"@Other@"by"@Killer@" as [SPRL == KPRL] - suspector PRL:"@OPRL.SuspectedBy);
-            return;
+        else if (SPRL == KPRL) {
+            Log("Did not propagate kill of"@Other.PlayerReplicationInfo.Name@"by"@Killer.PlayerReplicationInfo.Name@" as [SPRL == KPRL] - suspector:"@PlayerReplicationInfo(SPRL.Owner).PlayerName);
         }
 
-        Log("Propagating suspicion of kill ("$Killer@"killed"@Other$") to suspector ("$SPRL.Owner.Owner$")");
-        MushMatchScoreKill(Pawn(SPRL.Owner.Owner), Other, factor * ScoreSuspectorPropag);
+        else {
+            Log("Propagating suspicion of kill ("$Killer.PlayerReplicationInfo.Name@"killed"@Other.PlayerReplicationInfo.Name$") to suspector ("$PlayerReplicationInfo(SPRL.Owner).Name$")");
+            MushMatchScoreKill(Pawn(SPRL.Owner.Owner), Other, factor * ScoreSuspectorPropag);
+        }
     }
 
     else {
-        Log("Did not propagate kill of"@Other@"by"@Killer@" as [there is no suspector] - suspector PRL:"@OPRL.SuspectedBy);
+        Log("Did not propagate kill of"@Other.PlayerReplicationInfo.PlayerName@"by"@Killer.PlayerReplicationInfo.PlayerName@" as [there is no suspector] - suspector PRL:"@OPRL.SuspectedBy);
     }
 
     // Offset score if applicable.
