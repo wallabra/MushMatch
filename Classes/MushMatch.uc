@@ -37,10 +37,11 @@ var(MushMatch_Custom)   config bool bOffsetScoreMinusOne; // may fix weird scori
 var(MushMatch_Game)     config float MushScarceRatio;
 var(MushMatch_Game)     config float InfectionScoreMultiplier;
 var(MushMatch_Game)     config bool bPenalizeSameTeamKill, bPenalizeSuicide;
-var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
+var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide, ScoreReward_SpottedMush;
+var(MushMatch_Game)     config float ScoreSuspectorPropag, ScorePenalty_SuspectedFactor;
 var(MushMatch_Game)     config class<Spectator> SpectatorClass;
 var(MushMatch_Game)     config bool bInfectionScoreCountNegative;
-var(MushMatch_Game)	config bool bBeaconCanSpotMush;
+var(MushMatch_Game)	    config bool bBeaconCanSpotMush;
 
 var(MushMatch_Game)     config float // firerates
     SporifierFirerate,
@@ -242,9 +243,14 @@ event playerpawn Login
     return NewPlayer;
 }
 
-function ScoreKill(Pawn Killer, Pawn Other)
+function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
 {
-    local MushMatchPRL KPRL, OPRL;
+    local MushMatchPRL KPRL, OPRL, SPRL;
+    local float localFactor;
+
+    if (factor == 0.0) {
+        factor = 1.0;
+    }
 
     KPRL = FindPawnPRL(Killer);
     OPRL = FindPawnPRL(Other);
@@ -268,7 +274,7 @@ function ScoreKill(Pawn Killer, Pawn Other)
 
         else {
             if (bPenalizeSuicide) {
-                Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide;
+                Killer.PlayerReplicationInfo.Score -= ScorePenalty_Suicide * factor;
             }
         }
     }
@@ -277,22 +283,67 @@ function ScoreKill(Pawn Killer, Pawn Other)
         Killer.KillCount++;
 
         // Check for team kill and penalize accordingly.
-	    if (KPRL != None && OPRL != None && KPRL.bMush == OPRL.bMush) {
+	    if (OPRL != None && KPRL.bMush == OPRL.bMush) {
     	    if (bPenalizeSameTeamKill) {
-    	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill;
+                localFactor = factor;
+                
+                if (OPRL.bIsSuspected && OPRL.SuspectedBy != KPRL) {
+                    //Log("Decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName);
+                    localFactor *= ScorePenalty_SuspectedFactor;
+                }
+
+                else if (OPRL.bIsSuspected) {
+                    //Log("Not decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName@"as they themselves are the suspector!");
+                }
+                    
+    	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill * localFactor;
             }
     	}
 
         // Reward for kill.
     	else if (OPRL != None) {
-    	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill;
+    	    Killer.PlayerReplicationInfo.Score += ScoreReward_Kill * factor;
     	}
 	}
+
+    // Propagate score to suspector, if applicable.   
+    if (ScoreSuspectorPropag > 0 && OPRL.SuspectedBy != None && OPRL.SuspectedBy != None) {
+        SPRL = MushMatchPRL(OPRL.SuspectedBy);
+
+        if (SPRL == None) {
+            Warn("SuspectedBy is"@OPRL.SuspectedBy@"when it should be a MushMatchPRL!");
+        }
+
+        else if (SPRL.Owner == None || SPRL.Owner.Owner == None) {
+            if (SPRL.Owner == None)
+                Warn(SPRL@"has no PlayerReplicationInfo owner!");
+            else
+                Warn(SPRL$"'s owner"@SPRL.Owner@"has no Pawn owner!");
+        }
+
+        else if (SPRL == KPRL) {
+            //Log("Did not propagate kill of"@Other.PlayerReplicationInfo.Name@"by"@Killer.PlayerReplicationInfo.Name@" as [SPRL == KPRL] - suspector:"@PlayerReplicationInfo(SPRL.Owner).PlayerName);
+        }
+
+        else {
+            //Log("Propagating suspicion of kill ("$Killer.PlayerReplicationInfo.Name@"killed"@Other.PlayerReplicationInfo.Name$") to suspector ("$PlayerReplicationInfo(SPRL.Owner).Name$")");
+            MushMatchScoreKill(Pawn(SPRL.Owner.Owner), Other, factor * ScoreSuspectorPropag);
+        }
+    }
+
+    else {
+        //Log("Did not propagate kill of"@Other.PlayerReplicationInfo.PlayerName@"by"@Killer.PlayerReplicationInfo.PlayerName@" as [there is no suspector] - suspector PRL:"@OPRL.SuspectedBy);
+    }
 
     // Offset score if applicable.
 	if (bOffsetScoreMinusOne) {
  	    Killer.PlayerReplicationInfo.Score -= 1;
  	}
+}
+
+function ScoreKill(Pawn Killer, Pawn Other)
+{
+    MushMatchScoreKill(Killer, Other, 1.0);
 
     // Call ScoreKill on BaseMutator.
 	BaseMutator.ScoreKill(Killer, Other);
@@ -550,7 +601,7 @@ function bool StrapBeacon(Pawn Other, optional Pawn Suspector)
         BroadcastSuspected(Suspector.PlayerReplicationInfo, Other.PlayerReplicationInfo);
 
         OtherPRL.bIsSuspected = True;
-
+        OtherPRL.SuspectedBy = SuspectorPRL;
 
         if (MushMatchMutator(BaseMutator).BasicWitnessSuspect(Other, Suspector, Other)) {
             RegisterHate(Other, Suspector);
@@ -654,10 +705,6 @@ function MakeMush(Pawn Other, Pawn Instigator) {
         Other.PlayerReplicationInfo.Score = 0;
     }
 
-    if (MushMatch(Level.Game).CheckEnd()) {
-        return;
-    }
-
     if (Instigator != None) {
         Instigator.PlayerReplicationInfo.Score += ScoreReward_Infect;
 
@@ -669,6 +716,10 @@ function MakeMush(Pawn Other, Pawn Instigator) {
         //         if ( p.bIsPlayer && p != Other && p.PlayerReplicationInfo != none && p.PlayerReplicationInfo.Deaths <= 0 && p.CanSee(Other) && Other.PlayerReplicationInfo.Team == 1  && p.PlayerReplicationInfo.Team == 0 )
         //             mushmatch(Level.Game).SpotMush(Other, p);
         // }
+    }
+    
+    if (MushMatch(Level.Game).CheckEnd()) {
+        return;
     }
 
     if (PlayerPawn(Other) != None && !MushMatch(Level.Game).bMatchEnd) {
@@ -700,7 +751,7 @@ function bool SpotMush(Pawn Other, Pawn Finder)
 
         if (PlayerPawn(Other) != None && DiscoveredMusic != "")
         {
-            Log("Playing discovered music"@ DiscoveredMusic @"for:"@ OtherPRI.PlayerName);
+            //Log("Playing discovered music"@ DiscoveredMusic @"for:"@ OtherPRI.PlayerName);
             Spawn(class'MushMusic', Other);
         }
 
@@ -712,6 +763,9 @@ function bool SpotMush(Pawn Other, Pawn Finder)
         OtherPRL.bIsSuspected = False;
         OtherPRL.bKnownHuman = False;
         OtherPRL.Instigator = None;     // also clear instigator field (which is used only for people with suspicion beacons)
+
+        // Reward discovering the mush
+        FinderPRI.Score += ScoreReward_SpottedMush;
 
         return True;
     }
@@ -1086,4 +1140,7 @@ defaultproperties
     SuspicionBeaconFirerate=1.1
     bOffsetScoreMinusOne=false
     bBeaconCanSpotMush=true
+    ScoreSuspectorPropag=0.5
+    ScorePenalty_SuspectedFactor=0.25
+    ScoreReward_SpottedMush=6
 }

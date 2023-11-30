@@ -1,6 +1,7 @@
 class MushMatchPRL extends PlayerReplicationList config(MushMatch);
 
 var bool                            bIsSuspected;
+var PlayerReplicationList           SuspectedBy;
 var bool                            bMush;
 var bool                            bKnownMush, bKnownHuman;
 var bool                            bDead, bSpectator;
