@@ -298,6 +298,7 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
 	}
 
     // Propagate score to suspector, if applicable.    
+
     if (ScoreSuspectorPropag > 0 && OPRL.SuspectedBy != None) {
         if (OPRL.SuspectedBy == None) {
             return;
@@ -320,11 +321,16 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
         }
 
         if (SPRL == KPRL) {
+            Log("Did not propagate kill of"@Other@"by"@Killer@" as [SPRL == KPRL] - suspector PRL:"@OPRL.SuspectedBy);
             return;
         }
 
         Log("Propagating suspicion of kill ("$Killer@"killed"@Other$") to suspector ("$SPRL.Owner.Owner$")");
         MushMatchScoreKill(Pawn(SPRL.Owner.Owner), Other, factor * ScoreSuspectorPropag);
+    }
+
+    else {
+        Log("Did not propagate kill of"@Other@"by"@Killer@" as [there is no suspector] - suspector PRL:"@OPRL.SuspectedBy);
     }
 
     // Offset score if applicable.
