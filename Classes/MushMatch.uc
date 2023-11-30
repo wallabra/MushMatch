@@ -288,12 +288,12 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
                 localFactor = factor;
                 
                 if (OPRL.bIsSuspected && OPRL.SuspectedBy != KPRL) {
-                    Log("Decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName);
+                    //Log("Decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName);
                     localFactor *= ScorePenalty_SuspectedFactor;
                 }
 
                 else if (OPRL.bIsSuspected) {
-                    Log("Not decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName@"as they themselves are the suspector!");
+                    //Log("Not decreasing penalty on"@Killer.PlayerReplicationInfo.PlayerName@"for killing suspected person"@Other.PlayerReplicationInfo.PlayerName@"as they themselves are the suspector!");
                 }
                     
     	        Killer.PlayerReplicationInfo.Score -= ScorePenalty_TeamKill * localFactor;
@@ -322,17 +322,17 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
         }
 
         else if (SPRL == KPRL) {
-            Log("Did not propagate kill of"@Other.PlayerReplicationInfo.Name@"by"@Killer.PlayerReplicationInfo.Name@" as [SPRL == KPRL] - suspector:"@PlayerReplicationInfo(SPRL.Owner).PlayerName);
+            //Log("Did not propagate kill of"@Other.PlayerReplicationInfo.Name@"by"@Killer.PlayerReplicationInfo.Name@" as [SPRL == KPRL] - suspector:"@PlayerReplicationInfo(SPRL.Owner).PlayerName);
         }
 
         else {
-            Log("Propagating suspicion of kill ("$Killer.PlayerReplicationInfo.Name@"killed"@Other.PlayerReplicationInfo.Name$") to suspector ("$PlayerReplicationInfo(SPRL.Owner).Name$")");
+            //Log("Propagating suspicion of kill ("$Killer.PlayerReplicationInfo.Name@"killed"@Other.PlayerReplicationInfo.Name$") to suspector ("$PlayerReplicationInfo(SPRL.Owner).Name$")");
             MushMatchScoreKill(Pawn(SPRL.Owner.Owner), Other, factor * ScoreSuspectorPropag);
         }
     }
 
     else {
-        Log("Did not propagate kill of"@Other.PlayerReplicationInfo.PlayerName@"by"@Killer.PlayerReplicationInfo.PlayerName@" as [there is no suspector] - suspector PRL:"@OPRL.SuspectedBy);
+        //Log("Did not propagate kill of"@Other.PlayerReplicationInfo.PlayerName@"by"@Killer.PlayerReplicationInfo.PlayerName@" as [there is no suspector] - suspector PRL:"@OPRL.SuspectedBy);
     }
 
     // Offset score if applicable.
@@ -751,7 +751,7 @@ function bool SpotMush(Pawn Other, Pawn Finder)
 
         if (PlayerPawn(Other) != None && DiscoveredMusic != "")
         {
-            Log("Playing discovered music"@ DiscoveredMusic @"for:"@ OtherPRI.PlayerName);
+            //Log("Playing discovered music"@ DiscoveredMusic @"for:"@ OtherPRI.PlayerName);
             Spawn(class'MushMusic', Other);
         }
 
