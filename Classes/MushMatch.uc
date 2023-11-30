@@ -37,7 +37,7 @@ var(MushMatch_Custom)   config bool bOffsetScoreMinusOne; // may fix weird scori
 var(MushMatch_Game)     config float MushScarceRatio;
 var(MushMatch_Game)     config float InfectionScoreMultiplier;
 var(MushMatch_Game)     config bool bPenalizeSameTeamKill, bPenalizeSuicide;
-var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide;
+var(MushMatch_Game)     config int ScoreReward_Infect, ScoreReward_Kill, ScorePenalty_TeamKill, ScorePenalty_Suicide, ScoreReward_SpottedMush;
 var(MushMatch_Game)     config float ScoreSuspectorPropag, ScorePenalty_SuspectedFactor;
 var(MushMatch_Game)     config class<Spectator> SpectatorClass;
 var(MushMatch_Game)     config bool bInfectionScoreCountNegative;
@@ -764,6 +764,9 @@ function bool SpotMush(Pawn Other, Pawn Finder)
         OtherPRL.bKnownHuman = False;
         OtherPRL.Instigator = None;     // also clear instigator field (which is used only for people with suspicion beacons)
 
+        // Reward discovering the mush
+        FinderPRI.Score += ScoreReward_SpottedMush;
+
         return True;
     }
 
@@ -1139,4 +1142,5 @@ defaultproperties
     bBeaconCanSpotMush=true
     ScoreSuspectorPropag=0.5
     ScorePenalty_SuspectedFactor=0.25
+    ScoreReward_SpottedMush=6
 }
