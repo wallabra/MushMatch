@@ -239,7 +239,6 @@ simulated function LinearChanceSkew(out float Chance, float Skew) {
 function bool BasicWitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
     // Basic sanity checks for whether a bot's personal suspicion is valid.
     local MushMatchPRL WitPRL, VictPRL, InstigPRL;
-    local float SuspectOverlookChance;
 
     if (!Witness.bIsPlayer) {
         return false;
