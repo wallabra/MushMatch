@@ -27,13 +27,9 @@ simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo othe
 simulated function PlayerReplicationList FindPlayer(PlayerReplicationInfo other)
 {
     local PlayerReplicationList prl, prev;
-    local int i;
     prev = None;
 
-    i = 0;
-
     for ( prl = self; prl != None && prl != prev; prl = prl.Next ) {
-        if (i % 4 == 0) Log((i + 1)@other@prl);
         if ( prl.owner == other ) return prl;
         prev = prl;
         i++;

@@ -319,6 +319,10 @@ function MushMatchScoreKill(Pawn Killer, Pawn Other, float factor)
             return;
         }
 
+        if (SPRL == KPRL) {
+            return;
+        }
+
         Log("Propagating suspicion of kill ("$Killer@"killed"@Other$") to suspector ("$SPRL.Owner.Owner$")");
         MushMatchScoreKill(Pawn(SPRL.Owner.Owner), Other, factor * ScoreSuspectorPropag);
     }
