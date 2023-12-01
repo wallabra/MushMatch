@@ -290,6 +290,10 @@ function bool BasicWitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) 
         return false;
     }
 
+    if (Victim.Health <= 0 && VictPRL.bMush && !WitPRL.bMush) {
+        return false;
+    }
+
     if (WitPRL.bDead || InstigPRL.bDead || VictPRL.bDead) {
         return false;
     }
