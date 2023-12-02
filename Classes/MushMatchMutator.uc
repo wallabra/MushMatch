@@ -832,7 +832,7 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
             BaseHUD.DrawTwoColorID(Drawer, "Alignment", TeamTextAlignment(IdentifyTarget), Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale);
             Linefeed += 24;
 
-            if (myPRL.bMush && !otherPRL.bMush) {
+            if (myPRL.bMush && !otherPRL.bMush && !otherPRL.bDead) {
                 if (OtherPRL.ImmuneLevel <= OtherPRL.ImmuneDangerLevel) {
                     Drawer.DrawColor = BaseHUD.RedColor;
                 }
