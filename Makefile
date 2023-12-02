@@ -32,8 +32,10 @@ expect-cmd-%:
 	exit 2; fi
 
 find-mustache: | expect-cmd-curl expect-cmd-tar expect-cmd-gunzip expect-cmd-realpath
-	$(eval MUSTACHE_BIN=$(shell if which "$(MUSTACHE)" 2>/dev/null ; then \
-	  echo ${MUSTACHE} ;\
+	$(eval MUSTACHE_BIN=$(shell if [ -f "$(MUSTACHE)" ]; then \
+	  echo "$(MUSTACHE)" ;\
+	elif which "$(MUSTACHE)" >/dev/null 2>/dev/null ; then \
+	  which $(MUSTACHE) ;\
 	else \
 	  echo "* Mustache not installed; setting up automatically" >&2 ;\
 	  if [ -f $(DIR_DEPS)/mustache ] ; then \
