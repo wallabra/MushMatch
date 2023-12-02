@@ -650,12 +650,16 @@ function UnsetEnemy(Pawn Other) {
         return;
     }
 
-    Other.Enemy = None;
-
     // Avoid bots in the Attacking state with Enemy set to None.
     if (Bot(Other) != None && Bot(Other).IsInState('Attacking')) {
-        Bot(Other).WhatToDoNext('', '');
+        Other.GotoState('Roaming');
     }
+
+    if (Other.OldEnemy == Other.Enemy) {
+        Other.OldEnemy = None;
+    }
+
+    Other.Enemy = None;
 }
 
 function SafeGiveSporifier(Pawn Other) {
