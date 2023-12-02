@@ -165,7 +165,7 @@ function float RateSelf(out int bUseAltMode)
                 BeaconBotRatingFalloff * ((MaxBeaconBotRating / BeaconBotRatingFalloff) -
                                           VSize(Owner.Location - Pawn(Owner).Enemy.Location)));
     
-    Log("suspect dist"@VSize(Owner.Location - Pawn(Owner).Enemy.Location)@"=> beacon rating"@Score + 50);
+    //Log("suspect dist"@VSize(Owner.Location - Pawn(Owner).Enemy.Location)@"=> beacon rating"@Score + 50);
     
     return Score;
 }
