@@ -158,7 +158,7 @@ function float RateSelf(out int bUseAltMode)
     }
 
     // don't use if EPRL is suspected and not wielding a Sporifier
-    if (EPRL.bSuspected && Sporifier(Pawn(Owner).Enemy.Weapon) == None) {
+    if (EPRL.bIsSuspected && Sporifier(Pawn(Owner).Enemy.Weapon) == None) {
         return -1;
     }
     

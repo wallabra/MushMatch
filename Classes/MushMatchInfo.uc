@@ -413,6 +413,32 @@ simulated event string TeamTextStatus(PlayerReplicationInfo PRI, PlayerPawn Othe
     return "...";
 }
 
+// Whether a busy bot (who's already killing someone) may consider switching to
+// target this.
+function bool MayConsiderRetargeting(MushMatchPRL BotPRL, MushMatchPRL OtherPRL) {
+    if (BotPRL.bMush) {
+        return true;
+    }
+
+    if (OtherPRL.bKnownMush) {
+        return true;
+    }
+
+    if (OtherPRL.bIsSuspected) {
+        return true;
+    }
+
+    return false;
+}
+
+function bool BusyKilling(Pawn aBot) {
+    return (aBot.Enemy != None || aBot.IsInState('Attacking')) && MushBeacon(aBot.Weapon) == None;
+}
+
+function bool TooBusy(Pawn aBot, MushMatchPRL BotPRL, MushMatchPRL OtherPRL) {
+    return BusyKilling(aBot) && !MayConsiderRetargeting(BotPRL, OtherPRL);
+}
+
 function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     local Pawn P;
     local MushMatchInfo MMI;
@@ -559,6 +585,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
                     && MMI.CheckHate(OtherPRI, BotPRI)
                     && !(OtherMPRL.bMush && BotMPRL.bMush)
                     && FRand() < DecideChance_GrudgeAttack
+                    && !TooBusy(aBot, BotMPRL, OtherMPRL)
                 )
                 ||
                 (
