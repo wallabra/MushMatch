@@ -463,19 +463,12 @@ function GetAliveTeams(out int humans, out int mush) {
         return;
     }
 
-    for (p = Level.PawnList; p != none; p = p.nextPawn) {
-        if (p.bIsPlayer && p.PlayerReplicationInfo != none) {
-            PRL = MushMatchInfo(GameReplicationInfo).FindPRL(p.PlayerReplicationInfo);
-
-            if (PRL != None && !PRL.bDead) {
-                if (PRL.bMush) {
-                    mush += 1;
-                }
-
-                else {
-                    humans += 1;
-                }
-            }
+    for (PRL = MushMatchInfo(GameReplicationInfo).PRL; PRL != None; PRL = MushMatchPRL(PRL.next)) {
+        if (!PRL.bDead) {
+            if (PRL.bMush)
+                mush += 1;
+            else
+                humans += 1;
         }
     }
 }
@@ -961,12 +954,11 @@ function int MushCount()
     local Pawn p;
     local MushMatchPRL PRL;
 
-    for (p = Level.PawnList; p != none; p = p.NextPawn) {
+    for (PRL = MushMatchInfo(GameReplicationInfo).PRL; PRL != None; PRL = MushMatchPRL(PRL.next)) {
+        p = Pawn(PRL.Owner.Owner);
+
         if (!p.bIsPlayer) continue;
-
-        PRL = FindPawnPRL(p);
-
-        if (PRL == None) continue;
+        if (PRL.bDead) continue;
         if (!PRL.bMush) continue;
 
         i++;
@@ -985,14 +977,10 @@ function Selected()
         sp.MushSelected();
     }
 
-    for ( p = Level.PawnList; p != none; p = p.NextPawn ) {
-        if ( p.bIsPlayer && p.PlayerReplicationInfo != none )
-        {
-            p.Health = Max(p.Health, p.Class.Default.Health);
-
-            PRL = MushMatchInfo(GameReplicationInfo).FindPRL(p.PlayerReplicationInfo);
-            PRL.SetInitialTeam();
-        }
+    for (PRL = MushMatchInfo(GameReplicationInfo).PRL; PRL != None; PRL = MushMatchPRL(PRL.next)) {
+        p = Pawn(PRL.Owner.Owner);
+        p.Health = Max(p.Health, p.Class.Default.Health);
+        PRL.SetInitialTeam();
     }
 
     BroadcastLocalizedMessage(MushSelectedMessageType);
