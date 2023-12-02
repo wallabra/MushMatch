@@ -113,9 +113,8 @@ simulated function float PassiveRating()
 
 function float RateSelf(out int bUseAltMode)
 {
-    local float Score, BestScore, ThisScore;
-    local Pawn P, BestPawn;
-    local MushMatchPRL OPRL;
+    local float Score;
+    local MushMatchPRL OPRL, EPRL;
     
     if (Pawn(Owner) == None || MushMatch(Level.Game) == None)
         return -2;
@@ -140,57 +139,30 @@ function float RateSelf(out int bUseAltMode)
     bUseAltMode = 0;
 
     if (Pawn(Owner) != None && Pawn(Owner).PlayerReplicationInfo != None) {
-        if (Role == ROLE_Authority)
-            OPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Pawn(Owner).PlayerReplicationInfo);
-
-        else if (PlayerPawn(Owner) != None)
-            OPRL = MushMatchInfo(PlayerPawn(Owner).GameReplicationInfo).FindPRL(Pawn(Owner).PlayerReplicationInfo);
-
-        // if neither of these conditions are true, the client somehow knows
-        // about the weapon of someone other than themselves...
-        // what?!
-
-        else if (Pawn(Owner) != None) // just a sanity check
-            Warn("Weapon"@ self @"owned by"@ Owner @"("$ Pawn(Owner).PlayerReplicationInfo.PlayerName $ ") had its RateSelf executed in this client; this should never happen!");
-
-        else
-            Warn("Weapon"@ self @"owned by actor"@ Owner @"somehow had its RateSelf executed in this client... what the fuck??");
+        OPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Pawn(Owner).PlayerReplicationInfo);
     }
 
     if (OPRL != None && OPRL.bKnownMush)
         return -2; // bad bad
+
+    // rate enemy
+    EPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Pawn(Owner).Enemy.PlayerReplicationInfo);
+
+    if (EPRL == None) {
+        return -1;
+    }
     
-    if ( MushMatch(Level.Game).bHasHate )
-        for ( P = Level.PawnList; P != None; P = P.NextPawn )
-            if (
-                P.bIsPlayer &&
-                MushMatch(Level.Game).bHasHate &&
-                MushMatchInfo(Level.Game.GameReplicationInfo).CheckHate(P.PlayerReplicationInfo, Pawn(Owner).PlayerReplicationInfo) && (
-                    !(MushMatch(Level.Game).bHasBeacon) || !MushMatchInfo(Level.Game.GameReplicationInfo).CheckBeacon(P.PlayerReplicationInfo)
-                ) && !MushMatchInfo(Level.Game.GameReplicationInfo).CheckConfirmedMush(P.PlayerReplicationInfo)
-            ) {	
-                // don't use if engaging in active combat elsewhere
-                if (Pawn(Owner).Enemy != P && !Pawn(Owner).IsInState('Roaming')) {
-                    continue;
-                }
-            
-                ThisScore = Max(200, 1024 - VSize(Owner.Location - P.Location)) / 4;
-                    
-                if ( ThisScore > BestScore )
-                {
-                    BestScore = ThisScore;
-                    BestPawn = P;
-                }
-                
-                Score += ThisScore;
-            }
-            
-    /*if (BestPawn != None && PlayerPawn(Owner) == None) {
-        if (Bot(Owner) != None) {
-            Bot(Owner).SetEnemy(BestPawn);
-        }
-    }*/
-        
+    // don't use if EPRL is a known mush
+    if (EPRL.bMush) {
+        return -1;
+    }
+
+    // don't use if EPRL is suspected and not wielding a Sporifier
+    if (EPRL.bSuspected && Sporifier(Pawn(Owner).Enemy.Weapon) == None) {
+        return -1;
+    }
+    
+    Score = Max(200, 1024 - VSize(Owner.Location - Pawn(Owner).Enemy.Location)) / 4;
     bRating = false;
     
     return Score;
