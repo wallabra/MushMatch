@@ -43,7 +43,7 @@ function ProcessTouch(Actor Other, Vector HitLocation)
         return;
     }
 
-    if ( Pawn(Other).bIsPlayer && Pawn(Other).PlayerReplicationInfo != None && Pawn(Other).PlayerReplicationInfo.Deaths <= 0 )
+    if ( Pawn(Other).bIsPlayer && Pawn(Other).PlayerReplicationInfo != None && Pawn(Other).Health > 0 )
     {
         MushMatch(Level.Game).StrapBeacon(Pawn(Other), Instigator);
     }

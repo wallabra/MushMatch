@@ -178,7 +178,7 @@ simulated function Tick(float TimeDelta)
 {   
     Super.Tick(TimeDelta);
         
-    if ( Owner == None || Owner.IsInState('Dying') || ( MushMatch(Level.Game) == none && Pawn(Owner).PlayerReplicationInfo != none && Pawn(Owner).PlayerReplicationInfo.Deaths > 0 ) )
+    if ( Owner == None || Owner.IsInState('Dying') || ( MushMatch(Level.Game) == none && Pawn(Owner).PlayerReplicationInfo != none && Pawn(Owner).Health <= 0 ) )
     {
         Destroy();
         return;
