@@ -777,7 +777,7 @@ simulated function HUD_DrawGameStatus(Canvas Drawer, ChallengeHUD BaseHUD)
 simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplicationInfo IdentifyTarget, ChallengeHUD BaseHUD)
 {
     local MushMatchPRL myPRL, otherPRL;
-    local int Linefeed;
+    local int Linefeed, TargetHealth;
 
     /*
     if (MushMatchInfo(PlayerOwner.GameReplicationInfo) == None) {
@@ -843,6 +843,23 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
                                        Int(100 * OtherPRL.ImmuneLevel) $"%",
                                        Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale
                 );
+                Linefeed += 24;
+
+                Drawer.DrawColor = BaseHUD.GreenColor;
+            }
+
+            if ((myPRL.bMush && otherPRL.bMush) || myPRL.bDead) {
+                // Display health
+                TargetHealth = Pawn(IdentifyTarget.Owner).Health;
+
+                if (Pawn(IdentifyTarget.Owner).Health < 30) {
+                    Drawer.DrawColor = BaseHUD.RedColor;
+                }
+
+                BaseHUD.DrawTwoColorID(Drawer,
+                                       "Health",
+                                       Health,
+                                       Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale));
                 Linefeed += 24;
 
                 Drawer.DrawColor = BaseHUD.GreenColor;
