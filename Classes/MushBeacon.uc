@@ -15,6 +15,7 @@
 class MushBeacon extends TournamentWeapon;
 
 
+var(MushMatch_Game) float MinBeaconBotRating, MaxBeaconBotRating, BeaconBotRatingFalloff;
 var float BeaconFirerate;
 
 
@@ -140,6 +141,10 @@ function float RateSelf(out int bUseAltMode)
         return -2; // bad bad
 
     // rate enemy
+    if (Pawn(Owner).Enemy == None) {
+        return -2;
+    }
+    
     EPRL = MushMatchInfo(Level.Game.GameReplicationInfo).FindPRL(Pawn(Owner).Enemy.PlayerReplicationInfo);
 
     if (EPRL == None) {
@@ -156,7 +161,11 @@ function float RateSelf(out int bUseAltMode)
         return -1;
     }
     
-    Score += Max(400, 4 * (1024 - VSize(Owner.Location - Pawn(Owner).Enemy.Location)));
+    Score = Max(MinBeaconBotRating,
+                BeaconBotRatingFalloff * ((MaxBeaconBotRating / BeaconBotRatingFalloff) -
+                                          VSize(Owner.Location - Pawn(Owner).Enemy.Location)));
+    
+    Log("suspect dist"@VSize(Owner.Location - Pawn(Owner).Enemy.Location)@"=> beacon rating"@Score + 50);
     
     return Score;
 }
@@ -196,4 +205,7 @@ defaultproperties
      Icon=Texture'Botpack.Icons.IconPulse'
      Mesh=LodMesh'MBeaconWeap'
      Mass=65.000000
+     MinBeaconBotRating=400
+     MaxBeaconBotRating=2500
+     BeaconBotRatingFalloff=12
 }
