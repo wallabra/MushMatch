@@ -655,8 +655,8 @@ function UnsetEnemy(Pawn Other) {
         Other.GotoState('Roaming');
     }
 
-    if (Other.OldEnemy == Other.Enemy) {
-        Other.OldEnemy = None;
+    if (Bot(Other).OldEnemy == Other.Enemy) {
+        Bot(Other).OldEnemy = None;
     }
 
     Other.Enemy = None;
