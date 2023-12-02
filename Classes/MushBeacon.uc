@@ -15,7 +15,6 @@
 class MushBeacon extends TournamentWeapon;
 
 
-var bool bRating;
 var float BeaconFirerate;
 
 
@@ -129,12 +128,7 @@ function float RateSelf(out int bUseAltMode)
     // don't bring up if not a match contestant
     if (!Pawn(Owner).bIsPlayer)
         return -2;
-        
-    if (bRating)
-        return Score;
-        
-    bRating = true;
-    
+            
     Score = -50;
     bUseAltMode = 0;
 
@@ -162,8 +156,7 @@ function float RateSelf(out int bUseAltMode)
         return -1;
     }
     
-    Score = Max(200, 1024 - VSize(Owner.Location - Pawn(Owner).Enemy.Location)) / 4;
-    bRating = false;
+    Score += Max(400, 4 * (1024 - VSize(Owner.Location - Pawn(Owner).Enemy.Location)));
     
     return Score;
 }
