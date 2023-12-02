@@ -841,8 +841,7 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
                 BaseHUD.DrawTwoColorID(Drawer,
                                        "Immune",
                                        Int(100 * OtherPRL.ImmuneLevel) $"%",
-                                       Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale
-                );
+                                       Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale);
                 Linefeed += 24;
 
                 Drawer.DrawColor = BaseHUD.GreenColor;
@@ -858,8 +857,8 @@ simulated function bool HUD_DrawSpecialIdentifyInfo(Canvas Drawer, PlayerReplica
 
                 BaseHUD.DrawTwoColorID(Drawer,
                                        "Health",
-                                       Health,
-                                       Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale));
+                                       String(TargetHealth),
+                                       Drawer.ClipY - (256 - Linefeed) * BaseHUD.Scale);
                 Linefeed += 24;
 
                 Drawer.DrawColor = BaseHUD.GreenColor;
