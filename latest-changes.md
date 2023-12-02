@@ -1,13 +1,8 @@
 ## Changelog
 
-Implemented changes in Mush Match **v1.3.3** listed below.
+Implemented changes in Mush Match **v1.3.4** listed below.
 
-* Have human bots hit by a Suspicion Beacon personally suspect the beacon caster
-* Make suspected mush as aggressive as discovered ones
-* Fix post-mortem spectation
-* Make impossible for human-team bots to aggro unseen targets
-* Make mush AI just as likely to engage personal suspicion
-* Make suspicion beacon able to spot mush when it holds a Sporifier
-* Make using the Sporifier not lead to automatic spotting
-* Increase default BeaconAmmo spawning rate to balance new spotting mechanic
-* Make bots suspect you using the Sporiifer
+* Make the scoring of a kill propagate to the killed's suspector when applicable
+* Fix score voided when infecting as mush and triggering match end
+* Tweak default chances for individual suspicion
+* Ensure killing a mush won't lead other humans to suspect on you
