@@ -106,7 +106,7 @@ simulated event PostRender(Canvas Drawer)
 
 simulated event bool DrawIdentifyInfo(canvas Canvas)
 {
-    local MushMatchPRL myPRL;
+    local MushMatchPRL myPRL, targPRL;
 
     if (MushMatchInfo(PlayerOwner.GameReplicationInfo) == None) {
         // wait for replication
@@ -134,9 +134,21 @@ simulated event bool DrawIdentifyInfo(canvas Canvas)
         Canvas.Font = MyFonts.GetBigFont(Canvas.ClipX);
         DrawTwoColorID(Canvas, IdentifyName, IdentifyTarget.PlayerName, Canvas.ClipY - 256 * Scale);
 
-        if ( TeamText(IdentifyTarget) != "" ) {
-            DrawTwoColorID(Canvas, "Status", TeamTextStatus(IdentifyTarget), Canvas.ClipY - 216 * Scale);
-            DrawTwoColorID(Canvas, "Alignment", TeamTextAlignment(IdentifyTarget), Canvas.ClipY - 192 * Scale);
+        targPRL = MushMatchPRL(MushMatchInfo(PlayerOwner.GameReplicationInfo).PRL.FindPlayer(IdentifyTarget));
+
+        if (targPRL == None) {
+            return true;
+        }
+
+        if ( TeamText(IdentifyTarget) == "" ) {
+            return true;
+        }
+
+        DrawTwoColorID(Canvas, "Status", TeamTextStatus(IdentifyTarget), Canvas.ClipY - 216 * Scale);
+        DrawTwoColorID(Canvas, "Alignment", TeamTextAlignment(IdentifyTarget), Canvas.ClipY - 192 * Scale);
+
+        if ((myPRL.bMush && targPRL.bMush) || myPRL.bDead) {
+            DrawTwoColorID(Canvas, "Health", String(Pawn(IdentifyTarget.Owner).Health), Canvas.ClipY - 168 * Scale);
         }
     }
 
