@@ -265,7 +265,7 @@ function bool BasicWitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) 
         return false;
     }
 
-    if (Witness.IsInState('Dying')) {
+    if (Witness.Health <= 0 || Witness.IsInState('Dying')) {
         return false;
     }
 
@@ -546,6 +546,11 @@ simulated function MushMatchCheckKill(Pawn Killer, Pawn Other, optional bool bTe
 
             // Ensure they are a member of the match
             if (!P.bIsPlayer) {
+                continue;
+            }
+
+            // Ensure they are alive
+            if (P.Health <= 0 || P.IsInState('Dying')) {
                 continue;
             }
 

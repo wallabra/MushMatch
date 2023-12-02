@@ -440,7 +440,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
         }
     }
 
-    if (Other == None || aBot == None || Other.IsInState('Dying') || aBot.IsInState('Dying')) {
+    if (Other == None || aBot == None || Other.IsInState('Dying') || aBot.IsInState('Dying') || Other.Health <= 0 || aBot.Health <= 0) {
         //Warn("MushMatch cannot assess bot attitude for"@aBot@"toward"@Other$": either of them is None or dying");
         return 255;
     }
@@ -483,7 +483,7 @@ function byte MushMatchAssessBotAttitude(Pawn aBot, Pawn Other) {
     }
 	
 	if (!aBot.CanSee(Other) && !BotMPRL.bMush) {
-		// what the eyes don't see, the heart doesn't feel
+		// what the eyes can't see, the heart can't feel
 		return 2;
 	}
 

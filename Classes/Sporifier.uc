@@ -259,7 +259,7 @@ function CheckSpotted() {
         PPRL = MMI.FindPRL(P.PlayerReplicationInfo);
 
         if (PPRL == None) continue;
-        if (PPRL.bDead) continue;
+        if (p.Health <= 0 || PPRL.bDead) continue;
         if (PPRL.bMush) continue;
 
         if (!p.CanSee(Owner)) continue;
