@@ -178,7 +178,7 @@ simulated function Tick(float TimeDelta)
 {   
     Super.Tick(TimeDelta);
         
-    if ( Owner == None || Owner.IsInState('Dying') || ( MushMatch(Level.Game) == none && Pawn(Owner).PlayerReplicationInfo != none && Pawn(Owner).Health <= 0 ) )
+    if (IsInState('Pickup') || Owner == None)
     {
         Destroy();
         return;
@@ -213,7 +213,7 @@ simulated function Tick(float TimeDelta)
     }
 
     if (Role == ROLE_Authority) {
-        if (PRL != None && (!PRL.bMush || PRL.bDead)) {
+        if (PRL != None && (!PRL.bMush)) {
             if (!PRL.bMush) {
                 Warn("Sporifier"@ self @"had a non-Mush owner,"@ Owner);
             }
@@ -223,6 +223,10 @@ simulated function Tick(float TimeDelta)
             }
 
             Destroy();
+            return;
+        }
+
+        if (PRL.bDead) {
             return;
         }
     

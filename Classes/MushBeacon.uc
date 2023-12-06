@@ -78,7 +78,7 @@ simulated event Tick(float TimeDelta)
 {    
     Super.Tick(TimeDelta);
         
-    if ( IsInState('Pickup') || Owner == None || Owner.IsInState('Dying') || ( MushMatch(Level.Game) == none && Pawn(Owner).PlayerReplicationInfo != none && Pawn(Owner).Health <= 0 ) )
+    if (IsInState('Pickup') || Owner == None)
     {
         Destroy();
         return;

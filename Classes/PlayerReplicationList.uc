@@ -30,6 +30,7 @@ simulated function PlayerReplicationList FindPlayer(PlayerReplicationInfo other)
 
     for ( prl = self; prl != None; prl = prl.Next ) {
         if ( prl.owner == other ) return prl;
+        if ( prl.Next == prl ) break;
     }
     
     return None;
