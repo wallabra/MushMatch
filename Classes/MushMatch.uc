@@ -453,7 +453,6 @@ function bool CheckEnd()
 }
 
 function GetAliveTeams(out int humans, out int mush) {
-    local Pawn p;
     local MushMatchPRL PRL;
 
     if (!bMushSelected) {
