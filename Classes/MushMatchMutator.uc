@@ -236,10 +236,8 @@ simulated function LinearChanceSkew(out float Chance, float Skew) {
     }
 }
 
-function bool BasicWitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness) {
+function bool BasicWitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, out MushMatchPRL WitPRL, out MushMatchPRL VictPRL, out MushMatchPRL InstigPRL) {
     // Basic sanity checks for whether a bot's personal suspicion is valid.
-    local MushMatchPRL WitPRL, VictPRL, InstigPRL;
-
     if (!Witness.bIsPlayer) {
         return false;
     }
@@ -320,13 +318,9 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     local MushMatchPRL WitPRL, VictPRL, InstigPRL;
     local float SuspectOverlookChance;
 
-    if (!BasicWitnessSuspect(Victim, InstigatedBy, Witness)) {
+    if (!BasicWitnessSuspect(Victim, InstigatedBy, Witness, )WitPRL, VictPRL, InstigPRL) {
         return false;
     }
-
-    WitPRL = FindPawnPRL(Witness);
-    InstigPRL = FindPawnPRL(InstigatedBy);
-    VictPRL = FindPawnPRL(Victim);
 
     // must have line of sight to the perpetrator
     if (!Witness.LineOfSightTo(InstigatedBy)) {
