@@ -318,7 +318,7 @@ function bool WitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, int D
     local MushMatchPRL WitPRL, VictPRL, InstigPRL;
     local float SuspectOverlookChance;
 
-    if (!BasicWitnessSuspect(Victim, InstigatedBy, Witness, WitPRL, VictPRL, InstigPRL) {
+    if (!BasicWitnessSuspect(Victim, InstigatedBy, Witness, WitPRL, VictPRL, InstigPRL)) {
         return false;
     }
 
