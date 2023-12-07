@@ -277,9 +277,9 @@ function bool BasicWitnessSuspect(Pawn Victim, Pawn InstigatedBy, Pawn Witness, 
         return false;
     }
 
-    WitPRL = FindPawnPRL(Witness);
-    InstigPRL = FindPawnPRL(InstigatedBy);
-    VictPRL = FindPawnPRL(Victim);
+    if (WitPRL == None) WitPRL = FindPawnPRL(Witness);
+    if (InstigPRL == None) InstigPRL = FindPawnPRL(InstigatedBy);
+    if (VictPRL == None) VictPRL = FindPawnPRL(Victim);
 
     // more sanity checks
 

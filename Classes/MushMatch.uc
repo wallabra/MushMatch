@@ -596,7 +596,7 @@ function bool StrapBeacon(Pawn Other, optional Pawn Suspector)
         OtherPRL.bIsSuspected = True;
         OtherPRL.SuspectedBy = SuspectorPRL;
 
-        if (MushMatchMutator(BaseMutator).BasicWitnessSuspect(Other, Suspector, Other)) {
+        if (MushMatchMutator(BaseMutator).BasicWitnessSuspect(Other, Suspector, Other, OtherPRL, SuspectorPRL, OtherPRL)) {
             RegisterHate(Other, Suspector);
         }
     }
