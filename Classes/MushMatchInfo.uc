@@ -10,7 +10,8 @@ replication
 
 
 var     bool            bMushSelected, bMatchEnd, bMatchStart;
-var     MushMatchPRL    PRL;
+var(MushMatch_Debug) bool bCheckDuplicatePRLs;
+var     MushMatchPRL    PRL, PRLTail;
 var     Music           MushDiscoveredMusic;
 var     PlayerPawn      LocalPlayer;
 
@@ -91,7 +92,8 @@ function bool RemovePRL(PlayerReplicationinfo PRI) {
     if (PRL != None) {
         newRoot = PRL;
         success = PRL.RemovePlayer(PRI, newRoot);
-        PRL = MushMatchPRL(newRoot);
+        PRL = MushMatchPRL(newRoot);)
+        PRLTail = PRL;
     }
 
     if (!success) {
@@ -110,8 +112,13 @@ function MushMatchPRL RegisterPRL(PlayerReplicationinfo PRI) {
         NewPRL = PRL;
     }
 
-    else if (PRL.FindPlayer(PRI) == None) {
+    else if (!bCheckDuplicatePRLs || PRL.FindPlayer(PRI) == None) {
         NewPRL = MushMatchPRL(PRL.AppendPlayer(PRI, class'MushMatchPRL'));
+    }
+
+    else if (bCheckDuplicatePRLs) {
+        Warn("Attempted to register duplicate PRL for"@PRI.PlayerName);
+        return None;
     }
 
     else {
@@ -625,4 +632,5 @@ defaultproperties {
     bMatchStart=false
     bMatchEnd=false
     bMushSelected=false
+    bCheckDuplicatePRLs=true
 }

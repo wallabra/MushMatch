@@ -36,11 +36,15 @@ simulated function PlayerReplicationList FindPlayer(PlayerReplicationInfo other)
     return None;
 }
 
-simulated function bool RemovePlayer(PlayerReplicationInfo other, out PlayerReplicationList newRoot)
+simulated function bool RemovePlayer(PlayerReplicationInfo other, out PlayerReplicationList newRoot, out PlayerReplicationList newTail)
 {
     local PlayerReplicationList prl, prev;
 
     if (Owner == Other) {
+        if (newTail == self) {
+            newTail = prev;
+        }
+    
         if (newRoot == Self) {
             newRoot = Next;
 
