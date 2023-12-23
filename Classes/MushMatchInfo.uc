@@ -87,12 +87,14 @@ simulated function PreSelected() {
 
 function bool RemovePRL(PlayerReplicationinfo PRI) {
     local bool success;
-    local PlayerReplicationList newRoot;
+    local PlayerReplicationList newRoot, newTail;
 
     if (PRL != None) {
         newRoot = PRL;
-        success = PRL.RemovePlayer(PRI, newRoot, PRLTail);
-        PRL = MushMatchPRL(newRoot);)
+        newTail = PRLTail;
+        success = PRL.RemovePlayer(PRI, newRoot, newTail);
+        PRL = MushMatchPRL(newRoot);
+        PRLTail = MushMatchPRL(newTail);
     }
 
     if (!success) {
@@ -104,6 +106,8 @@ function bool RemovePRL(PlayerReplicationinfo PRI) {
 
 function MushMatchPRL RegisterPRL(PlayerReplicationinfo PRI) {
     local MushMatchPRL NewPRL;
+    local PlayerReplicationList NewPRLTail;
+    NewPRLTail = PRLTail;
 
     if (PRL == None) {
         PRL = Spawn(class'MushMatchPRL', PRI);
@@ -113,15 +117,14 @@ function MushMatchPRL RegisterPRL(PlayerReplicationinfo PRI) {
     }
 
     else if (!bCheckDuplicatePRLs || PRL.FindPlayer(PRI) == None) {
-        NewPRL = MushMatchPRL(PRL.AppendPlayer(PRI, PRLTail, class'MushMatchPRL');
-    }
-
-    else if (bCheckDuplicatePRLs) {
-        Warn("Attempted to register duplicate PRL for"@PRI.PlayerName);
-        return None;
+        NewPRL = MushMatchPRL(PRLTail.AppendPlayer(PRI, NewPRLTail, class'MushMatchPRL'));
+        PRLTail = MushMatchPRL(NewPRLTail);
     }
 
     else {
+        if (bCheckDuplicatePRLs) {
+            Warn("Attempted to register duplicate PRL for"@PRI.PlayerName);
+        }
         return None;
     }
 

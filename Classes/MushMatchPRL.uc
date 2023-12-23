@@ -8,7 +8,7 @@ var bool                            bDead, bSpectator;
 var int                             InitialTeam;
 var float                           ImmuneLevel;
 var float                           ImmuneMomentum, ImmuneThrust, ImmuneResistance;
-var PlayerReplicationList           HatedBy;
+var PlayerReplicationList           HatedBy, HatedByTail;
 var class<PlayerReplicationList>    HatePRLType;
 
 // Replicated settings
@@ -243,11 +243,15 @@ simulated event AddHate(PlayerReplicationInfo Other)
 
 simulated event bool RemoveHate(PlayerReplicationInfo Other)
 {
+    local PlayerReplicationList newTail;
+
     if ( HatedBy == None )
         return false;
 
     else {
-        return HatedBy.RemovePlayer(Other, HatedBy, HatedByTail);
+        newTail = HatedByTail;
+        return HatedBy.RemovePlayer(Other, HatedBy, newTail);
+        HatedByTail = newTail;
     }
 }
 

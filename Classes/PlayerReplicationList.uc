@@ -26,7 +26,7 @@ simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo othe
     
     prl.Next = Spawn(PRLType, other);
     prl.Next.Root = Root;
-    newTail = prl.Next;
+    if (newTail != None) newTail = prl.Next;
     return prl.Next;
 }
 
