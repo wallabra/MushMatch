@@ -237,7 +237,7 @@ simulated event AddHate(PlayerReplicationInfo Other)
     }
 
     else {
-        HatedBy.AppendPlayer(Other, HatePRLType, HatedByTail);
+        HatedBy.AppendPlayer(Other, HatedByTail, HatePRLType);
     }
 }
 

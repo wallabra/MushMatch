@@ -10,7 +10,7 @@ replication
 }
 
 
-simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo other, optional class<PlayerReplicationList> PRLType, out PlayerReplicationList newTail)
+simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo other, out PlayerReplicationList newTail, optional class<PlayerReplicationList> PRLType)
 {
     local PlayerReplicationList prl;
 

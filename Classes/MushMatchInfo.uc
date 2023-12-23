@@ -113,7 +113,7 @@ function MushMatchPRL RegisterPRL(PlayerReplicationinfo PRI) {
     }
 
     else if (!bCheckDuplicatePRLs || PRL.FindPlayer(PRI) == None) {
-        NewPRL = MushMatchPRL(PRL.AppendPlayer(PRI, class'MushMatchPRL', PRLTail));
+        NewPRL = MushMatchPRL(PRL.AppendPlayer(PRI, PRLTail, class'MushMatchPRL');
     }
 
     else if (bCheckDuplicatePRLs) {
