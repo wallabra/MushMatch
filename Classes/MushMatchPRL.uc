@@ -233,10 +233,11 @@ simulated event AddHate(PlayerReplicationInfo Other)
     if ( HatedBy == None ) {
         HatedBy = Other.Spawn(HatePRLType, Other);
         HatedBy.Root = HatedBy;
+        HatedByTail = HatedBy;
     }
 
     else {
-        HatedBy.AppendPlayer(Other, HatePRLType);
+        HatedBy.AppendPlayer(Other, HatePRLType, HatedByTail);
     }
 }
 
@@ -246,7 +247,7 @@ simulated event bool RemoveHate(PlayerReplicationInfo Other)
         return false;
 
     else {
-        return HatedBy.RemovePlayer(Other, HatedBy);
+        return HatedBy.RemovePlayer(Other, HatedBy, HatedByTail);
     }
 }
 

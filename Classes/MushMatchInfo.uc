@@ -91,9 +91,8 @@ function bool RemovePRL(PlayerReplicationinfo PRI) {
 
     if (PRL != None) {
         newRoot = PRL;
-        success = PRL.RemovePlayer(PRI, newRoot);
+        success = PRL.RemovePlayer(PRI, newRoot, PRLTail);
         PRL = MushMatchPRL(newRoot);)
-        PRLTail = PRL;
     }
 
     if (!success) {
@@ -109,11 +108,12 @@ function MushMatchPRL RegisterPRL(PlayerReplicationinfo PRI) {
     if (PRL == None) {
         PRL = Spawn(class'MushMatchPRL', PRI);
         PRL.Root = PRL;
+        PRLTail = PRL;
         NewPRL = PRL;
     }
 
     else if (!bCheckDuplicatePRLs || PRL.FindPlayer(PRI) == None) {
-        NewPRL = MushMatchPRL(PRL.AppendPlayer(PRI, class'MushMatchPRL'));
+        NewPRL = MushMatchPRL(PRL.AppendPlayer(PRI, class'MushMatchPRL', PRLTail));
     }
 
     else if (bCheckDuplicatePRLs) {

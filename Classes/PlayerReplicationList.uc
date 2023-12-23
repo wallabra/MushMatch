@@ -10,17 +10,23 @@ replication
 }
 
 
-simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo other, optional class<PlayerReplicationList> PRLType)
+simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo other, optional class<PlayerReplicationList> PRLType, out PlayerReplicationList newTail)
 {
     local PlayerReplicationList prl;
 
     if (PRLType == None)
         PRLType = class;
 
-    for ( prl = self; prl.Next != None; prl = prl.Next );
+    for ( prl = self; prl.Next != None; prl = prl.Next ) {
+        if (prl.owner == other) {
+            Warn("Tried to append duplicate PRL for"@other.PlayerName);
+            return prl;
+        }
+    };
     
     prl.Next = Spawn(PRLType, other);
-    prl.Root = Root;
+    prl.Next.Root = Root;
+    newTail = prl.Next;
     return prl.Next;
 }
 
