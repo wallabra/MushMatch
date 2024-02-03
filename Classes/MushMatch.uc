@@ -360,8 +360,6 @@ function Killed(Pawn Killer, Pawn Other, name DamageType)
     hMom = vect(0,0,0);
     dmg = 32767;
 
-    DiscardInventory(Other);
-
     if (Killer != None && Killer.bIsPlayer) {
         LastTauntTime   = Level.TimeSeconds + 6; // auto-taunts also make it easy to spot killers, disable momentarily
     }
