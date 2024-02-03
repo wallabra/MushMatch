@@ -189,7 +189,7 @@ simulated event ModifyPlayer(Pawn Other) {
     }
 
     w = Other.Weapon;
-    Other.AddInventory(Spawn(class'MushBeacon'));
+    Other.Spawn(class'MushBeacon').GiveTo(Other);
 
     // Give a Sporifier IF the match has already started and the player added is in the mush team
     if (Role == ROLE_Authority && MushMatch(Level.Game).bMushSelected) {
@@ -201,7 +201,7 @@ simulated event ModifyPlayer(Pawn Other) {
         }
 
         if (MPRL.bMush) {
-            Other.AddInventory(Spawn(class'Sporifier'));
+            Other.Spawn(class'Sporifier').GiveTo(Other);
         }
     }
 
