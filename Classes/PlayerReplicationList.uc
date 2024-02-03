@@ -10,7 +10,7 @@ replication
 }
 
 
-simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo other, out PlayerReplicationList newTail, optional class<PlayerReplicationList> PRLType)
+simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo other, out PlayerReplicationList newTail, optional class<PlayerReplicationList> PRLType, optional bool bIgnoreDuplicate)
 {
     local PlayerReplicationList prl;
 
@@ -19,7 +19,9 @@ simulated function PlayerReplicationList AppendPlayer(PlayerReplicationInfo othe
 
     for ( prl = self; prl.Next != None; prl = prl.Next ) {
         if (prl.owner == other) {
-            Warn("Tried to append duplicate PRL for"@other.PlayerName);
+            if (!bIgnoreDuplicate) {
+                Warn("Tried to append duplicate PRL for"@other.PlayerName);
+            }
             return prl;
         }
     };
