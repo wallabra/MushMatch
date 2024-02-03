@@ -177,8 +177,8 @@ simulated function FindMMI() {
 simulated function Tick(float TimeDelta)
 {   
     Super.Tick(TimeDelta);
-        
-    if (IsInState('Pickup') || Owner == None)
+
+    if (IsInState('Pickup') && Owner == None && Inventory == None)
     {
         Destroy();
         return;
@@ -218,10 +218,7 @@ simulated function Tick(float TimeDelta)
                 Warn("Sporifier"@ self @"had a non-Mush owner,"@ Owner);
             }
 
-            if (!PRL.bDead) {
-                Pawn(Owner).TossWeapon();
-            }
-
+            Pawn(Owner).DeleteInventory(Self);
             Destroy();
             return;
         }
@@ -332,4 +329,5 @@ defaultproperties
      bWarnTarget=false
      SporifierFirerate=1.5
      bAlwaysAutoSpot=false
+     bCanThrow=false
 }

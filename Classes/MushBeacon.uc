@@ -78,7 +78,7 @@ simulated event Tick(float TimeDelta)
 {    
     Super.Tick(TimeDelta);
         
-    if (IsInState('Pickup') || Owner == None)
+    if (IsInState('Pickup') && Owner == None && Inventory == None)
     {
         Destroy();
         return;
@@ -208,4 +208,5 @@ defaultproperties
      MinBeaconBotRating=400
      MaxBeaconBotRating=2500
      BeaconBotRatingFalloff=12
+     bCanThrow=false
 }
