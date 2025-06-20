@@ -76,19 +76,26 @@ cleanup() {
 
         # Build .u
         (
-            cd System
+            cd System64
             #WINEPREFIX="$wineprefix" wine "$umake" "$package-$build"
             if [[ -f "$packagefull.u" ]]; then rm "$packagefull.u"; fi
             echo "* Invoking ucc make in $(pwd)"
-            "$ucc" make -NoBind ini="$TMP_INI" | tee "$packagedir/make.log"
+            "$ucc" make ini="$TMP_INI" | tee "$packagedir/make.log"
 
             # Ensure .u is built
+            cd ../System
             if [[ ! -f "$packagefull.u" ]]; then
                 if [[ -f "$HOME/.utpg/System/$packagefull.u" ]]; then
                     mv "$HOME/.utpg/System/$packagefull.u" .
 
                 else
-                    exit 1
+                    if [[ -f "$HOME/.utpg/System64/$packagefull.u" ]]; then
+                        mv "$HOME/.utpg/System64/$packagefull.u" .
+
+                    else
+                        echo Output not found: $packagefull.u
+                        exit 1
+                    fi
                 fi
             fi
         )

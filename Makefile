@@ -55,14 +55,14 @@ $(DIR_DEPS)/ut-server-linux-436.tar.gz: | expect-cmd-curl
 	echo '=== Downloading UT Linux v436 bare server...' ;\
 	curl 'http://ut-files.com/index.php?dir=Entire_Server_Download/&file=ut-server-linux-436.tar.gz' -LC- -o"$(DIR_DEPS)/ut-server-linux-436.tar.gz"
 	
-$(DIR_DEPS)/OldUnreal-UTPatch469d-Linux.tar.bz2: | expect-cmd-curl
+$(DIR_DEPS)/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2: | expect-cmd-curl
 	mkdir -p "$(DIR_DEPS)" ;\
 	echo '=== Downloading UT Linux v469 patch...' ;\
-	curl 'https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469d/OldUnreal-UTPatch469d-Linux.tar.bz2' -LC- -o"$(DIR_DEPS)/OldUnreal-UTPatch469d-Linux.tar.bz2"
+	curl 'https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469d/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2' -LC- -o"$(DIR_DEPS)/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2"
 
 cannot-download:
 ifeq ($(filter 1 true,$(CAN_DOWNLOAD)),)
-ifneq ($(wildcard $(DIR_DEPS)/OldUnreal-UTPatch469d-Linux.tar.bz2)_$(wildcard $(DIR_DEPS)/ut-server-linux-436.tar.gz),$(DIR_DEPS)/OldUnreal-UTPatch469d-Linux.tar.bz2_$(DIR_DEPS)/ut-server-linux-436.tar.gz)
+ifneq ($(wildcard $(DIR_DEPS)/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2)_$(wildcard $(DIR_DEPS)/ut-server-linux-436.tar.gz),$(DIR_DEPS)/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2_$(DIR_DEPS)/ut-server-linux-436.tar.gz)
 	echo "----.">&2; \
 	echo "    Building this mod requires downloading some files that are">&2; \
 	echo "    used to setup a build environment. Those files can be downloaded">&2; \
@@ -77,7 +77,7 @@ ifneq ($(wildcard $(DIR_DEPS)/OldUnreal-UTPatch469d-Linux.tar.bz2)_$(wildcard $(
 	echo "    More specifically, 'make download' places the following two remote files">&2; \
 	echo "    inside build/dist without renaming from their remote names:">&2; \
 	echo "        http://ut-files.com/index.php?dir=Entire_Server_Download/&file=ut-server-linux-436.tar.gz">&2; \
-	echo "        https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469d/OldUnreal-UTPatch469d-Linux.tar.bz2">&2; \
+	echo "        https://github.com/OldUnreal/UnrealTournamentPatches/releases/download/v469d/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2">&2; \
 	echo >&2; \
 	echo "    If you insist on a manual download, download them like so. If done properly,">&2; \
 	echo "	  Make should be able to find them and deem an auto-download unnecessary anyway.">&2; \
@@ -89,23 +89,23 @@ endif
 else
 endif
 
-auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469d-Linux.tar.bz2 find-mustache, cannot-download)
+auto-download: $(if $(filter 1 true,$(CAN_DOWNLOAD)), $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2 find-mustache, cannot-download)
 
 generate-deps-lockfile: | auto-download
 	echo '=== Generating lockfile of downloaded dependencies...' ;\
 	sha512sum "$(DIR_DEPS)/"* >"$(PACKAGE_ROOT)"/deps.lock ;\
 	echo Done.
 
-$(DIR_TARG)/System/ucc-bin: | generate-deps-lockfile expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
+$(DIR_TARG)/System64/ucc-bin: | generate-deps-lockfile expect-cmd-tar expect-cmd-gunzip expect-cmd-bunzip2
 	echo '=== Extracting and setting up...' ;\
 	[[ -d "$(DIR_TARG)" ]] && rm -rv "$(DIR_TARG)" ;\
 	mkdir -p "$(DIR_TARG)" ;\
 	tar xzmvf "$(DIR_DEPS)/ut-server-linux-436.tar.gz" --overwrite -C "$(BUILD_DIR)" ;\
-	tar xjpmvf "$(DIR_DEPS)/OldUnreal-UTPatch469d-Linux.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
+	tar xjpmvf "$(DIR_DEPS)/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2" --overwrite -C "$(DIR_TARG)" ;\
 	ln -sf -T "$(shell realpath $(PACKAGE_ROOT))" "$(DIR_TARG)/$(PACKAGE_NAME)" ;\
 	echo Done.
 
-$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR_TARG)/System/ucc-bin Classes/*.uc template.int template-options.yml buildconfig.sh | expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash
+$(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip: $(DIR_TARG)/System64/ucc-bin Classes/*.uc template.int template-options.yml buildconfig.sh | expect-cmd-tar expect-cmd-gzip expect-cmd-bzip2 expect-cmd-zip expect-cmd-bash
 	echo '=== Starting build!' ;\
 	[[ -d "$(DIR_TARG)"/"$(PACKAGE_NAME)" ]] || ln -sv \
 			"$$(realpath "$(PACKAGE_ROOT)")" \
@@ -124,9 +124,9 @@ $(DESTDIR)/System/$(PACKAGE_NAME)-$(BUILD_NUM).u: $(DIR_DIST)/$(PACKAGE_NAME)/$(
 
 #-- Entrypoint rules
 
-download: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469d-Linux.tar.bz2 find-mustache
+download: $(DIR_DEPS)/ut-server-linux-436.tar.gz $(DIR_DEPS)/OldUnreal-UTPatch469d-Linux-amd64.tar.bz2 find-mustache
 
-configure: $(DIR_TARG)/System/ucc-bin
+configure: $(DIR_TARG)/System64/ucc-bin
 
 build: find-mustache $(DIR_DIST)/$(PACKAGE_NAME)/$(BUILD_NUM)/$(PACKAGE_NAME)-$(BUILD_NUM).zip
 
