@@ -82,7 +82,7 @@ jobs:
                 echo "debug=$debug" >> "$GITHUB_OUTPUT"
 
           - name: Download build artifacts
-            uses: actions/download-artifact@v2
+            uses: actions/download-artifact@v4
             with:
                 name: ${{ steps.metadata.outputs.package }}-distrib-zip
                 path: /tmp/distrib
@@ -90,7 +90,7 @@ jobs:
 
           - name: Release!
             id: create_release
-            uses: softprops/action-gh-release@v1
+            uses: softprops/action-gh-release@v2
             with:
                 files: /tmp/distrib/*
                 tag_name: releases/v${{ steps.metadata.outputs.version }}
